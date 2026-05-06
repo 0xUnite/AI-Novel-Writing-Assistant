@@ -89,6 +89,7 @@ export const novelReadToolDefinitions: Partial<
       ]);
       return getNovelContextOutput.parse({
         novelId: novel.id,
+        contentForm: novel.contentForm === "short_story" ? "short_story" : "novel",
         title: novel.title,
         description: novel.description,
         genre: novel.genre?.name ?? null,
@@ -99,6 +100,7 @@ export const novelReadToolDefinitions: Partial<
         emotionIntensity: novel.emotionIntensity ?? null,
         aiFreedom: novel.aiFreedom ?? null,
         defaultChapterLength: novel.defaultChapterLength ?? null,
+        targetTotalWordCount: novel.targetTotalWordCount ?? null,
         worldId: novel.world?.id ?? null,
         worldName: novel.world?.name ?? null,
         outline: novel.outline,

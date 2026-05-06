@@ -1,5 +1,6 @@
 import type { DirectorPlanBlueprint } from "@ai-novel/shared/types/novelDirector";
 import { prisma } from "../../../db/prisma";
+import { ensureChapterTitle } from "../chapterTitle";
 
 function buildOutlineText(blueprint: DirectorPlanBlueprint): string {
   return [
@@ -74,11 +75,16 @@ export async function persistDirectorBlueprint(novelId: string, blueprint: Direc
       arcs.push(arcPlan);
 
       for (const chapter of arc.chapters) {
+        const chapterTitle = ensureChapterTitle({
+          order,
+          title: chapter.title,
+          expectation: chapter.expectation,
+        });
         const createdChapter = await tx.chapter.create({
           data: {
             novelId,
             order,
-            title: chapter.title,
+            title: chapterTitle,
             content: "",
             expectation: chapter.expectation,
             hook: chapter.hookTarget ?? null,
@@ -95,7 +101,7 @@ export async function persistDirectorBlueprint(novelId: string, blueprint: Direc
             chapterId: createdChapter.id,
             parentId: arcPlan.id,
             level: "chapter",
-            title: chapter.title,
+            title: chapterTitle,
             objective: chapter.objective,
             participantsJson: JSON.stringify(chapter.participants),
             revealsJson: JSON.stringify(chapter.reveals),

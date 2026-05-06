@@ -1,0 +1,538 @@
+- generic:
+  - generic:
+    - generic:
+      - banner:
+        - generic:
+          - img
+          - generic:
+            - generic: AI 小说创作工作台
+            - generic: AI Novel Production Engine
+        - generic:
+          - generic:
+            - generic: 模型
+            - combobox:
+              - generic: minimax
+              - img
+            - generic:
+              - button:
+                - generic: MiniMax-M2.7
+                - img
+      - generic:
+        - complementary:
+          - generic:
+            - button:
+              - img
+          - navigation:
+            - generic:
+              - generic: 创作
+              - link:
+                - /url: /
+                - generic:
+                  - img
+                  - generic: 首页
+              - link:
+                - /url: /novels
+                - generic:
+                  - img
+                  - generic: 小说列表
+              - link:
+                - /url: /creative-hub
+                - generic:
+                  - img
+                  - generic: 创作中枢
+              - link:
+                - /url: /book-analysis
+                - generic:
+                  - img
+                  - generic: 拆书
+              - link:
+                - /url: /tasks
+                - generic:
+                  - img
+                  - generic: 任务中心
+                  - generic:
+                    - generic: R2
+                    - generic: F36
+            - generic:
+              - generic: 资产
+              - link:
+                - /url: /genres
+                - generic:
+                  - img
+                  - generic: 题材基底库
+              - link:
+                - /url: /story-modes
+                - generic:
+                  - img
+                  - generic: 推进模式库
+              - link:
+                - /url: /titles
+                - generic:
+                  - img
+                  - generic: 标题工坊
+              - link:
+                - /url: /knowledge
+                - generic:
+                  - img
+                  - generic: 知识库
+              - link:
+                - /url: /worlds
+                - generic:
+                  - img
+                  - generic: 世界观
+              - link:
+                - /url: /style-engine
+                - generic:
+                  - img
+                  - generic: 写法引擎
+              - link:
+                - /url: /base-characters
+                - generic:
+                  - img
+                  - generic: 基础角色库
+            - generic:
+              - generic: 系统
+              - link:
+                - /url: /settings/model-routes
+                - generic:
+                  - img
+                  - generic: 模型路由
+              - link:
+                - /url: /settings
+                - generic:
+                  - img
+                  - generic: 系统设置
+        - main:
+          - generic:
+            - generic:
+              - button: 项目概览
+              - button: 知识库绑定
+              - button: 导出
+              - button: 创建续写项目
+              - button: 清洗旧章节标点
+              - button:
+                - text: 任务面板
+                - generic: 异常
+            - generic:
+              - generic:
+                - generic:
+                  - generic:
+                    - heading [level=3]: 创作阶段
+                    - generic: 这里是当前项目的唯一阶段导航。点击卡片即可切换到对应模块，并同时查看完成状态。
+                  - generic:
+                    - generic:
+                      - generic: 阶段进度
+                      - generic: 1/8
+                    - generic: 当前阶段：项目设定
+              - generic:
+                - button:
+                  - generic:
+                    - generic: "1"
+                    - generic: 当前阶段
+                  - generic: 项目设定
+                  - generic: 定义作品身份、约束和 AI 协作方式。
+                - button:
+                  - generic:
+                    - generic: "2"
+                    - generic: 待推进
+                  - generic: 故事宏观规划
+                  - generic: 先把故事想法变成约束引擎，再进入角色和主线阶段。
+                - button:
+                  - generic:
+                    - generic: "3"
+                    - generic: 待推进
+                  - generic: 角色准备
+                  - generic: 补齐核心角色、关系和当前目标。
+                - button:
+                  - generic:
+                    - generic: "4"
+                    - generic: 待推进
+                  - generic: 卷战略 / 卷骨架
+                  - generic: 先决定分卷策略，再确认每一卷的开卷抓手、压迫源和兑现方式。
+                - button:
+                  - generic:
+                    - generic: "5"
+                    - generic: 待推进
+                  - generic: 节奏 / 拆章
+                  - generic: 先做当前卷节奏板，再拆当前卷章节列表并补齐单章细化。
+                - button:
+                  - generic:
+                    - generic: "6"
+                    - generic: 待推进
+                  - generic: 章节执行
+                  - generic: 生成章节、审计结果并处理修正。
+                - button:
+                  - generic:
+                    - generic: "7"
+                    - generic: 待推进
+                  - generic: 质量修复
+                  - generic: 批量执行生产链并跟踪质量风险。
+                - button:
+                  - generic:
+                    - generic: "8"
+                    - generic: 已就绪
+                  - generic: 版本历史
+                  - generic: 查看重要版本、冻结点和差异。
+            - generic:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic: 《苟在底层推演万法》自动导演已中断
+                      - generic: 执行异常
+                      - generic: "任务 #cmo4g16w"
+                    - generic: 后台导演流程已中断。建议先去任务中心查看失败原因，再决定是否从最近检查点恢复。
+                  - generic:
+                    - button: 任务中心
+                - generic:
+                  - generic:
+                    - generic: 流程进度
+                    - generic: 8%
+                  - generic: 等待生成候选方向
+                  - generic: 最近检查点：导演流程进行中
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - heading [level=3]: 书级定位与基本信息
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic: 填写建议
+                            - generic: 建议先想清楚这本书写给谁、靠什么吸引人、前 30 章要兑现什么，再补创作模式、世界边界和写法确认。这里的设置会直接影响后续主线规划、卷章推进和正文生成。
+                            - generic:
+                              - button: AI 自动导演接管
+                          - generic:
+                            - generic:
+                              - generic: 作品定位
+                              - generic: 先定义这是什么作品，以及它是从零开始还是基于既有内容继续创作。
+                            - generic:
+                              - generic:
+                                - generic: 小说标题
+                              - textbox:
+                                - /placeholder: 例如：雾港审判局
+                            - generic:
+                              - generic:
+                                - generic: 一句话概述
+                              - textbox:
+                                - /placeholder: 用 2-4 句话说明主角、核心冲突和故事看点。
+                            - generic:
+                              - generic:
+                                - generic:
+                                  - generic: 书级 framing
+                                  - generic: 用最直白的话说清楚：这本书写给谁、卖点是什么、读者前 30 章会得到什么。不会写专业策划词也没关系，按你的直觉描述即可。
+                                - generic:
+                                  - button: 帮我填写
+                              - generic:
+                                - generic:
+                                  - generic:
+                                    - generic: 目标读者
+                                    - button: "?"
+                                  - textbox:
+                                    - /placeholder: 例如：爱看都市高压逆袭、关系拉扯和持续追更钩子的读者
+                                - generic:
+                                  - generic:
+                                    - generic: 核心商业标签
+                                    - button: "?"
+                                  - textbox:
+                                    - /placeholder: 例如：逆袭，强冲突，悬念拉满，职场博弈
+                                - generic:
+                                  - generic:
+                                    - generic: 竞品感 / 熟悉阅读感
+                                    - button: "?"
+                                  - textbox:
+                                    - /placeholder: 例如：现实职场压迫感里带一点冷幽默和高密度关系拉扯
+                                - generic:
+                                  - generic:
+                                    - generic: 本书核心卖点
+                                    - button: "?"
+                                  - textbox:
+                                    - /placeholder: 例如：主角每次解决现实困局都会撬动更大的关系链和利益链，读者会一直期待下一次反压。
+                              - generic:
+                                - generic:
+                                  - generic: 前 30 章承诺
+                                  - button: "?"
+                                - textbox:
+                                  - /placeholder: 例如：前 30 章必须让读者看到主角站稳第一阶段立场、核心对手浮出水面、关系线第一次强反转，并明确这本书后面会越写越狠。
+                            - generic:
+                              - generic:
+                                - generic: 创作模式
+                                - button: "?"
+                              - generic:
+                                - button:
+                                  - generic:
+                                    - generic: 原创
+                                    - generic: 推荐
+                                  - generic: 从零开始创建世界、角色和主线，适合大多数新项目。
+                                - button:
+                                  - generic:
+                                    - generic: 续写
+                                  - generic: 基于已有小说或知识文档继续创作，后续会优先注入既有设定和拆书内容。
+                            - generic:
+                              - generic: 题材基底与推进模式的区别
+                              - generic: 题材基底回答“这是什么书”，例如修仙、都市、历史架空；推进模式回答“这本书靠什么持续推进和兑现”，例如系统流、无敌流、种田流。
+                            - generic:
+                              - generic:
+                                - generic:
+                                  - generic: 题材基底
+                                  - button: "?"
+                                - combobox
+                              - generic:
+                                - generic:
+                                  - generic: 绑定世界观
+                                  - button: "?"
+                                - combobox
+                              - generic:
+                                - generic:
+                                  - generic: 默认章节字数
+                                  - button: "?"
+                                - spinbutton: "2800"
+                                - generic: 推荐先设为 2500-3500，后续仍可按章节单独调整。
+                              - generic:
+                                - generic:
+                                  - generic: 预计章节数
+                                  - button: "?"
+                                - spinbutton: "80"
+                                - generic: 会作为大纲、拍点和流水线默认范围的参考，后续仍可调整。
+                            - generic:
+                              - generic:
+                                - generic:
+                                  - generic: 主推进模式
+                                  - button: "?"
+                                - combobox
+                              - generic:
+                                - generic:
+                                  - generic: 副推进模式
+                                  - button: "?"
+                                - combobox
+                          - generic:
+                            - generic:
+                              - generic: 叙事体验
+                              - generic: 这些字段定义读者会如何感知这部作品，也会直接影响章节规划的语气、密度和推进方式。
+                            - generic:
+                              - generic:
+                                - generic:
+                                  - generic: 叙事视角
+                                  - button: "?"
+                                - combobox
+                                - generic: 最稳，适合多角色和复杂主线。
+                              - generic:
+                                - generic:
+                                  - generic: 节奏偏好
+                                  - button: "?"
+                                - combobox
+                                - generic: 推进和铺垫兼顾，适合作为默认选择。
+                              - generic:
+                                - generic:
+                                  - generic: 情绪浓度
+                                  - button: "?"
+                                - combobox
+                                - generic: 保留起伏但不过载，适合作为默认值。
+                              - generic:
+                                - generic:
+                                  - generic: 文风关键词
+                                  - button: "?"
+                                - textbox:
+                                  - /placeholder: 例如：冷峻、克制、黑色幽默
+                          - generic:
+                            - generic:
+                              - generic: AI 协作方式
+                              - generic: 这部分定义你和 AI 如何分工，以及系统后续可以自动推进到什么程度。
+                            - generic:
+                              - generic:
+                                - generic: 项目模式
+                                - button: "?"
+                              - generic:
+                                - button:
+                                  - generic:
+                                    - generic: AI 副驾
+                                    - generic: 推荐
+                                  - generic: 你定方向，AI 提方案和草稿，适合前期打磨和高频人工决策。
+                                - button:
+                                  - generic:
+                                    - generic: AI 接管
+                                  - generic: AI 负责主推进，你在关键节点审核，适合已有明确目标的项目。
+                                - button:
+                                  - generic:
+                                    - generic: 草稿优先
+                                  - generic: 先快速产出文本和方向，结构约束较弱，适合试故事和找感觉。
+                                - button:
+                                  - generic:
+                                    - generic: 流水线优先
+                                  - generic: 适合设定较完整后按规划、生成、审计、修复连续推进。
+                            - generic:
+                              - generic:
+                                - generic:
+                                  - generic: AI 自由度
+                                  - button: "?"
+                                - combobox
+                                - generic: 允许 AI 在设定内补充细节和局部推进，适合作为默认值。
+                              - generic:
+                                - generic:
+                                  - generic: 资源完备度
+                                  - button: "?"
+                                - spinbutton: "0"
+                                - generic: 0 表示刚起步，100 表示设定、角色和规划都比较完备。
+                          - generic:
+                            - generic:
+                              - generic: 生产进度与状态
+                              - generic: 这些状态主要服务于项目管理和后续流程判断，不是一次性填死，后续可以按阶段调整。
+                            - generic:
+                              - generic:
+                                - generic:
+                                  - generic: 项目状态
+                                - combobox
+                              - generic:
+                                - generic:
+                                  - generic: 主线状态
+                                - combobox
+                              - generic:
+                                - generic:
+                                  - generic: 大纲状态
+                                - combobox
+                              - generic:
+                                - generic:
+                                  - generic: 发布状态
+                                  - button: "?"
+                                - generic:
+                                  - button:
+                                    - generic:
+                                      - generic: 草稿
+                                      - generic: 推荐
+                                    - generic: 仍在开发和打磨阶段，适合绝大多数项目。
+                                  - button:
+                                    - generic:
+                                      - generic: 已发布
+                                    - generic: 用于标记已成型或已对外发布的作品。
+                          - generic:
+                            - button [disabled]: 保存基本信息
+                    - generic:
+                      - generic:
+                        - generic:
+                          - heading [level=3]: 标题工坊
+                          - generic: 在项目内快速生成标题候选；如果要做跨项目沉淀和筛选，可以进入完整标题工坊。
+                        - link:
+                          - /url: /titles
+                          - text: 打开完整工坊
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - generic:
+                                - generic: 项目内标题工坊
+                                - generic: 基于当前已保存的小说简介和类型生成候选。如果刚修改过简介或类型，建议先保存基本信息再生成。
+                              - button [disabled]: 保存当前标题
+                            - generic:
+                              - generic:
+                                - generic:
+                                  - generic: 模型
+                                  - combobox:
+                                    - generic: minimax
+                                    - img
+                                  - generic:
+                                    - button:
+                                      - generic: MiniMax-M2.7
+                                      - img
+                              - generic:
+                                - button: 生成标题候选
+                          - generic: 点一次生成，就能得到一批基于当前项目设定的标题候选。
+                    - generic:
+                      - generic:
+                        - generic:
+                          - heading [level=3]: 正文开写前的写法确认
+                          - generic: 不在创建阶段强制你先挑写法。等这本书的目标读者、卖点和前 30 章承诺初步明确后，再让系统帮你推荐更合适的写法资产。
+                        - link:
+                          - /url: /writing-formula
+                          - text: 打开写法引擎
+                      - generic:
+                        - generic:
+                          - button: AI 推荐写法资产
+                        - generic: 先让系统根据这本小说的目标读者、前 30 章承诺、题材、文风关键词和叙事方向推荐 2-3 套候选写法，再决定是否采用。
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - heading [level=3]: 围绕这本书的世界边界
+                            - generic: 系统会结合这本书的目标读者、卖点和前期承诺，从已绑定世界里裁出真正会用到的组织、地点和规则。你通常只需要确认主舞台、前期必须保留项和不要越界的边界说明。
+                          - generic:
+                            - button [disabled]: 正在刷新...
+                            - button [disabled]: 保存这本书的保留项
+                      - generic:
+                        - generic: 这本小说还没有绑定世界观。先在上面的“基本信息”里选择一个世界，系统才会帮你整理可用设定。
+    - region "Notifications alt+T"
+  - dialog "任务面板" [ref=e2]:
+    - generic [ref=e3]:
+      - heading "任务面板" [level=2] [ref=e4]
+      - paragraph [ref=e5]: 优先查看当前小说的自动导演状态与快捷处理动作；更完整的筛选和历史仍在完整任务中心里。
+    - generic [ref=e6]:
+      - generic [ref=e7]:
+        - generic [ref=e8]:
+          - generic [ref=e9]: 苟在底层推演万法
+          - generic [ref=e10]: 失败
+          - generic [ref=e11]: 进度 8%
+        - generic [ref=e12]:
+          - generic [ref=e13]:
+            - generic [ref=e14]: 当前阶段
+            - generic [ref=e15]: AI 自动导演
+          - generic [ref=e16]:
+            - generic [ref=e17]: 当前动作
+            - generic [ref=e18]: 等待生成候选方向
+          - generic [ref=e19]:
+            - generic [ref=e20]: 最近检查点
+            - generic [ref=e21]: 暂无
+          - generic [ref=e22]:
+            - generic [ref=e23]: 最近心跳
+            - generic [ref=e24]: 2026/4/19 01:29:20
+        - generic [ref=e27]:
+          - generic [ref=e28]: 最近错误
+          - generic [ref=e29]: 服务重启后恢复失败：自动导演任务缺少恢复所需上下文。
+          - generic [ref=e30]: 恢复建议：建议从最近检查点恢复，优先检查当前阶段资产是否完整、模型是否超时以及恢复目标页是否可重新打开。
+      - generic [ref=e31]:
+        - generic [ref=e32]: 快捷动作
+        - generic [ref=e33]:
+          - button "用当前模型重试" [active] [ref=e34] [cursor=pointer]
+          - button "用原模型重试" [ref=e35] [cursor=pointer]
+      - generic [ref=e36]:
+        - generic [ref=e37]: 模型信息
+        - generic [ref=e38]:
+          - generic [ref=e39]:
+            - generic [ref=e40]: 任务绑定模型
+            - generic [ref=e41]: 暂无 / 暂无
+          - generic [ref=e42]:
+            - generic [ref=e43]: 当前界面模型
+            - generic [ref=e44]: minimax / MiniMax-M2.7
+            - generic [ref=e45]: 当前温度：0.7
+      - generic [ref=e46]:
+        - generic [ref=e47]: 步骤状态
+        - generic [ref=e48]:
+          - generic [ref=e49]:
+            - generic [ref=e50]: 项目设定
+            - generic [ref=e51]: 已完成
+          - generic [ref=e52]:
+            - generic [ref=e53]: 自动导演
+            - generic [ref=e54]: 失败
+          - generic [ref=e55]:
+            - generic [ref=e56]: 故事宏观规划
+            - generic [ref=e57]: 待处理
+          - generic [ref=e58]:
+            - generic [ref=e59]: 角色准备
+            - generic [ref=e60]: 待处理
+          - generic [ref=e61]:
+            - generic [ref=e62]: 卷战略 / 卷骨架
+            - generic [ref=e63]: 待处理
+          - generic [ref=e64]:
+            - generic [ref=e65]: 节奏 / 拆章
+            - generic [ref=e66]: 待处理
+          - generic [ref=e67]:
+            - generic [ref=e68]: 章节执行
+            - generic [ref=e69]: 待处理
+          - generic [ref=e70]:
+            - generic [ref=e71]: 质量修复
+            - generic [ref=e72]: 待处理
+      - generic [ref=e73]:
+        - generic [ref=e74]: 里程碑历史
+        - generic [ref=e75]: 当前还没有可显示的里程碑记录。
+    - button "打开完整任务中心" [ref=e77] [cursor=pointer]
+    - button "关闭" [ref=e78] [cursor=pointer]:
+      - img [ref=e79]
+      - generic [ref=e82]: 关闭

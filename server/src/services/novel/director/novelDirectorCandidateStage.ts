@@ -190,7 +190,9 @@ export class NovelDirectorCandidateStageService {
       },
     });
 
-    const normalizedCandidates = parsed.output.candidates.map((candidate, index) => normalizeCandidate(candidate, index));
+    const normalizedCandidates = parsed.output.candidates.map((candidate, index) => (
+      normalizeCandidate(candidate, index, context.request)
+    ));
 
     await this.markCandidateProgress(
       context.workflowTaskId,
@@ -381,7 +383,7 @@ export class NovelDirectorCandidateStageService {
       DIRECTOR_PROGRESS.candidateTitlePack,
     );
     const enrichedCandidate = await enhanceCandidateTitles({
-      ...normalizeCandidate(parsed.output, 0),
+      ...normalizeCandidate(parsed.output, 0, input),
       id: targetCandidate.id,
     }, {
       idea: input.idea,

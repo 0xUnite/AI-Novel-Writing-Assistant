@@ -38,6 +38,7 @@ export interface VolumeWorkspace {
 }
 
 export interface VolumeGenerationNovel {
+  contentForm?: string | null;
   title: string;
   description: string | null;
   targetAudience: string | null;
@@ -45,7 +46,9 @@ export interface VolumeGenerationNovel {
   competingFeel: string | null;
   first30ChapterPromise: string | null;
   commercialTagsJson: string | null;
+  defaultChapterLength: number | null;
   estimatedChapterCount: number | null;
+  targetTotalWordCount?: number | null;
   narrativePov: string | null;
   pacePreference: string | null;
   emotionIntensity: string | null;
@@ -71,6 +74,7 @@ export interface VolumeGenerateOptions {
   targetChapterId?: string;
   detailMode?: "purpose" | "boundary" | "task_sheet";
   estimatedChapterCount?: number;
+  targetVolumeCount?: number;
   respectExistingVolumeCount?: boolean;
   draftVolumes?: unknown;
   draftWorkspace?: unknown;

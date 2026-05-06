@@ -7,6 +7,7 @@ import morgan from "morgan";
 import type { ApiResponse } from "@ai-novel/shared/types/api";
 import { errorHandler } from "./middleware/errorHandler";
 import { loadProviderApiKeys } from "./llm/factory";
+import { isTransientLlmTransportError } from "./llm/transientErrors";
 import astrologyRouter from "./routes/astrology";
 import agentCatalogRouter from "./routes/agentCatalog";
 import agentRunsRouter from "./routes/agentRuns";
@@ -39,11 +40,42 @@ import { bookAnalysisService } from "./services/bookAnalysis/BookAnalysisService
 import { imageGenerationService } from "./services/image/ImageGenerationService";
 import { ragServices } from "./services/rag";
 import { NovelPipelineRuntimeService } from "./services/novel/NovelPipelineRuntimeService";
+import { NovelReviewBatchRuntimeService } from "./services/novel/NovelReviewBatchRuntimeService";
 import { NovelWorkflowRuntimeService } from "./services/novel/workflow/NovelWorkflowRuntimeService";
 
 registerNovelEventHandlers(novelEventBus);
 const novelWorkflowRuntimeService = new NovelWorkflowRuntimeService();
 const novelPipelineRuntimeService = new NovelPipelineRuntimeService();
+const novelReviewBatchRuntimeService = new NovelReviewBatchRuntimeService();
+const PROCESS_GUARDS_REGISTERED = "__aiNovelProcessGuardsRegistered";
+
+function registerProcessGuards(): void {
+  const guardedProcess = process as NodeJS.Process & { [PROCESS_GUARDS_REGISTERED]?: boolean };
+  if (guardedProcess[PROCESS_GUARDS_REGISTERED]) {
+    return;
+  }
+  guardedProcess[PROCESS_GUARDS_REGISTERED] = true;
+
+  process.on("unhandledRejection", (reason) => {
+    if (isTransientLlmTransportError(reason)) {
+      console.warn("[process] transient LLM transport rejection was contained.", reason);
+      return;
+    }
+    console.error("[process] unhandled rejection.", reason);
+    setImmediate(() => {
+      throw reason instanceof Error ? reason : new Error(String(reason));
+    });
+  });
+
+  process.on("uncaughtException", (error) => {
+    if (isTransientLlmTransportError(error)) {
+      console.warn("[process] transient LLM transport exception was contained.", error);
+      return;
+    }
+    console.error("[process] uncaught exception.", error);
+    process.exit(1);
+  });
+}
 
 morgan.token("error-message", (_req, res) => {
   const response = res as typeof res & {
@@ -165,9 +197,21 @@ async function bootstrap(): Promise<void> {
   const port = Number(process.env.PORT ?? 3000);
   const allowLan = parseEnvFlag(process.env.ALLOW_LAN, process.env.NODE_ENV !== "production");
   const host = process.env.HOST ?? (allowLan ? "0.0.0.0" : "localhost");
+
+  app.listen(port, host, () => {
+    console.log(`[server] listening on http://localhost:${port}`);
+    if (host === "0.0.0.0" || host === "::") {
+      const lanIp = getLanIp();
+      if (lanIp) {
+        console.log(`[server] LAN: http://${lanIp}:${port}`);
+      }
+    }
+  });
+
   ragServices.ragWorker.start();
   bookAnalysisService.startWatchdog();
   novelPipelineRuntimeService.startWatchdog();
+  novelReviewBatchRuntimeService.startWatchdog();
   void bookAnalysisService.resumePendingAnalyses().catch((error) => {
     console.warn("Failed to resume pending book analyses.", error);
   });
@@ -180,18 +224,12 @@ async function bootstrap(): Promise<void> {
   void novelPipelineRuntimeService.resumePendingPipelineJobs().catch((error) => {
     console.warn("Failed to resume pending novel pipeline jobs.", error);
   });
-
-  app.listen(port, host, () => {
-    console.log(`[server] listening on http://localhost:${port}`);
-    if (host === "0.0.0.0" || host === "::") {
-      const lanIp = getLanIp();
-      if (lanIp) {
-        console.log(`[server] LAN: http://${lanIp}:${port}`);
-      }
-    }
+  void novelReviewBatchRuntimeService.resumePendingReviewBatchJobs().catch((error) => {
+    console.warn("Failed to resume pending novel review batch jobs.", error);
   });
 }
 
 if (require.main === module) {
+  registerProcessGuards();
   void bootstrap();
 }

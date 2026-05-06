@@ -4,6 +4,7 @@ import { runStructuredPrompt } from "../../prompting/core/promptRunner";
 import { novelProductionCharactersPrompt } from "../../prompting/prompts/novel/production.prompts";
 import { WorldService } from "../world/WorldService";
 import { NovelService } from "./NovelService";
+import { ensureChapterTitle } from "./chapterTitle";
 import { collectStream, extractJsonArray, parseStructuredOutline } from "./novelProductionHelpers";
 import { novelProductionStatusService, type ProductionStatusResult } from "./NovelProductionStatusService";
 
@@ -11,6 +12,21 @@ interface NovelLlmOptions {
   provider?: LLMProvider;
   model?: string;
   temperature?: number;
+}
+
+export function resolveFullNovelPipelineEndOrder(input: {
+  chapterCount: number;
+  startOrder: number;
+  endOrder?: number;
+  targetChapterCount?: number;
+}): number {
+  if (typeof input.endOrder === "number" && Number.isFinite(input.endOrder)) {
+    return Math.max(input.startOrder, Math.floor(input.endOrder));
+  }
+  if (typeof input.targetChapterCount === "number" && Number.isFinite(input.targetChapterCount)) {
+    return Math.max(input.startOrder, Math.floor(input.targetChapterCount));
+  }
+  return Math.max(input.startOrder, input.chapterCount);
 }
 
 export class NovelProductionService {
@@ -151,7 +167,7 @@ export class NovelProductionService {
           : "暂无已绑定世界观",
       },
       options: {
-        provider: input.provider ?? "deepseek",
+        provider: input.provider,
         model: input.model,
         temperature: input.temperature ?? 0.6,
       },
@@ -299,12 +315,17 @@ export class NovelProductionService {
     let updatedCount = 0;
 
     for (const chapter of chapters) {
+      const chapterTitle = ensureChapterTitle({
+        order: chapter.order,
+        title: chapter.title,
+        expectation: chapter.summary,
+      });
       const existingId = existingByOrder.get(chapter.order);
       if (existingId) {
         await prisma.chapter.update({
           where: { id: existingId },
           data: {
-            title: chapter.title,
+            title: chapterTitle,
             expectation: chapter.summary,
           },
         });
@@ -313,7 +334,7 @@ export class NovelProductionService {
         await prisma.chapter.create({
           data: {
             novelId,
-            title: chapter.title,
+            title: chapterTitle,
             order: chapter.order,
             content: "",
             expectation: chapter.summary,
@@ -347,11 +368,17 @@ export class NovelProductionService {
       throw new Error("当前小说还没有章节目录，无法启动整本写作。");
     }
     const startOrder = input.startOrder ?? 1;
-    const endOrder = input.endOrder ?? Math.max(chapterCount, input.targetChapterCount ?? chapterCount);
+    const endOrder = resolveFullNovelPipelineEndOrder({
+      chapterCount,
+      startOrder,
+      endOrder: input.endOrder,
+      targetChapterCount: input.targetChapterCount,
+    });
     const job = await this.novelService.startPipelineJob(input.novelId, {
       startOrder,
       endOrder,
       maxRetries: input.maxRetries,
+      autoPrepareStoryAssets: true,
       provider: input.provider,
       model: input.model,
       temperature: input.temperature,

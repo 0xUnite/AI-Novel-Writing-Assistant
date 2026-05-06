@@ -125,6 +125,9 @@
 - 首页现在开始更像创作驾驶舱，而不是静态后台概览：顶部会直接告诉你当前有多少项目正在自动推进、有多少项目在等你处理、多少本书已经可进入章节执行；中间也新增“继续最近项目”主卡，可以直接回到最值得继续的一本书。
 - 首页里的最近项目区不再只是标题和更新时间，而是会直接显示自动导演状态、进度和下一步入口；常见场景下可以直接从首页继续导演、继续自动执行前 10 章、进入章节执行或跳到任务中心，不必先进小说列表再找。
 - 小说列表页的卡片也进一步收口成“点整卡进入编辑、点按钮执行特定动作”的交互：整张卡片都能直接打开项目，而 `继续导演 / 任务中心 / 导出 / 删除` 这些动作会独立阻止冒泡，减少误触和来回跳转。
+- 安装说明现在和 Prisma 7 的实际要求对齐了：README 已明确要求使用 `Node 20.19+ / 22.12+ / 24+`，并补上 Windows 下 `pnpm install` 卡在 `prisma preinstall` 时的排查步骤；同时也新增了 QQ 群二维码入口，方便直接反馈安装和使用问题。
+- 局域网访问开发环境时，前端现在不会再因为复制了 `client/.env.example` 就把 API 固定死到 `localhost:3000`；如果页面是用局域网 IP 打开的，开发态会优先跟随当前页面主机名访问后端，README 和前端示例 env 也已经同步改成更不容易踩坑的说明。
+- 自动导演任务在服务重启后恢复时，如果系统判断“当前导演产物已经完整、无需继续恢复”，现在会直接回到原检查点状态，而不是把这种正常情况误记成失败任务。
 
 ### 2026-04-02
 
@@ -394,13 +397,43 @@
 
 ### 环境要求
 
-- Node.js `>= 20`
+- Node.js `^20.19.0 || ^22.12.0 || >=24.0.0`
+  推荐直接使用 `20.19.x LTS`
 - pnpm `>= 9.7`
 - 至少一组可用的 LLM API Key
   也可以先把项目跑起来，再在页面里配置
 - 如果你要完整体验知识库 / RAG，再额外准备可用的 Qdrant
 
 ### 1. 安装依赖
+
+```bash
+pnpm install
+```
+
+如果你在 Windows 上执行 `pnpm install` 时卡在 `prisma preinstall`，通常先检查这两类问题：
+
+1. Node 版本过低
+   Prisma 7 目前要求 Node `^20.19.0 || ^22.12.0 || >=24.0.0`。如果你还在 `20.0 ~ 20.18`，建议先升级到 `20.19.x LTS` 再安装。
+2. `script-shell` 被配置成了交互式 shell
+   如果全局 `npm/pnpm script-shell` 被设成了 `cmd.exe /k` 之类会保留提示符的形式，Prisma 的 lifecycle script 可能不会自动退出，看起来就像安装“卡死”在：
+   `node_modules/.../prisma>`
+
+可以先运行下面几条命令自查：
+
+```bash
+node -v
+pnpm config get script-shell
+npm config get script-shell
+```
+
+如果 `script-shell` 返回的是带 `/k` 的 `cmd.exe`，建议删除这项配置后重新打开终端：
+
+```bash
+npm config delete script-shell
+pnpm config delete script-shell
+```
+
+然后重新执行：
 
 ```bash
 pnpm install
@@ -450,11 +483,20 @@ Copy-Item server/.env.example server/.env
 http(s)://当前页面 hostname:3000/api
 ```
 
+这也包括“同一台机器启动服务，然后用局域网 IP 在别的设备上访问”的场景。
+例如页面开在 `http://192.168.0.37:5173`，前端默认会自动把 API 指到：
+
+```text
+http://192.168.0.37:3000/api
+```
+
 只有在这些场景下，才建议创建 `client/.env`：
 
 - 前端和后端不在同一台机器
 - 你想把前端显式指向别的 API 地址
 - 你需要固定 `VITE_API_BASE_URL`
+
+如果你已经复制了 `client/.env.example`，又发现浏览器请求都跑到了 `http://localhost:3000/api`，通常就是因为你把 API 显式固定死了。对同机 / 局域网访问，建议直接删除或注释掉 `VITE_API_BASE_URL`。
 
 示例：
 
@@ -469,7 +511,8 @@ Copy-Item client/.env.example client/.env
 内容通常只需要：
 
 ```env
-VITE_API_BASE_URL=http://localhost:3000/api
+# 同机 / 局域网访问时，通常不需要这一行
+# VITE_API_BASE_URL=http://localhost:3000/api
 ```
 
 #### 2.3 模型供应商并不一定要写死在 env
@@ -626,6 +669,12 @@ docs/     设计文档、阶段检查点、模块计划与历史归档
 
 - 继续强化多阶段 Agent 协同
 - 完善更自动化的生产调度、回合记忆和整本质量控制
+
+## 交流反馈
+
+如果你想反馈问题、交流使用体验，或者讨论自动导演、整本生产主链、写法引擎等方向，可以扫码加入 QQ 群。
+
+![QQ 群二维码](./images/群.png)
 
 ## 贡献方式
 

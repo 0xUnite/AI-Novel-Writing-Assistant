@@ -680,6 +680,7 @@ test("novel routes preserve book framing fields through create-get-update cycle"
   const server = http.createServer(app);
   const port = await listen(server);
   let novelId = null;
+  let shortStoryId = null;
 
   try {
     const createResponse = await fetch(`http://127.0.0.1:${port}/api/novels`, {
@@ -700,9 +701,46 @@ test("novel routes preserve book framing fields through create-get-update cycle"
     assert.equal(createResponse.status, 201);
     const createPayload = await createResponse.json();
     assert.equal(createPayload.success, true);
+    assert.equal(createPayload.data.contentForm, "novel");
     assert.equal(createPayload.data.targetAudience, "爱看都市高压逆袭的读者");
     assert.deepEqual(createPayload.data.commercialTags, ["逆袭", "强冲突", "职场博弈"]);
     novelId = createPayload.data.id;
+
+    const shortStoryResponse = await fetch(`http://127.0.0.1:${port}/api/novels`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        contentForm: "short_story",
+        title: `short-story-route-${Date.now()}`,
+        description: "测试短故事入口隔离。",
+        defaultChapterLength: 2500,
+        targetTotalWordCount: 80000,
+      }),
+    });
+    assert.equal(shortStoryResponse.status, 201);
+    const shortStoryPayload = await shortStoryResponse.json();
+    assert.equal(shortStoryPayload.success, true);
+    assert.equal(shortStoryPayload.data.contentForm, "short_story");
+    assert.equal(shortStoryPayload.data.targetTotalWordCount, 80000);
+    assert.equal(shortStoryPayload.data.estimatedChapterCount, 32);
+    shortStoryId = shortStoryPayload.data.id;
+
+    const shortStoryListResponse = await fetch(`http://127.0.0.1:${port}/api/novels?contentForm=short_story&limit=100`);
+    assert.equal(shortStoryListResponse.status, 200);
+    const shortStoryListPayload = await shortStoryListResponse.json();
+    assert.equal(shortStoryListPayload.success, true);
+    assert.ok(shortStoryListPayload.data.items.some((item) => item.id === shortStoryId));
+    assert.ok(shortStoryListPayload.data.items.every((item) => item.contentForm === "short_story"));
+
+    const novelListResponse = await fetch(`http://127.0.0.1:${port}/api/novels?contentForm=novel&limit=100`);
+    assert.equal(novelListResponse.status, 200);
+    const novelListPayload = await novelListResponse.json();
+    assert.equal(novelListPayload.success, true);
+    assert.ok(novelListPayload.data.items.some((item) => item.id === novelId));
+    assert.ok(novelListPayload.data.items.every((item) => (item.contentForm ?? "novel") === "novel"));
+    assert.ok(!novelListPayload.data.items.some((item) => item.id === shortStoryId));
 
     const detailResponse = await fetch(`http://127.0.0.1:${port}/api/novels/${novelId}`);
     assert.equal(detailResponse.status, 200);
@@ -736,6 +774,7 @@ test("novel routes preserve book framing fields through create-get-update cycle"
     assert.deepEqual(detailAfterUpdatePayload.data.commercialTags, ["关系拉扯", "现实高压", "持续钩子"]);
   } finally {
     await safeDeleteNovel(port, novelId);
+    await safeDeleteNovel(port, shortStoryId);
     await new Promise((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
   }
 });

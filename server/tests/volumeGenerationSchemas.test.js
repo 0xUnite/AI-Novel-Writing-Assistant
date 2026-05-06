@@ -1,305 +1,141 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
+
 const {
+  createChapterBoundarySchema,
+  createChapterTaskSheetSchema,
   createVolumeBeatSheetSchema,
-  createVolumeRebalanceSchema,
-  createVolumeStrategySchema,
+  createVolumeChapterListSchema,
 } = require("../dist/services/novel/volume/volumeGenerationSchemas.js");
-const {
-  buildVolumeWorkspaceDocument,
-} = require("../dist/services/novel/volume/volumeWorkspaceDocument.js");
-const {
-  volumeBeatSheetPrompt,
-} = require("../dist/prompting/prompts/novel/volume/beatSheet.prompts.js");
-const {
-  volumeRebalancePrompt,
-} = require("../dist/prompting/prompts/novel/volume/rebalance.prompts.js");
 
-function createValidStrategyPayload() {
-  return {
-    recommendedVolumeCount: 3,
-    hardPlannedVolumeCount: 2,
-    readerRewardLadder: "第一卷立钩，第二卷反压起势，第三卷转向中盘。",
-    escalationLadder: "敌对压力从局部围堵升级为公开追杀。",
-    midpointShift: "第三卷暴露真正对手与更大局势。",
-    notes: "先锁前两卷，第三卷保留方向性承诺。",
-    volumes: [
+test("chapter boundary schema accepts array mustAvoid payloads", () => {
+  const parsed = createChapterBoundarySchema().parse({
+    conflictLevel: 70,
+    revealLevel: 30,
+    targetWordCount: 3200,
+    mustAvoid: ["避免提前揭露身世伏笔", "避免把商业判断写成单纯记股票代码"],
+    payoffRefs: "白月光信任铺垫、第一桶金线索",
+  });
+
+  assert.equal(parsed.mustAvoid, "避免提前揭露身世伏笔；避免把商业判断写成单纯记股票代码");
+  assert.deepEqual(parsed.payoffRefs, ["白月光信任铺垫", "第一桶金线索"]);
+});
+
+test("chapter task sheet schema accepts object taskSheet payloads", () => {
+  const parsed = createChapterTaskSheetSchema().parse({
+    taskSheet: {
+      emotionalTone: "压迫转反击",
+      coreConflict: "陆子野与旧同学在第一桶金机会上的暗中抢位。",
+      keyAdvancement: ["锁定批发渠道", "看清对手试探"],
+      endingRequirement: "结尾留下更大的资金缺口钩子。",
+    },
+  });
+
+  assert.match(parsed.taskSheet, /情绪基调：压迫转反击/);
+  assert.match(parsed.taskSheet, /核心冲突：陆子野与旧同学/);
+  assert.match(parsed.taskSheet, /关键推进：锁定批发渠道、看清对手试探/);
+  assert.match(parsed.taskSheet, /收尾要求：结尾留下更大的资金缺口钩子/);
+});
+
+test("chapter task sheet schema accepts direct multi-field task sheet objects", () => {
+  const parsed = createChapterTaskSheetSchema().parse({
+    "情绪基调": "试探",
+    "核心冲突": "主角与市场摊主围绕低价货源互相试探。",
+    "关键推进点": "主角确认第一笔倒卖路线可行。",
+    "收尾要求": "以新的竞争者出现收尾。",
+  });
+
+  assert.match(parsed.taskSheet, /情绪基调：试探/);
+  assert.match(parsed.taskSheet, /核心冲突：主角与市场摊主/);
+  assert.match(parsed.taskSheet, /关键推进：主角确认第一笔倒卖路线可行/);
+  assert.match(parsed.taskSheet, /收尾要求：以新的竞争者出现收尾/);
+});
+
+test("volume chapter list schema accepts short lists for backend completion", () => {
+  const parsed = createVolumeChapterListSchema(30).parse({
+    chapters: [
+      { title: "信息差再次亮起", summary: "主角确认第二卷的核心机会窗口。" },
+      { title: "老周递来第一条线", summary: "老周提供实战视角，帮助主角筛选机会。" },
+      { title: "赵老板开始试探", summary: "外部商业压力初次显形。" },
+    ],
+  });
+
+  assert.equal(parsed.chapters.length, 3);
+});
+
+test("volume beat sheet schema carries chapter meta hints", () => {
+  const parsed = createVolumeBeatSheetSchema().parse({
+    beats: [
       {
-        sortOrder: 1,
-        planningMode: "hard",
-        roleLabel: "开局立钩卷",
-        coreReward: "快速建立主角困境与反击欲望。",
-        escalationFocus: "压力源第一次正面压制。",
-        uncertaintyLevel: "low",
+        key: "open_hook",
+        label: "开卷抓手",
+        summary: "药谷账房突然改价，主角察觉异常。",
+        chapterSpanHint: "1-2章",
+        mustDeliver: ["异常药价", "被迫换路"],
+        event_weight: 4,
+        high_stakes_dialogue: true,
+        scheme_beat: true,
+        kind_of_hook: "威胁逼近",
       },
       {
-        sortOrder: 2,
-        planningMode: "hard",
-        roleLabel: "反压起势卷",
-        coreReward: "主角第一次拿到阶段性主动权。",
-        escalationFocus: "敌我资源与代价同步抬高。",
-        uncertaintyLevel: "low",
+        key: "first_escalation",
+        label: "第一次升级",
+        summary: "反制失败后获得残页。",
+        chapterSpanHint: "3章",
+        mustDeliver: ["反制失效"],
       },
       {
-        sortOrder: 3,
-        planningMode: "soft",
-        roleLabel: "中盘转向卷",
-        coreReward: "揭露更大棋局并抬高后续预期。",
-        escalationFocus: "局势从个人冲突升级到阵营冲突。",
-        uncertaintyLevel: "medium",
+        key: "midpoint_turn",
+        label: "中段转向",
+        summary: "残页指向黑市。",
+        chapterSpanHint: "4章",
+        mustDeliver: ["黑市入口"],
+      },
+      {
+        key: "pressure_lock",
+        label: "压力锁定",
+        summary: "药童身份被卡死。",
+        chapterSpanHint: "5章",
+        mustDeliver: ["身份风险"],
+      },
+      {
+        key: "climax",
+        label: "卷高潮",
+        summary: "主角落子夺回筹码。",
+        chapterSpanHint: "6章",
+        mustDeliver: ["夺回筹码"],
       },
     ],
-    uncertainties: [
+  });
+
+  assert.equal(parsed.beats[0].eventWeight, 4);
+  assert.equal(parsed.beats[0].highStakesDialogue, true);
+  assert.equal(parsed.beats[0].schemeBeat, true);
+  assert.equal(parsed.beats[0].kindOfHook, "threat_approaches");
+  assert.equal(parsed.beats[1].eventWeight, 3);
+});
+
+test("volume chapter list schema accepts snake_case chapter_meta", () => {
+  const parsed = createVolumeChapterListSchema(2).parse({
+    chapters: [
       {
-        targetType: "volume",
-        targetRef: "3",
-        level: "medium",
-        reason: "第三卷依赖后续角色站队和世界规则补充。",
+        title: "药价先变",
+        summary: "主角从米价和药价同时跳涨里察觉局面不对。",
+        chapter_meta: {
+          event_weight: 4,
+          high_stakes_dialogue: true,
+          scheme_beat: false,
+          kind_of_hook: "information_reversal",
+        },
+      },
+      {
+        title: "黑市要价",
+        summary: "黑市掌柜压价，主角表面退让，暗中换筹码。",
       },
     ],
-  };
-}
-
-function createVolume(sortOrder) {
-  return {
-    id: `volume-${sortOrder}`,
-    novelId: "novel-1",
-    sortOrder,
-    title: `第${sortOrder}卷`,
-    summary: `卷${sortOrder}摘要`,
-    openingHook: `卷${sortOrder}开局钩子`,
-    mainPromise: `卷${sortOrder}主承诺`,
-    primaryPressureSource: `卷${sortOrder}压力源`,
-    coreSellingPoint: `卷${sortOrder}卖点`,
-    escalationMode: `卷${sortOrder}升级方式`,
-    protagonistChange: `卷${sortOrder}主角变化`,
-    midVolumeRisk: `卷${sortOrder}中段风险`,
-    climax: `卷${sortOrder}高潮`,
-    payoffType: `卷${sortOrder}兑现类型`,
-    nextVolumeHook: `卷${sortOrder}下卷钩子`,
-    resetPoint: null,
-    openPayoffs: [],
-    status: "active",
-    sourceVersionId: null,
-    chapters: [],
-    createdAt: new Date(0).toISOString(),
-    updatedAt: new Date(0).toISOString(),
-  };
-}
-
-test("volume strategy schema accepts a structurally aligned strategy plan", () => {
-  const schema = createVolumeStrategySchema(6);
-  const parsed = schema.safeParse(createValidStrategyPayload());
-  assert.equal(parsed.success, true);
-});
-
-test("volume strategy schema rejects mismatched volume count and ordering rules", () => {
-  const schema = createVolumeStrategySchema(6);
-  const payload = createValidStrategyPayload();
-  payload.recommendedVolumeCount = 4;
-  payload.volumes[1].sortOrder = 3;
-  payload.volumes[2].planningMode = "hard";
-
-  const parsed = schema.safeParse(payload);
-  assert.equal(parsed.success, false);
-  const messages = parsed.success ? [] : parsed.error.issues.map((issue) => issue.message);
-  assert.ok(messages.some((message) => message.includes("volumes")));
-  assert.ok(messages.some((message) => message.includes("sortOrder")));
-  assert.ok(messages.some((message) => message.includes("规划模式")));
-});
-
-test("volume beat sheet schema normalizes alias fields and wrapped payloads", () => {
-  const schema = createVolumeBeatSheetSchema();
-  const parsed = schema.parse({
-    beatSheet: {
-      beats: [
-        {
-          beatKey: "open_hook",
-          beatLabel: "开卷抓手",
-          description: "先把世界危险和主角当前困境钉死。",
-          chapterRange: "1-2章",
-          deliverables: "压迫感，主角处境，首个异常信号",
-        },
-        {
-          id: "first_escalation",
-          name: "第一次升级",
-          detail: "让主角第一次拿到能反制局面的抓手。",
-          chapterWindow: "3章",
-          requiredPayoffs: ["阶段优势", "局面变化"],
-        },
-        {
-          stageKey: "midpoint_turn",
-          stageLabel: "中段转向",
-          content: "把本卷方向从单点求生切到更大的局势判断。",
-          spanHint: "4-5章",
-          mustHit: ["新情报", "旧判断失效"],
-        },
-        {
-          key: "pressure_lock",
-          label: "高潮前挤压",
-          summary: "把敌方优势和主角代价同时顶到卷内上限。",
-          chapterSpanHint: "6章",
-          mustDeliver: ["压力堆高", "选择代价"],
-        },
-        {
-          key: "climax",
-          label: "卷高潮",
-          summary: "完成本卷主承诺的正面兑现。",
-          chapterSpanHint: "7章",
-          mustDeliver: ["正面对决", "阶段兑现"],
-        },
-        {
-          key: "end_hook",
-          label: "卷尾钩子",
-          summary: "用新威胁或新目标把下一卷打开。",
-          chapterSpanHint: "8章",
-          mustDeliver: ["余震", "下卷钩子"],
-        },
-      ],
-    },
   });
 
-  assert.equal(parsed.beats.length, 6);
-  assert.equal(parsed.beats[0].summary, "先把世界危险和主角当前困境钉死。");
-  assert.equal(parsed.beats[0].chapterSpanHint, "1-2章");
-  assert.deepEqual(parsed.beats[0].mustDeliver, ["压迫感", "主角处境", "首个异常信号"]);
-  assert.equal(parsed.beats[1].key, "first_escalation");
-  assert.equal(parsed.beats[2].label, "中段转向");
-});
-
-test("volume beat sheet prompt render includes explicit JSON field contract", () => {
-  const messages = volumeBeatSheetPrompt.render({
-    novel: {},
-    workspace: {
-      volumes: [],
-      strategyPlan: null,
-      critiqueReport: null,
-      beatSheets: [],
-      rebalanceDecisions: [],
-      readiness: {
-        canGenerateStrategy: true,
-        canGenerateSkeleton: false,
-        canGenerateBeatSheet: false,
-        canGenerateChapterList: false,
-        blockingReasons: [],
-      },
-      derivedOutline: "",
-      derivedStructuredOutline: "",
-      source: "empty",
-      activeVersionId: null,
-    },
-    storyMacroPlan: null,
-    strategyPlan: null,
-    targetVolume: createVolume(1),
-  }, {
-    blocks: [],
-    selectedBlockIds: [],
-    droppedBlockIds: [],
-    summarizedBlockIds: [],
-    estimatedInputTokens: 0,
-  });
-
-  const systemPrompt = String(messages[0].content);
-  assert.match(systemPrompt, /"beats"/);
-  assert.match(systemPrompt, /"summary"/);
-  assert.match(systemPrompt, /"chapterSpanHint"/);
-  assert.match(systemPrompt, /"mustDeliver"/);
-  assert.match(systemPrompt, /5-8/);
-});
-
-test("volume rebalance schema normalizes wrapped arrays, numeric refs, and direction aliases", () => {
-  const schema = createVolumeRebalanceSchema();
-  const parsed = schema.parse([
-    {
-      anchorVolumeId: 1,
-      affectedVolumeId: "volume 2",
-      direction: "forward",
-      severity: "high",
-      summary: "当前卷过长，需要把一部分推进后移。",
-      actions: "expand adjacent volume\nrebalance chapter budget",
-    },
-    {
-      anchorVolumeId: 3,
-      affectedVolumeId: 2,
-      direction: "backward",
-      severity: "minor",
-      summary: "暂无明显失衡，但先保留观察。",
-      actions: ["hold"],
-    },
-  ]);
-
-  assert.equal(parsed.decisions.length, 2);
-  assert.equal(parsed.decisions[0].anchorVolumeId, "1");
-  assert.equal(parsed.decisions[0].affectedVolumeId, "2");
-  assert.equal(parsed.decisions[0].direction, "push_back");
-  assert.deepEqual(parsed.decisions[0].actions, ["expand adjacent volume", "rebalance chapter budget"]);
-  assert.equal(parsed.decisions[1].direction, "hold");
-  assert.equal(parsed.decisions[1].severity, "low");
-});
-
-test("volume workspace document resolves rebalance decisions written as volume order refs", () => {
-  const document = buildVolumeWorkspaceDocument({
-    novelId: "novel-1",
-    volumes: [createVolume(1), createVolume(2), createVolume(3)],
-    strategyPlan: null,
-    critiqueReport: null,
-    beatSheets: [],
-    rebalanceDecisions: [
-      {
-        anchorVolumeId: "1",
-        affectedVolumeId: "volume 2",
-        direction: "forward",
-        severity: "high",
-        summary: "把部分推进延后到下一卷。",
-        actions: ["expand adjacent volume"],
-      },
-    ],
-    source: "volume",
-    activeVersionId: null,
-  });
-
-  assert.equal(document.rebalanceDecisions.length, 1);
-  assert.equal(document.rebalanceDecisions[0].anchorVolumeId, "volume-1");
-  assert.equal(document.rebalanceDecisions[0].affectedVolumeId, "volume-2");
-  assert.equal(document.rebalanceDecisions[0].direction, "push_back");
-});
-
-test("volume rebalance prompt render explains order-based id contract and enum directions", () => {
-  const messages = volumeRebalancePrompt.render({
-    novel: {},
-    workspace: {
-      volumes: [],
-      strategyPlan: null,
-      critiqueReport: null,
-      beatSheets: [],
-      rebalanceDecisions: [],
-      readiness: {
-        canGenerateStrategy: true,
-        canGenerateSkeleton: false,
-        canGenerateBeatSheet: false,
-        canGenerateChapterList: false,
-        blockingReasons: [],
-      },
-      derivedOutline: "",
-      derivedStructuredOutline: "",
-      source: "empty",
-      activeVersionId: null,
-    },
-    storyMacroPlan: null,
-    strategyPlan: null,
-    anchorVolume: createVolume(1),
-    previousVolume: createVolume(0),
-    nextVolume: createVolume(2),
-  }, {
-    blocks: [],
-    selectedBlockIds: [],
-    droppedBlockIds: [],
-    summarizedBlockIds: [],
-    estimatedInputTokens: 0,
-  });
-
-  const systemPrompt = String(messages[0].content);
-  assert.match(systemPrompt, /卷序号字符串/);
-  assert.match(systemPrompt, /pull_forward、push_back、tighten_current、expand_adjacent、hold/);
-  assert.match(systemPrompt, /"decisions"/);
+  assert.equal(parsed.chapters[0].chapterMeta.eventWeight, 4);
+  assert.equal(parsed.chapters[0].chapterMeta.kindOfHook, "information_reversal");
+  assert.equal(parsed.chapters[1].chapterMeta.eventWeight, 3);
 });

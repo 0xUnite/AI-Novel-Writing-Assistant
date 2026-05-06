@@ -61,6 +61,20 @@ test("chapter title diversity accepts mixed chapter title surfaces", () => {
   ]));
 });
 
+test("chapter title diversity detects mechanical inner templates", () => {
+  const issue = getChapterTitleDiversityIssue([
+    "星纹药鼎起血口",
+    "残阵背后的黑井",
+    "星骸里摸到星图",
+    "拿血契换风暴",
+    "试炼反噬到虚空",
+    "借星门咬穿祖舰",
+  ]);
+
+  assert.match(issue, /机械标题骨架/);
+  assert.match(issue, /起血口/);
+});
+
 test("volume chapter list prompt render hardens title diversity rules", () => {
   const messages = createVolumeChapterListPrompt(6).render({
     targetChapterCount: 6,
@@ -70,6 +84,11 @@ test("volume chapter list prompt render hardens title diversity rules", () => {
   assert.equal(messages.length, 2);
   assert.match(String(messages[0].content), /不能大面积重复“X的Y \/ X中的Y \/ 在X中Y”/);
   assert.match(String(messages[0].content), /A，B \/ 四字动作，四字结果/);
+  assert.match(String(messages[0].content), /X起血口/);
+  assert.match(String(messages[0].content), /禁止把流程标签写进章名/);
+  assert.match(String(messages[0].content), /17-19章 必须拆成 3 个章节/);
+  assert.match(String(messages[0].content), /不存在空白过渡章/);
+  assert.match(String(messages[0].content), /不能退让的理由/);
   assert.match(String(messages[0].content), /章名结构过于集中/);
 });
 

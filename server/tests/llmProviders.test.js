@@ -7,14 +7,14 @@ const {
   resolveModelTemperature,
 } = require("../dist/llm/capabilities.js");
 
-test("supported providers include kimi, glm, qwen, gemini and ollama", () => {
-  for (const provider of ["kimi", "glm", "qwen", "gemini", "ollama"]) {
+test("supported providers include minimax, kimi, glm, qwen, gemini and ollama", () => {
+  for (const provider of ["minimax", "kimi", "glm", "qwen", "gemini", "ollama"]) {
     assert.ok(SUPPORTED_PROVIDERS.includes(provider), `${provider} should be available`);
   }
 });
 
 test("new provider defaults are present in their model fallback lists", () => {
-  for (const provider of ["kimi", "glm", "qwen", "gemini", "ollama"]) {
+  for (const provider of ["minimax", "kimi", "glm", "qwen", "gemini", "ollama"]) {
     assert.ok(
       PROVIDERS[provider].models.includes(PROVIDERS[provider].defaultModel),
       `${provider} default model should exist in fallback models`,
@@ -44,4 +44,14 @@ test("ollama does not advertise forced json mode", () => {
   const capability = getJsonCapability("ollama", "llama3.2");
   assert.equal(capability.supportsJsonObject, false);
   assert.equal(capability.supportsJsonSchema, false);
+});
+
+test("minimax clamps temperature to provider-compatible range", () => {
+  assert.deepEqual(
+    getModelParameterCompatibility("minimax", "MiniMax-M2.7"),
+    { minTemperature: 0.01, maxTemperature: 1, defaultTemperature: 1 },
+  );
+  assert.equal(resolveModelTemperature("minimax", "MiniMax-M2.7", undefined), 1);
+  assert.equal(resolveModelTemperature("minimax", "MiniMax-M2.7", 1.4), 1);
+  assert.equal(resolveModelTemperature("minimax", "MiniMax-M2.7", 0), 0.01);
 });

@@ -128,8 +128,10 @@ export async function runDirectorCharacterSetupPhase(input: {
     seedPayload: callbacks.buildDirectorSeedPayload(request, novelId, {
       directorSession,
       resumeTarget,
-    }),
+      }),
   });
+  const bookSpec = toBookSpec(request.candidate, request.idea, request.estimatedChapterCount, request);
+  const storyInput = buildStoryInput(request, bookSpec);
   const castOptions = await runDirectorTrackedStep({
     taskId,
     stage: "character_setup",
@@ -141,10 +143,9 @@ export async function runDirectorCharacterSetupPhase(input: {
       provider: request.provider,
       model: request.model,
       temperature: request.temperature,
-      storyInput: buildStoryInput(request, toBookSpec(request.candidate, request.idea, request.estimatedChapterCount)),
+      storyInput,
     }),
   });
-  const storyInput = buildStoryInput(request, toBookSpec(request.candidate, request.idea, request.estimatedChapterCount));
   const assessment = dependencies.characterPreparationService.assessCharacterCastOptions(castOptions, storyInput);
   const targetOption = assessment.autoApplicableOptionId
     ? castOptions.find((option) => option.id === assessment.autoApplicableOptionId) ?? null
@@ -232,8 +233,10 @@ export async function runDirectorVolumeStrategyPhase(input: {
     seedPayload: callbacks.buildDirectorSeedPayload(request, novelId, {
       directorSession,
       resumeTarget,
-    }),
+      }),
   });
+  const bookSpec = toBookSpec(request.candidate, request.idea, request.estimatedChapterCount, request);
+  const targetChapterCount = request.estimatedChapterCount ?? bookSpec.targetChapterCount;
   let workspace = await runDirectorTrackedStep({
     taskId,
     stage: "volume_strategy",
@@ -246,7 +249,7 @@ export async function runDirectorVolumeStrategyPhase(input: {
       model: request.model,
       temperature: request.temperature,
       scope: "strategy",
-      estimatedChapterCount: request.estimatedChapterCount ?? toBookSpec(request.candidate, request.idea, request.estimatedChapterCount).targetChapterCount,
+      estimatedChapterCount: targetChapterCount,
       onPhaseStart: async (event) => {
         const update = buildVolumeStrategyPhaseUpdate(event);
         if (!update) {
@@ -268,7 +271,7 @@ export async function runDirectorVolumeStrategyPhase(input: {
       model: request.model,
       temperature: request.temperature,
       scope: "skeleton",
-      estimatedChapterCount: request.estimatedChapterCount ?? toBookSpec(request.candidate, request.idea, request.estimatedChapterCount).targetChapterCount,
+      estimatedChapterCount: targetChapterCount,
       draftWorkspace: workspace,
       onPhaseStart: async (event) => {
         const update = buildVolumeStrategyPhaseUpdate(event);
@@ -337,8 +340,10 @@ export async function runDirectorStructuredOutlinePhase(input: {
     seedPayload: callbacks.buildDirectorSeedPayload(request, novelId, {
       directorSession,
       resumeTarget: runningResumeTarget,
-    }),
+      }),
   });
+  const bookSpec = toBookSpec(request.candidate, request.idea, request.estimatedChapterCount, request);
+  const targetChapterCount = request.estimatedChapterCount ?? bookSpec.targetChapterCount;
 
   let workspace = await runDirectorTrackedStep({
     taskId,
@@ -353,6 +358,7 @@ export async function runDirectorStructuredOutlinePhase(input: {
       temperature: request.temperature,
       scope: "beat_sheet",
       targetVolumeId: targetVolume.id,
+      estimatedChapterCount: targetChapterCount,
       draftWorkspace: baseWorkspace,
       onPhaseStart: async (event) => {
         const update = buildStructuredOutlinePhaseUpdate(event);
@@ -376,6 +382,7 @@ export async function runDirectorStructuredOutlinePhase(input: {
       temperature: request.temperature,
       scope: "chapter_list",
       targetVolumeId: targetVolume.id,
+      estimatedChapterCount: targetChapterCount,
       draftWorkspace: workspace,
       onPhaseStart: async (event) => {
         const update = buildStructuredOutlinePhaseUpdate(event);

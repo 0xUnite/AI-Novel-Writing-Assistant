@@ -8,9 +8,11 @@ import type {
   CreativeHubThread,
   CreativeHubTurnSummary,
 } from "@ai-novel/shared/types/creativeHub";
+import type { NovelContentForm } from "@ai-novel/shared/types/novel";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { decorateNovelTitleWithContentForm } from "@/lib/novelContentForm";
 import { cn } from "@/lib/utils";
 import CreativeHubNovelSetupCard from "./CreativeHubNovelSetupCard";
 import NovelProductionStarterCard from "./NovelProductionStarterCard";
@@ -18,7 +20,7 @@ import NovelProductionStarterCard from "./NovelProductionStarterCard";
 interface CreativeHubSidebarProps {
   thread?: CreativeHubThread;
   bindings: CreativeHubResourceBinding;
-  novels: Array<{ id: string; title: string }>;
+  novels: Array<{ id: string; title: string; contentForm?: NovelContentForm | null }>;
   interrupt?: CreativeHubInterrupt;
   diagnostics?: FailureDiagnostic;
   productionStatus?: CreativeHubProductionStatus | null;
@@ -35,7 +37,7 @@ interface CreativeHubSidebarProps {
   onToggleRuntimeDetailsDefault: () => void;
   onNovelChange: (novelId: string) => void;
   onQuickAction?: (prompt: string) => void;
-  onCreateNovel?: (title: string) => void;
+  onCreateNovel?: (title: string, contentForm?: NovelContentForm) => void;
   onStartProduction?: (prompt: string) => void;
 }
 
@@ -220,7 +222,16 @@ export default function CreativeHubSidebar({
   onStartProduction,
 }: CreativeHubSidebarProps) {
   const [novelTitleDraft, setNovelTitleDraft] = useState("");
+  const [contentFormFilter, setContentFormFilter] = useState<"all" | NovelContentForm>("all");
   const currentNovelTitle = novels.find((item) => item.id === bindings.novelId)?.title ?? null;
+  const visibleNovels = useMemo(
+    () => novels.filter((item) => (
+      contentFormFilter === "all"
+      || (item.contentForm ?? "novel") === contentFormFilter
+      || item.id === bindings.novelId
+    )),
+    [bindings.novelId, contentFormFilter, novels],
+  );
   const blocker = useMemo(
     () => buildBlockerCardData({
       interrupt,
@@ -276,16 +287,25 @@ export default function CreativeHubSidebar({
           <div className="mb-2 text-xs font-medium text-slate-500">资源绑定</div>
           <div className="space-y-3 text-xs text-slate-700">
             <div className="space-y-1">
-              <div className="text-[11px] font-medium text-slate-500">当前小说</div>
+              <div className="text-[11px] font-medium text-slate-500">当前作品</div>
+              <select
+                className="mb-2 w-full rounded-lg border border-slate-300 bg-white p-2 text-xs text-slate-700"
+                value={contentFormFilter}
+                onChange={(event) => setContentFormFilter(event.target.value as "all" | NovelContentForm)}
+              >
+                <option value="all">全部作品</option>
+                <option value="novel">只看长篇小说</option>
+                <option value="short_story">只看短故事</option>
+              </select>
               <select
                 className="w-full rounded-lg border border-slate-300 bg-white p-2 text-xs text-slate-700"
                 value={bindings.novelId ?? ""}
                 onChange={(event) => onNovelChange(event.target.value)}
               >
-                <option value="">未绑定小说</option>
-                {novels.map((novel) => (
+                <option value="">未绑定作品</option>
+                {visibleNovels.map((novel) => (
                   <option key={novel.id} value={novel.id}>
-                    {novel.title}
+                    {decorateNovelTitleWithContentForm(novel)}
                   </option>
                 ))}
               </select>
@@ -295,16 +315,16 @@ export default function CreativeHubSidebar({
                     className="w-full rounded-md border border-slate-300 bg-slate-50 px-2 py-2 text-xs text-slate-700 outline-none focus:border-slate-400 focus:bg-white"
                     value={novelTitleDraft}
                     onChange={(event) => setNovelTitleDraft(event.target.value)}
-                    placeholder="输入新小说标题"
+                    placeholder="输入新作品标题"
                   />
                   <div className="flex flex-wrap gap-2">
                     <Button
                       type="button"
                       size="sm"
                       variant="outline"
-                      onClick={() => onQuickAction?.("列出当前可用的小说工作区")}
+                      onClick={() => onQuickAction?.("列出当前可用的作品工作区，并标明长篇小说或短故事")}
                     >
-                      查看小说
+                      查看作品
                     </Button>
                     <Button
                       type="button"
@@ -314,7 +334,7 @@ export default function CreativeHubSidebar({
                         if (!title) {
                           return;
                         }
-                        onCreateNovel?.(title);
+                        onCreateNovel?.(title, contentFormFilter === "all" ? undefined : contentFormFilter);
                         setNovelTitleDraft("");
                       }}
                     >

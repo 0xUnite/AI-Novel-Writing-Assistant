@@ -275,7 +275,8 @@ export interface StructureUpdateInput {
 }
 
 export function cleanJsonText(source: string): string {
-  return source.replace(/```json|```/gi, "").trim();
+  const withoutThink = source.replace(/<think>[\s\S]*?<\/think>/gi, "");
+  return withoutThink.replace(/```json|```/gi, "").trim();
 }
 
 export function extractJSONObject(source: string): string {

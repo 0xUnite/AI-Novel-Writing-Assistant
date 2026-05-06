@@ -8,6 +8,15 @@ import {
 
 export const providerModelMap: Record<BuiltinLLMProvider, string[]> = {
   deepseek: ["deepseek-chat", "deepseek-coder", "deepseek-reasoner"],
+  minimax: [
+    "MiniMax-M2.7",
+    "MiniMax-M2.7-highspeed",
+    "MiniMax-M2.5",
+    "MiniMax-M2.5-highspeed",
+    "MiniMax-M2.1",
+    "MiniMax-M2.1-highspeed",
+    "MiniMax-M2",
+  ],
   siliconflow: [
     "Qwen/Qwen2.5-7B-Instruct",
     "Qwen/Qwen2.5-72B-Instruct",
@@ -33,10 +42,10 @@ function getDefaultModel(provider: LLMProvider): string {
 
 function normalizeProvider(rawProvider: unknown): LLMProvider {
   if (typeof rawProvider !== "string") {
-    return "deepseek";
+    return "minimax";
   }
   const trimmed = rawProvider.trim();
-  return trimmed || "deepseek";
+  return trimmed || "minimax";
 }
 
 function normalizeModel(model: unknown, provider: LLMProvider): string {
@@ -72,8 +81,8 @@ interface LLMStoreState {
 export const useLLMStore = create<LLMStoreState>()(
   persist(
     (set) => ({
-      provider: "deepseek",
-      model: getDefaultModel("deepseek"),
+      provider: "minimax",
+      model: getDefaultModel("minimax"),
       temperature: 0.7,
       setProvider: (provider) =>
         set(() => ({

@@ -1,4 +1,5 @@
 import { prisma } from "../../db/prisma";
+import { AppError } from "../../middleware/errorHandler";
 import { ragServices } from "../rag";
 import type { RagOwnerType } from "../rag/types";
 import { buildLegacyWorldContextFromWorld } from "./storyWorldSlice/storyWorldSliceFormatting";
@@ -41,7 +42,7 @@ export function buildWorldContextFromNovel(novel: NovelWorldContextInput | null 
 
 export async function ensureNovelCharacters(novelId: string, actionName: string, minCount = 1) {
   const count = await prisma.character.count({ where: { novelId } });
-  if (count < minCount) {
-    throw new Error(`请先在本小说中至少添加 ${minCount} 个角色后再${actionName}。`);
+  if (count < minCount && minCount > 0) {
+    throw new AppError(`请先在本小说中至少添加 ${minCount} 个角色后再${actionName}。`, 400);
   }
 }

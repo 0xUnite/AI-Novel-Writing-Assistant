@@ -409,7 +409,7 @@ ${summaryBlock || "暂无"}`;
           targetText,
         },
         options: {
-          provider: input.provider ?? "deepseek",
+          provider: input.provider,
           model: input.model,
           temperature: input.temperature ?? 0.7,
         },

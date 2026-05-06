@@ -40,6 +40,8 @@ export function buildDirectorAutoExecutionPipelineOptions(input: {
   startOrder: number;
   endOrder: number;
   runMode?: PipelineRunMode;
+  skipCompleted?: boolean;
+  autoPrepareStoryAssets?: boolean;
 }) {
   return {
     startOrder: input.startOrder,
@@ -48,7 +50,8 @@ export function buildDirectorAutoExecutionPipelineOptions(input: {
     runMode: input.runMode ?? "fast",
     autoReview: true,
     autoRepair: true,
-    skipCompleted: true,
+    autoPrepareStoryAssets: input.autoPrepareStoryAssets ?? true,
+    skipCompleted: input.skipCompleted ?? true,
     qualityThreshold: 75,
     repairMode: "light_repair" as const,
     provider: input.provider,

@@ -41,6 +41,9 @@ function buildPlannerPlanAsset(input: {
         "volume_summary",
       ],
     },
+    repairPolicy: {
+      maxAttempts: input.planLevel === "chapter" ? 2 : 1,
+    },
     semanticRetryPolicy:
       input.planLevel === "chapter"
         ? { maxAttempts: 1 }
@@ -54,6 +57,12 @@ function buildPlannerPlanAsset(input: {
         reveals: ["示例揭露"],
         riskNotes: ["示例风险"],
         hookTarget: "示例悬念",
+        chapter_meta: {
+          event_weight: 3,
+          high_stakes_dialogue: false,
+          scheme_beat: false,
+          kind_of_hook: "suspense_question",
+        },
         planRole: input.planLevel === "chapter" ? "progress" : "",
         phaseLabel: "示例阶段",
         mustAdvance: ["示例推进项"],
@@ -82,7 +91,7 @@ function buildPlannerPlanAsset(input: {
         `当前规划层级：${input.planLevel}。`,
         "",
         "输出必须包含以下字段：",
-        "title、objective、participants、reveals、riskNotes、hookTarget、planRole、phaseLabel、mustAdvance、mustPreserve、scenes。",
+        "title、objective、participants、reveals、riskNotes、hookTarget、chapter_meta、planRole、phaseLabel、mustAdvance、mustPreserve、scenes。",
         input.includeScenes
           ? "scenes 必须是非空数组，且每一项都必须包含：title、objective、conflict、reveal、emotionBeat。"
           : "scenes 必须返回空数组。",
@@ -96,6 +105,8 @@ function buildPlannerPlanAsset(input: {
         "3. 输出必须服务于后续创作执行，而不是写分析说明。",
         "4. 各字段之间必须自洽，不得互相冲突。",
         "5. mustAdvance 和 mustPreserve 必须简短、具体、可直接用于后续写作。",
+        "6. 不存在空白过渡章：即使是承接、换场或结算，也必须规划出读者可感知的新信息、局面变化、关系变化、风险变化、阶段兑现或下一段期待。",
+        "7. 主要冲突必须规划出双方不可退让的理由和具体失败代价，不能只写“冲突升级”。",
         "",
         "字段要求：",
         "1. title：写当前层级规划条目的标题，简洁明确，不要占位词。",
@@ -104,12 +115,14 @@ function buildPlannerPlanAsset(input: {
         "4. reveals：只写重要信息揭露、结构转折或关键认知变化，不要写普通过程。",
         "5. riskNotes：写最容易失焦、变平、失真、跑偏或违背约束的风险点，必须具体。",
         "6. hookTarget：写阶段尾部或章节尾部要留给读者的悬念、张力、期待或情绪牵引，不要写成空话。",
-        "7. phaseLabel：用短语概括当前阶段，例如“试探压迫期”“关系绑定期”“身份松动期”，不要太长。",
-        "8. mustAdvance：列出本层级绝不能缺席的推进项，必须是动作性、结果性或结构性推进。",
-        "9. mustPreserve：列出不能破坏的连续性、世界规则、角色状态、语气边界或模式约束。",
+        "7. chapter_meta：当层级为 chapter 时必须包含 event_weight、high_stakes_dialogue、scheme_beat、kind_of_hook；kind_of_hook 只能四选一：information_reversal、decision_reversal、threat_approaches、suspense_question。",
+        "8. event_weight 使用 1-5 整数，4-5 表示正文必须启用高能事件三段式：异常感→挫折或代价→超预期回报并带来新麻烦。",
+        "9. phaseLabel：用短语概括当前阶段，例如“试探压迫期”“关系绑定期”“身份松动期”，不要太长。",
+        "10. mustAdvance：列出本层级绝不能缺席的推进项，必须是动作性、结果性、信息性或结算性推进。",
+        "11. mustPreserve：列出不能破坏的连续性、世界规则、角色状态、语气边界或模式约束。",
         input.includeScenes
-          ? "10. scenes 必须按顺序组织，且每一项都要能直接给写作阶段使用，不要写成概念标签。"
-          : "10. 由于当前层级不要求场景细化，scenes 必须为空数组。",
+          ? "12. scenes 必须按顺序组织，且每一项都要能直接给写作阶段使用，不要写成概念标签。"
+          : "12. 由于当前层级不要求场景细化，scenes 必须为空数组。",
         "",
         "故事模式规则：",
         "1. 当上下文存在故事模式约束时，primary mode 视为硬约束，secondary mode 只能作为轻量风味层。",
@@ -134,12 +147,13 @@ function buildPlannerPlanAsset(input: {
         "3. reveals 只写关键揭露，不要把过程细节混进去。",
         "4. riskNotes 要优先指出最容易让这一层写坏的地方。",
         "5. hookTarget 要能直接服务读者追更，而不是抽象写“制造悬念”。",
-        "6. phaseLabel 必须短、准、可识别。",
-        "7. mustAdvance 必须列出不可缺席的推进项。",
-        "8. mustPreserve 必须列出不能破坏的连续性、语气和硬约束。",
+        "6. chapter_meta 必须能驱动正文生成：event_weight、high_stakes_dialogue、scheme_beat、kind_of_hook 四项都要齐。",
+        "7. phaseLabel 必须短、准、可识别。",
+        "8. mustAdvance 必须列出不可缺席的推进项，并保证读者跳过本章会损失信息、变化、兑现或期待铺垫。",
+        "9. mustPreserve 必须列出不能破坏的连续性、语气和硬约束。",
         input.includeScenes
-          ? "9. scenes 必须顺序清晰，且每个 scene 都应体现具体动作、冲突或变化。"
-          : "9. scenes 返回空数组。",
+          ? "10. scenes 必须顺序清晰，且每个 scene 都应体现具体动作、冲突或变化。"
+          : "10. scenes 返回空数组。",
       ].join("\n");
 
       return [new SystemMessage(systemPrompt), new HumanMessage(userPrompt)];
@@ -168,6 +182,9 @@ function buildPlannerPlanAsset(input: {
       }
 
       if (input.planLevel === "chapter") {
+        if (!normalized.chapterMeta) {
+          throw new Error("Chapter planner output is missing chapter_meta.");
+        }
         if (!normalized.planRole) {
           throw new Error("Chapter planner output is missing planRole.");
         }

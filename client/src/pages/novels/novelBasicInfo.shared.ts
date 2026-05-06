@@ -1,7 +1,9 @@
 import type { BookAnalysisSectionKey } from "@ai-novel/shared/types/bookAnalysis";
+import type { NovelContentForm } from "@ai-novel/shared/types/novel";
 import { formatCommercialTagsInput, normalizeCommercialTags } from "@ai-novel/shared/types/novelFraming";
 
 export interface NovelBasicFormState {
+  contentForm: NovelContentForm;
   title: string;
   description: string;
   targetAudience: string;
@@ -23,6 +25,7 @@ export interface NovelBasicFormState {
   aiFreedom: "low" | "medium" | "high";
   defaultChapterLength: number;
   estimatedChapterCount: number;
+  targetTotalWordCount: number;
   projectStatus: "not_started" | "in_progress" | "completed" | "rework" | "blocked";
   storylineStatus: "not_started" | "in_progress" | "completed" | "rework" | "blocked";
   outlineStatus: "not_started" | "in_progress" | "completed" | "rework" | "blocked";
@@ -191,8 +194,9 @@ export const BASIC_INFO_FIELD_HINTS = {
   pacePreference: "决定章节规划时是偏铺垫还是偏推进，会影响场景密度和钩子强度。",
   emotionIntensity: "决定后续生成时情绪爆发和冲突的频率，不是越高越好。",
   aiFreedom: "决定 AI 可以偏离既有规划和设定的程度。前期建议保持低或中。",
-  defaultChapterLength: "这是章节规划和生成时的参考字数，不是硬限制。常见推荐值是 2500 到 3500。",
-  estimatedChapterCount: "这是项目预估的总章节数，会作为结构化大纲、剧情拍点和流水线默认范围的参考，不是硬限制。",
+  defaultChapterLength: "这是章节规划和生成时的硬性篇幅基准。常见推荐值是 2500 到 3500，系统会围绕它收紧上下限。",
+  estimatedChapterCount: "这是当前结构预算，不是长篇最终完结宣判。填 0 表示开放长篇/滚动规划，只规划下一段可执行窗口。",
+  targetTotalWordCount: "短故事的整篇硬目标，建议控制在 2 万到 8 万字。系统会用它反推目标章节数，避免规划自动膨胀成长篇。",
   resourceReadyScore: "用于标记当前设定、角色、主线资料是否充分。数值越高，越适合进入自动化生产阶段。",
   styleTone: "写几个关键词即可，例如冷峻、克制、黑色幽默。它会影响生成的语言风格。",
   genreId: "题材基底回答“这是什么书”，例如修仙、都市、历史架空。它会影响规划、标题和整体卖点倾向，建议尽量尽早确定。",
@@ -206,6 +210,7 @@ export const BASIC_INFO_FIELD_HINTS = {
 
 export function createDefaultNovelBasicFormState(): NovelBasicFormState {
   return {
+    contentForm: "novel",
     title: "",
     description: "",
     targetAudience: "",
@@ -225,8 +230,9 @@ export function createDefaultNovelBasicFormState(): NovelBasicFormState {
     styleTone: "",
     emotionIntensity: "medium",
     aiFreedom: "medium",
-    defaultChapterLength: 2800,
+    defaultChapterLength: 2000,
     estimatedChapterCount: DEFAULT_ESTIMATED_CHAPTER_COUNT,
+    targetTotalWordCount: 0,
     projectStatus: "not_started",
     storylineStatus: "not_started",
     outlineStatus: "not_started",
@@ -237,6 +243,22 @@ export function createDefaultNovelBasicFormState(): NovelBasicFormState {
     continuationBookAnalysisId: "",
     continuationBookAnalysisSections: [],
   };
+}
+
+export function createShortStoryBasicFormState(): NovelBasicFormState {
+  return {
+    ...createDefaultNovelBasicFormState(),
+    contentForm: "short_story",
+    defaultChapterLength: 2500,
+    estimatedChapterCount: 8,
+    targetTotalWordCount: 20000,
+  };
+}
+
+export function deriveShortStoryChapterCount(targetTotalWordCount: number, defaultChapterLength: number): number {
+  const safeTotal = Math.max(20000, Math.min(80000, Math.round(targetTotalWordCount || 20000)));
+  const safeChapterLength = Math.max(500, Math.min(10000, Math.round(defaultChapterLength || 2500)));
+  return Math.max(1, Math.min(32, Math.round(safeTotal / safeChapterLength)));
 }
 
 export function patchNovelBasicForm(
@@ -287,12 +309,29 @@ export function patchNovelBasicForm(
   if (patch.continuationBookAnalysisId !== undefined && !patch.continuationBookAnalysisId) {
     next.continuationBookAnalysisSections = [];
   }
+  if (next.contentForm === "short_story") {
+    const totalChanged = patch.targetTotalWordCount !== undefined;
+    const chapterLengthChanged = patch.defaultChapterLength !== undefined;
+    const chapterCountChanged = patch.estimatedChapterCount !== undefined;
+    if (totalChanged || chapterLengthChanged) {
+      next.targetTotalWordCount = Math.max(20000, Math.min(80000, Math.round(next.targetTotalWordCount || 20000)));
+      next.estimatedChapterCount = deriveShortStoryChapterCount(next.targetTotalWordCount, next.defaultChapterLength);
+    } else if (chapterCountChanged) {
+      const safeChapterCount = Math.max(1, Math.min(32, Math.round(next.estimatedChapterCount || 1)));
+      next.estimatedChapterCount = safeChapterCount;
+      next.targetTotalWordCount = Math.max(
+        20000,
+        Math.min(80000, safeChapterCount * Math.max(500, Math.min(10000, next.defaultChapterLength || 2500))),
+      );
+    }
+  }
   return next;
 }
 
 export function buildNovelCreatePayload(basicForm: NovelBasicFormState) {
   const commercialTags = normalizeCommercialTags(basicForm.commercialTagsText);
   return {
+    contentForm: basicForm.contentForm,
     title: basicForm.title.trim(),
     description: basicForm.description.trim() || undefined,
     targetAudience: basicForm.targetAudience.trim() || undefined,
@@ -312,7 +351,8 @@ export function buildNovelCreatePayload(basicForm: NovelBasicFormState) {
     emotionIntensity: basicForm.emotionIntensity,
     aiFreedom: basicForm.aiFreedom,
     defaultChapterLength: basicForm.defaultChapterLength,
-    estimatedChapterCount: basicForm.estimatedChapterCount,
+    estimatedChapterCount: basicForm.estimatedChapterCount > 0 ? basicForm.estimatedChapterCount : undefined,
+    targetTotalWordCount: basicForm.targetTotalWordCount > 0 ? basicForm.targetTotalWordCount : undefined,
     projectStatus: basicForm.projectStatus,
     storylineStatus: basicForm.storylineStatus,
     outlineStatus: basicForm.outlineStatus,
@@ -345,6 +385,7 @@ export function buildNovelCreatePayload(basicForm: NovelBasicFormState) {
 export function buildNovelUpdatePayload(basicForm: NovelBasicFormState) {
   const commercialTags = normalizeCommercialTags(basicForm.commercialTagsText);
   return {
+    contentForm: basicForm.contentForm,
     title: basicForm.title,
     description: basicForm.description,
     targetAudience: basicForm.targetAudience.trim() || null,
@@ -365,7 +406,8 @@ export function buildNovelUpdatePayload(basicForm: NovelBasicFormState) {
     emotionIntensity: basicForm.emotionIntensity,
     aiFreedom: basicForm.aiFreedom,
     defaultChapterLength: basicForm.defaultChapterLength,
-    estimatedChapterCount: basicForm.estimatedChapterCount,
+    estimatedChapterCount: basicForm.estimatedChapterCount > 0 ? basicForm.estimatedChapterCount : null,
+    targetTotalWordCount: basicForm.targetTotalWordCount > 0 ? basicForm.targetTotalWordCount : null,
     projectStatus: basicForm.projectStatus,
     storylineStatus: basicForm.storylineStatus,
     outlineStatus: basicForm.outlineStatus,

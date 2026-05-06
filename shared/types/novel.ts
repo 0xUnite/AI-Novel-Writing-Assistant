@@ -30,6 +30,7 @@ export type {
   StoryModeProfile,
 } from "./storyMode";
 export type NovelStatus = "draft" | "published";
+export type NovelContentForm = "novel" | "short_story";
 export type NovelWritingMode = "original" | "continuation";
 export type ProjectMode = "ai_led" | "co_pilot" | "draft_mode" | "auto_pipeline";
 export type NarrativePov = "first_person" | "third_person" | "mixed";
@@ -94,6 +95,7 @@ export type ModelRouteTaskType =
 
 export interface Novel {
   id: string;
+  contentForm: NovelContentForm;
   title: string;
   description?: string | null;
   targetAudience?: string | null;
@@ -111,6 +113,7 @@ export interface Novel {
   aiFreedom?: AIFreedom | null;
   defaultChapterLength?: number | null;
   estimatedChapterCount?: number | null;
+  targetTotalWordCount?: number | null;
   projectStatus?: ProjectProgressStatus | null;
   storylineStatus?: ProjectProgressStatus | null;
   outlineStatus?: ProjectProgressStatus | null;
@@ -199,6 +202,12 @@ export type PipelineJobStatus =
   | "failed"
   | "cancelled";
 
+export type NovelReviewBatchJobType =
+  | "quality_review_all"
+  | "quality_repair_until_pass"
+  | "continuity_audit"
+  | "continuity_repair_blocked";
+
 export interface QualityScore {
   coherence: number;
   repetition: number;
@@ -273,6 +282,7 @@ export interface StoryStateSnapshot {
   novelId: string;
   sourceChapterId?: string | null;
   summary?: string | null;
+  chapterMeta?: ChapterMeta | null;
   rawStateJson?: string | null;
   characterStates: CharacterState[];
   relationStates: RelationState[];
@@ -379,6 +389,39 @@ export interface PipelineJob {
   payload?: string | null;
   startedAt?: string | null;
   finishedAt?: string | null;
+  reusedExisting?: boolean | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface NovelReviewBatchJob {
+  id: string;
+  novelId: string;
+  jobType: NovelReviewBatchJobType;
+  status: PipelineJobStatus;
+  progress: number;
+  completedCount: number;
+  totalCount: number;
+  retryCount: number;
+  maxRetries: number;
+  heartbeatAt?: string | null;
+  currentStage?: string | null;
+  currentItemKey?: string | null;
+  currentItemLabel?: string | null;
+  cancelRequestedAt?: string | null;
+  error?: string | null;
+  startedAt?: string | null;
+  finishedAt?: string | null;
+  threshold?: number | null;
+  qualifiedCount?: number | null;
+  repairedCount?: number | null;
+  passedCount?: number | null;
+  currentBatchStartOrder?: number | null;
+  currentBatchEndOrder?: number | null;
+  lastPassedOrder?: number | null;
+  blockedChapters?: ContinuityBlockedChapterSummary[];
+  message?: string | null;
+  reusedExisting?: boolean | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -497,6 +540,7 @@ export interface VolumeChapterPlan {
   mustAvoid?: string | null;
   taskSheet?: string | null;
   payoffRefs: string[];
+  chapterMeta?: ChapterMeta | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -513,6 +557,18 @@ export type VolumeRebalanceDirection =
   | "expand_adjacent"
   | "hold";
 export type VolumeUncertaintyTargetType = "book" | "volume" | "beat_sheet" | "chapter_list";
+export type ChapterHookKind =
+  | "information_reversal"
+  | "decision_reversal"
+  | "threat_approaches"
+  | "suspense_question";
+
+export interface ChapterMeta {
+  eventWeight: number;
+  highStakesDialogue: boolean;
+  schemeBeat: boolean;
+  kindOfHook: ChapterHookKind;
+}
 
 export interface VolumeStrategyVolume {
   sortOrder: number;
@@ -547,6 +603,10 @@ export interface VolumeBeat {
   summary: string;
   chapterSpanHint: string;
   mustDeliver: string[];
+  eventWeight?: number | null;
+  highStakesDialogue?: boolean | null;
+  schemeBeat?: boolean | null;
+  kindOfHook?: ChapterHookKind | null;
 }
 
 export interface VolumeBeatSheet {
@@ -711,6 +771,73 @@ export interface AuditIssue {
   status: AuditIssueStatus;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface ContinuityBlockedChapterSummary {
+  chapterId: string;
+  chapterOrder: number;
+  chapterLabel: string;
+  coherence: number;
+  issueIds: string[];
+  isMissing?: boolean;
+  isExpired?: boolean;
+}
+
+export interface ContinuityAuditProgress {
+  novelId: string;
+  threshold: number;
+  writtenChapterCount: number;
+  lastPassedOrder?: number | null;
+  resumeOrder: number;
+  nextBatchStartOrder?: number | null;
+  nextBatchEndOrder?: number | null;
+  blockedChapters: ContinuityBlockedChapterSummary[];
+  status: "not_started" | "ready" | "running" | "blocked" | "completed";
+}
+
+export type NovelProductionNextActionKey =
+  | "prepare_characters"
+  | "wait_pipeline"
+  | "wait_quality"
+  | "wait_continuity"
+  | "repair_quality"
+  | "review_quality"
+  | "repair_continuity"
+  | "audit_continuity"
+  | "continue_writing"
+  | "completed";
+
+export interface NovelProductionNextAction {
+  novelId: string;
+  action: NovelProductionNextActionKey;
+  title: string;
+  description: string;
+  buttonLabel: string;
+  disabled: boolean;
+  reason?: string | null;
+  payload?: {
+    startOrder?: number;
+    endOrder?: number;
+    qualityRepairCount?: number;
+    qualityReviewCount?: number;
+    finalizedQualityReviewCount?: number;
+    includeFinalizedRecheck?: boolean;
+    continuityBlockedCount?: number;
+    continuityResumeOrder?: number;
+  } | null;
+  diagnostics: {
+    characterCount: number;
+    chapterCount: number;
+    writtenChapterCount: number;
+    qualityRepairCount: number;
+    qualityReviewCount: number;
+    finalizedQualityReviewCount: number;
+    continuityBlockedCount: number;
+    hasActivePipelineJob: boolean;
+    hasActiveQualityJob: boolean;
+    hasActiveContinuityJob: boolean;
+    continuityStatus: ContinuityAuditProgress["status"];
+  };
 }
 
 export interface AuditReport {

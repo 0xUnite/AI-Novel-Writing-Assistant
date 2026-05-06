@@ -2,6 +2,8 @@ import { randomUUID } from "node:crypto";
 import { z } from "zod";
 import type {
   Chapter,
+  ChapterHookKind,
+  ChapterMeta,
   VolumeChapterPlan,
   VolumeImpactResult,
   VolumePlan,
@@ -75,6 +77,8 @@ const volumeChapterInputSchema = z.object({
   mustAvoid: z.string().trim().nullable().optional(),
   taskSheet: z.string().trim().nullable().optional(),
   payoffRefs: z.array(z.string().trim().min(1)).optional(),
+  chapterMeta: z.unknown().optional(),
+  chapter_meta: z.unknown().optional(),
 }).passthrough();
 
 const volumeInputSchema = z.object({
@@ -127,6 +131,8 @@ export const volumeGenerationSchema = z.object({
           mustAvoid: z.string().trim().optional().nullable(),
           taskSheet: z.string().trim().optional().nullable(),
           payoffRefs: z.array(z.string().trim().min(1)).default([]),
+          chapterMeta: z.unknown().optional(),
+          chapter_meta: z.unknown().optional(),
         }),
       ).min(1),
     }),
@@ -233,6 +239,53 @@ function parseScore(value: unknown): number | null {
   return typeof parsed === "number" && parsed >= 0 && parsed <= 100 ? parsed : null;
 }
 
+function normalizeBoolean(value: unknown, fallback = false): boolean {
+  if (typeof value === "boolean") {
+    return value;
+  }
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return value > 0;
+  }
+  if (typeof value === "string") {
+    const normalized = value.trim().toLowerCase();
+    if (["true", "yes", "1", "是", "需要", "高"].includes(normalized)) {
+      return true;
+    }
+    if (["false", "no", "0", "否", "不需要", "低"].includes(normalized)) {
+      return false;
+    }
+  }
+  return fallback;
+}
+
+function normalizeHookKind(value: unknown, fallback: ChapterHookKind = "suspense_question"): ChapterHookKind {
+  if (typeof value === "string") {
+    const normalized = value.trim().toLowerCase().replace(/[\s-]+/g, "_");
+    if (
+      normalized === "information_reversal"
+      || normalized === "decision_reversal"
+      || normalized === "threat_approaches"
+      || normalized === "suspense_question"
+    ) {
+      return normalized;
+    }
+  }
+  return fallback;
+}
+
+function normalizeChapterMeta(value: unknown): ChapterMeta | null {
+  if (!isJsonRecord(value)) {
+    return null;
+  }
+  const eventWeight = Math.max(1, Math.min(5, parseInteger(value.eventWeight ?? value.event_weight) ?? 3));
+  return {
+    eventWeight,
+    highStakesDialogue: normalizeBoolean(value.highStakesDialogue ?? value.high_stakes_dialogue, eventWeight >= 4),
+    schemeBeat: normalizeBoolean(value.schemeBeat ?? value.scheme_beat, false),
+    kindOfHook: normalizeHookKind(value.kindOfHook ?? value.kind_of_hook),
+  };
+}
+
 function parseLooseStringArray(value: unknown): string[] {
   if (Array.isArray(value)) {
     return value
@@ -267,12 +320,16 @@ function sanitizeVolumeChapter(
     mustAvoid: normalizeText(chapter.mustAvoid),
     taskSheet: normalizeText(chapter.taskSheet),
     payoffRefs: (chapter.payoffRefs ?? []).map((item) => item.trim()).filter(Boolean),
+    chapterMeta: normalizeChapterMeta(chapter.chapterMeta ?? chapter.chapter_meta),
     createdAt: new Date(0).toISOString(),
     updatedAt: new Date(0).toISOString(),
   };
 }
 
 export function normalizeVolumeDraftInput(novelId: string, rawVolumes: unknown): VolumePlan[] {
+  if (Array.isArray(rawVolumes) && rawVolumes.length === 0) {
+    return [];
+  }
   const parsed = volumeDocumentInputSchema.parse({ volumes: rawVolumes }).volumes;
   const usedChapterOrders = new Set<number>();
   return parsed
@@ -331,6 +388,7 @@ function normalizeLegacyChapter(raw: unknown, index: number): VolumeChapterPlan 
   const purpose = pickFirstString(raw, ["purpose", "goal", "chapterGoal"]);
   const mustAvoid = pickFirstString(raw, ["mustAvoid", "must_avoid", "forbidden"]);
   const taskSheet = pickFirstString(raw, ["taskSheet", "task_sheet"]);
+  const chapterMeta = normalizeChapterMeta(raw.chapterMeta ?? raw.chapter_meta);
   const chapterId = createLocalId("legacy-chapter");
   if (!title.trim() && !summary.trim()) {
     return null;
@@ -348,6 +406,7 @@ function normalizeLegacyChapter(raw: unknown, index: number): VolumeChapterPlan 
     mustAvoid,
     taskSheet,
     payoffRefs: parseLooseStringArray(raw.payoffRefs ?? raw.payoff_refs),
+    chapterMeta,
     createdAt: new Date(0).toISOString(),
     updatedAt: new Date(0).toISOString(),
   };
@@ -522,6 +581,7 @@ function buildFallbackVolumeSkeleton(source: LegacyVolumeSource): VolumePlan[] {
         mustAvoid: chapter.mustAvoid ?? null,
         taskSheet: chapter.taskSheet ?? null,
         payoffRefs: [],
+        chapterMeta: null,
         createdAt: new Date(0).toISOString(),
         updatedAt: new Date(0).toISOString(),
       })),
@@ -635,6 +695,14 @@ export function buildDerivedStructuredOutlineFromVolumes(volumes: VolumePlan[]):
             must_avoid: chapter.mustAvoid ?? undefined,
             task_sheet: chapter.taskSheet ?? undefined,
             payoff_refs: chapter.payoffRefs,
+            chapter_meta: chapter.chapterMeta
+              ? {
+                  event_weight: chapter.chapterMeta.eventWeight,
+                  high_stakes_dialogue: chapter.chapterMeta.highStakesDialogue,
+                  scheme_beat: chapter.chapterMeta.schemeBeat,
+                  kind_of_hook: chapter.chapterMeta.kindOfHook,
+                }
+              : undefined,
           })),
       })),
   }, null, 2);
@@ -670,15 +738,47 @@ function getChapterChangedFields(existing: ExistingChapterRecord, chapter: Volum
 }
 
 export function buildTaskSheetFromVolumeChapter(chapter: VolumeChapterPlan): string {
+  const chapterGoal = chapter.purpose || chapter.summary || "推进主线";
   const lines = [
-    `章节目标：${chapter.purpose || chapter.summary || "推进主线"}`,
+    `章节目标：${chapterGoal}`,
     typeof chapter.conflictLevel === "number" ? `冲突等级：${chapter.conflictLevel}` : "",
     typeof chapter.revealLevel === "number" ? `揭露等级：${chapter.revealLevel}` : "",
     typeof chapter.targetWordCount === "number" ? `目标字数：${chapter.targetWordCount}` : "",
     chapter.mustAvoid ? `禁止事项：${chapter.mustAvoid}` : "",
     chapter.payoffRefs.length > 0 ? `兑现关联：${chapter.payoffRefs.join("、")}` : "",
+    "因果链执行卡：",
+    `入场状态：承接上一章尾声，不允许无提示跳场；若上一章有未完成动作、物件、伤势、风险或关系压力，开头要顺势写下一步动作、反应、后果或新信息，禁止复述上一章尾句。`,
+    `触发事件：本章必须由“${chapterGoal}”中的具体压力触发，不写单纯从A到B。`,
+    `不可退让理由：主角至少有一个具体代价；对手或局面压力也要有不能退让的理由。`,
+    `三段推进：先让读者看见异常或压力，再让主角付出代价或做选择，最后给出阶段结果并引出新麻烦。`,
+    `状态变化：章末必须明确写出信息、局面、关系、风险、资源或目标中的至少一项变化。`,
+    `下一章承接：结尾留下可直接接住的动作、物件、地点、决定、人物状态或新风险，不用抽象口号收束。`,
+    chapter.chapterMeta
+      ? `chapter_meta：event_weight=${chapter.chapterMeta.eventWeight}；high_stakes_dialogue=${chapter.chapterMeta.highStakesDialogue}；scheme_beat=${chapter.chapterMeta.schemeBeat}；kind_of_hook=${chapter.chapterMeta.kindOfHook}`
+      : "",
   ].filter(Boolean);
   return lines.join("\n");
+}
+
+function hasCausalChainTaskSheet(taskSheet: string): boolean {
+  return /入场状态|触发事件|不可退让|状态变化|下一章承接/u.test(taskSheet);
+}
+
+export function normalizeTaskSheetForVolumeChapter(chapter: VolumeChapterPlan): string {
+  const existing = chapter.taskSheet?.trim() ?? "";
+  const causal = buildTaskSheetFromVolumeChapter({ ...chapter, taskSheet: null });
+  if (!existing) {
+    return causal;
+  }
+  if (hasCausalChainTaskSheet(existing)) {
+    return existing;
+  }
+  return [
+    existing,
+    "",
+    "【系统补充：因果链执行卡】",
+    causal,
+  ].join("\n");
 }
 
 export function buildVolumeSyncPlan(

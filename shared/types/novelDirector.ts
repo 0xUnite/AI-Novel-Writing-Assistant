@@ -3,6 +3,7 @@ import type {
   EmotionIntensity,
   NarrativePov,
   Novel,
+  NovelContentForm,
   PacePreference,
   PipelineJobStatus,
   ProjectMode,
@@ -216,6 +217,7 @@ export interface DirectorTakeoverResponse {
 }
 
 export interface DirectorProjectContextInput {
+  contentForm?: NovelContentForm;
   title?: string;
   description?: string;
   targetAudience?: string;
@@ -234,6 +236,7 @@ export interface DirectorProjectContextInput {
   aiFreedom?: AIFreedom;
   defaultChapterLength?: number;
   estimatedChapterCount?: number;
+  targetTotalWordCount?: number;
   projectStatus?: ProjectProgressStatus;
   storylineStatus?: ProjectProgressStatus;
   outlineStatus?: ProjectProgressStatus;

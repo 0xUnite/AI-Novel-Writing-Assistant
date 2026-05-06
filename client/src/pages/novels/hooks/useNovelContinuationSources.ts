@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import type { BookAnalysis } from "@ai-novel/shared/types/bookAnalysis";
+import type { NovelContentForm } from "@ai-novel/shared/types/novel";
 import { listBookAnalyses } from "@/api/bookAnalysis";
 import { getNovelList } from "@/api/novel";
 import { getNovelKnowledgeDocuments, listKnowledgeDocuments } from "@/api/knowledge";
@@ -94,7 +95,7 @@ export function useNovelContinuationSources(id: string, basicForm: ContinuationS
   const sourceNovelOptions = useMemo(
     () => (sourceNovelListQuery.data ?? [])
       .filter((item) => item.id !== id)
-      .map((item) => ({ id: item.id, title: item.title })),
+      .map((item) => ({ id: item.id, title: item.title, contentForm: item.contentForm as NovelContentForm | null })),
     [id, sourceNovelListQuery.data],
   );
 

@@ -1,0 +1,574 @@
+- generic [ref=e2]:
+  - generic [ref=e3]:
+    - banner [ref=e4]:
+      - generic [ref=e5]:
+        - img [ref=e6]
+        - generic [ref=e9]:
+          - generic [ref=e10]: AI 小说创作工作台
+          - generic [ref=e11]: AI Novel Production Engine
+      - generic [ref=e13]:
+        - generic [ref=e14]: 模型
+        - combobox [ref=e15] [cursor=pointer]:
+          - generic: MiniMax
+          - img [ref=e16]
+        - button "MiniMax-M2.7" [ref=e19] [cursor=pointer]:
+          - generic [ref=e20]: MiniMax-M2.7
+          - img [ref=e21]
+    - generic [ref=e23]:
+      - complementary [ref=e24]:
+        - button "收起导航栏" [ref=e26] [cursor=pointer]:
+          - img [ref=e27]
+        - navigation [ref=e29]:
+          - generic [ref=e30]:
+            - generic [ref=e31]: 创作
+            - link "首页" [ref=e32] [cursor=pointer]:
+              - /url: /
+              - generic [ref=e33]:
+                - img [ref=e35]
+                - generic [ref=e38]: 首页
+            - link "小说列表" [ref=e39] [cursor=pointer]:
+              - /url: /novels
+              - generic [ref=e40]:
+                - img [ref=e42]
+                - generic [ref=e44]: 小说列表
+            - link "短故事" [ref=e45] [cursor=pointer]:
+              - /url: /short-stories
+              - generic [ref=e46]:
+                - img [ref=e48]
+                - generic [ref=e51]: 短故事
+            - link "创作中枢" [ref=e52] [cursor=pointer]:
+              - /url: /creative-hub
+              - generic [ref=e53]:
+                - img [ref=e55]
+                - generic [ref=e60]: 创作中枢
+            - link "拆书" [ref=e61] [cursor=pointer]:
+              - /url: /book-analysis
+              - generic [ref=e62]:
+                - img [ref=e64]
+                - generic [ref=e71]: 拆书
+            - link "任务中心 R2 F45" [ref=e72] [cursor=pointer]:
+              - /url: /tasks
+              - generic [ref=e73]:
+                - img [ref=e75]
+                - generic [ref=e78]: 任务中心
+                - generic [ref=e79]:
+                  - generic [ref=e80]: R2
+                  - generic [ref=e81]: F45
+          - generic [ref=e82]:
+            - generic [ref=e83]: 资产
+            - link "题材基底库" [ref=e84] [cursor=pointer]:
+              - /url: /genres
+              - generic [ref=e85]:
+                - img [ref=e87]
+                - generic [ref=e91]: 题材基底库
+            - link "推进模式库" [ref=e92] [cursor=pointer]:
+              - /url: /story-modes
+              - generic [ref=e93]:
+                - img [ref=e95]
+                - generic [ref=e99]: 推进模式库
+            - link "标题工坊" [ref=e100] [cursor=pointer]:
+              - /url: /titles
+              - generic [ref=e101]:
+                - img [ref=e103]
+                - generic [ref=e106]: 标题工坊
+            - link "知识库" [ref=e107] [cursor=pointer]:
+              - /url: /knowledge
+              - generic [ref=e108]:
+                - img [ref=e110]
+                - generic [ref=e114]: 知识库
+            - link "世界观" [ref=e115] [cursor=pointer]:
+              - /url: /worlds
+              - generic [ref=e116]:
+                - img [ref=e118]
+                - generic [ref=e123]: 世界观
+            - link "写法引擎" [ref=e124] [cursor=pointer]:
+              - /url: /style-engine
+              - generic [ref=e125]:
+                - img [ref=e127]
+                - generic [ref=e130]: 写法引擎
+            - link "基础角色库" [ref=e131] [cursor=pointer]:
+              - /url: /base-characters
+              - generic [ref=e132]:
+                - img [ref=e134]
+                - generic [ref=e138]: 基础角色库
+          - generic [ref=e139]:
+            - generic [ref=e140]: 系统
+            - link "模型路由" [ref=e141] [cursor=pointer]:
+              - /url: /settings/model-routes
+              - generic [ref=e142]:
+                - img [ref=e144]
+                - generic [ref=e148]: 模型路由
+            - link "系统设置" [ref=e149] [cursor=pointer]:
+              - /url: /settings
+              - generic [ref=e150]:
+                - img [ref=e152]
+                - generic [ref=e155]: 系统设置
+      - main [ref=e156]:
+        - generic [ref=e157]:
+          - generic [ref=e158]:
+            - button "项目概览" [ref=e159] [cursor=pointer]
+            - button "知识库绑定" [ref=e160] [cursor=pointer]
+            - button "导出" [ref=e161] [cursor=pointer]
+            - button "创建续写项目" [ref=e162] [cursor=pointer]
+            - button "清洗旧章节标点" [ref=e163] [cursor=pointer]
+            - button "任务面板 最近任务" [ref=e164] [cursor=pointer]:
+              - text: 任务面板
+              - generic [ref=e165]: 最近任务
+          - generic [ref=e166]:
+            - generic [ref=e168]:
+              - generic [ref=e169]:
+                - heading "创作阶段" [level=3] [ref=e170]
+                - generic [ref=e171]: 这里是当前项目的唯一阶段导航。点击卡片即可切换到对应模块，并同时查看完成状态。
+              - generic [ref=e172]:
+                - generic [ref=e173]:
+                  - generic [ref=e174]: 阶段进度
+                  - generic [ref=e175]: 8/8
+                - generic [ref=e178]: 当前阶段：出稿质检
+            - generic [ref=e179]:
+              - button "1 已就绪 项目设定 定义作品身份、约束和 AI 协作方式。" [ref=e180] [cursor=pointer]:
+                - generic [ref=e181]:
+                  - generic [ref=e182]: "1"
+                  - generic [ref=e183]: 已就绪
+                - generic [ref=e184]: 项目设定
+                - generic [ref=e185]: 定义作品身份、约束和 AI 协作方式。
+              - button "2 已就绪 故事宏观规划 先把故事想法变成约束引擎，再进入角色和主线阶段。" [ref=e186] [cursor=pointer]:
+                - generic [ref=e187]:
+                  - generic [ref=e188]: "2"
+                  - generic [ref=e189]: 已就绪
+                - generic [ref=e190]: 故事宏观规划
+                - generic [ref=e191]: 先把故事想法变成约束引擎，再进入角色和主线阶段。
+              - button "3 已就绪 角色准备 补齐核心角色、关系和当前目标。" [ref=e192] [cursor=pointer]:
+                - generic [ref=e193]:
+                  - generic [ref=e194]: "3"
+                  - generic [ref=e195]: 已就绪
+                - generic [ref=e196]: 角色准备
+                - generic [ref=e197]: 补齐核心角色、关系和当前目标。
+              - button "4 已就绪 卷战略 / 卷骨架 先决定分卷策略，再确认每一卷的开卷抓手、压迫源和兑现方式。" [ref=e198] [cursor=pointer]:
+                - generic [ref=e199]:
+                  - generic [ref=e200]: "4"
+                  - generic [ref=e201]: 已就绪
+                - generic [ref=e202]: 卷战略 / 卷骨架
+                - generic [ref=e203]: 先决定分卷策略，再确认每一卷的开卷抓手、压迫源和兑现方式。
+              - button "5 已就绪 节奏 / 拆章 先做当前卷节奏板，再拆当前卷章节列表并补齐单章细化。" [ref=e204] [cursor=pointer]:
+                - generic [ref=e205]:
+                  - generic [ref=e206]: "5"
+                  - generic [ref=e207]: 已就绪
+                - generic [ref=e208]: 节奏 / 拆章
+                - generic [ref=e209]: 先做当前卷节奏板，再拆当前卷章节列表并补齐单章细化。
+              - button "6 已就绪 章节执行 生成章节、审计结果并处理修正。" [ref=e210] [cursor=pointer]:
+                - generic [ref=e211]:
+                  - generic [ref=e212]: "6"
+                  - generic [ref=e213]: 已就绪
+                - generic [ref=e214]: 章节执行
+                - generic [ref=e215]: 生成章节、审计结果并处理修正。
+              - button "7 当前阶段 出稿质检 批量出稿、单章修复与全书连贯守门集中处理。" [ref=e216] [cursor=pointer]:
+                - generic [ref=e217]:
+                  - generic [ref=e218]: "7"
+                  - generic [ref=e219]: 当前阶段
+                - generic [ref=e220]: 出稿质检
+                - generic [ref=e221]: 批量出稿、单章修复与全书连贯守门集中处理。
+              - button "8 已就绪 版本历史 查看重要版本、冻结点和差异。" [ref=e222] [cursor=pointer]:
+                - generic [ref=e223]:
+                  - generic [ref=e224]: "8"
+                  - generic [ref=e225]: 已就绪
+                - generic [ref=e226]: 版本历史
+                - generic [ref=e227]: 查看重要版本、冻结点和差异。
+          - generic [ref=e229]:
+            - generic [ref=e230]:
+              - generic [ref=e231]:
+                - generic [ref=e232]:
+                  - generic [ref=e233]: 《八零恶妻要离婚，冷面糙汉他慌了》自动导演已完成
+                  - generic [ref=e234]: 等待审核
+                  - generic [ref=e235]: "任务 #cmolr8k8"
+                - generic [ref=e236]: 自动导演主流程已完成，当前项目可直接查看章节、质检结果和导出全文。
+              - button "任务中心" [ref=e238] [cursor=pointer]
+            - generic [ref=e239]:
+              - generic [ref=e240]:
+                - generic [ref=e241]: 流程进度
+                - generic [ref=e242]: 100%
+              - generic [ref=e245]: 终稿质检完成
+              - generic [ref=e246]: 最近检查点：主流程完成
+            - generic [ref=e248]:
+              - generic [ref=e249]:
+                - generic [ref=e250]:
+                  - heading "批量生成与质检" [level=3] [ref=e251]
+                  - generic [ref=e253]:
+                    - generic [ref=e254]: 模型
+                    - combobox [ref=e255] [cursor=pointer]:
+                      - generic: MiniMax
+                      - img [ref=e256]
+                    - button "MiniMax-M2.7" [ref=e259] [cursor=pointer]:
+                      - generic [ref=e260]: MiniMax-M2.7
+                      - img [ref=e261]
+                - generic [ref=e265]: 当前未绑定世界观，生成过程不会注入世界规则。
+              - generic [ref=e266]:
+                - heading "推荐下一步" [level=3] [ref=e268]
+                - generic [ref=e269]:
+                  - generic [ref=e270]:
+                    - generic [ref=e271]: 修复全书连贯阻塞
+                    - generic [ref=e272]: 全书连贯守门发现 14 章阻塞。先清掉阻塞，再继续写下一批会更稳。
+                  - button "一键修复当前阻塞" [ref=e273] [cursor=pointer]
+              - generic [ref=e274]:
+                - generic [ref=e275]:
+                  - heading "配置区" [level=3] [ref=e277]
+                  - generic [ref=e278]:
+                    - generic [ref=e279]:
+                      - generic [ref=e280]:
+                        - generic [ref=e281]: 起始章节
+                        - spinbutton [ref=e282]: "1"
+                      - generic [ref=e283]:
+                        - generic [ref=e284]: 结束章节
+                        - spinbutton [ref=e285]: "80"
+                      - generic [ref=e286]:
+                        - generic [ref=e287]: 失败重试
+                        - spinbutton [ref=e288]: "2"
+                    - generic [ref=e289]:
+                      - generic [ref=e290]:
+                        - generic [ref=e291]: 运行模式
+                        - combobox [ref=e292]:
+                          - option "快速" [selected]
+                          - option "精修"
+                      - generic [ref=e293]:
+                        - generic [ref=e294]: 质量阈值
+                        - spinbutton [ref=e295]: "75"
+                      - generic [ref=e296]:
+                        - generic [ref=e297]: 修复模式
+                        - combobox [ref=e298]:
+                          - option "只检测不修复"
+                          - option "自动轻修" [selected]
+                          - option "自动重修"
+                          - option "只修连续性"
+                          - option "只修人设"
+                          - option "只修结尾力度"
+                    - generic [ref=e299]:
+                      - generic [ref=e300]:
+                        - checkbox "自动审校" [checked] [ref=e301]
+                        - text: 自动审校
+                      - generic [ref=e302]:
+                        - checkbox "自动修复" [checked] [ref=e303]
+                        - text: 自动修复
+                      - generic [ref=e304]:
+                        - checkbox "跳过已完成章节" [checked] [ref=e305]
+                        - text: 跳过已完成章节
+                    - generic [ref=e306]: 当前设置：快速 | 阈值 75 | 自动轻修
+                - generic [ref=e307]:
+                  - heading "阶段可视化" [level=3] [ref=e309]
+                  - generic [ref=e310]:
+                    - generic [ref=e312]:
+                      - generic [ref=e313]: 装配上下文
+                      - generic [ref=e314]: 待执行
+                    - generic [ref=e316]:
+                      - generic [ref=e317]: 生成任务单
+                      - generic [ref=e318]: 待执行
+                    - generic [ref=e320]:
+                      - generic [ref=e321]: 生成场景拍点
+                      - generic [ref=e322]: 待执行
+                    - generic [ref=e324]:
+                      - generic [ref=e325]: 生成正文
+                      - generic [ref=e326]: 待执行
+                    - generic [ref=e328]:
+                      - generic [ref=e329]: 质量检测
+                      - generic [ref=e330]: 待执行
+                    - generic [ref=e332]:
+                      - generic [ref=e333]: 自动修复
+                      - generic [ref=e334]: 待执行
+                    - generic [ref=e336]:
+                      - generic [ref=e337]: 更新剧情记忆
+                      - generic [ref=e338]: 待执行
+                - generic [ref=e339]:
+                  - heading "运行面板" [level=3] [ref=e341]
+                  - generic [ref=e342]:
+                    - generic [ref=e343]:
+                      - button "启动批量生成" [ref=e344] [cursor=pointer]
+                      - button "续写 10 章" [disabled]
+                      - button "仅重跑低分章节" [disabled]
+                      - button "导出任务报告" [ref=e345] [cursor=pointer]
+                      - button "一键导出全文" [ref=e346] [cursor=pointer]
+                      - button "手动重生成圣经" [ref=e347] [cursor=pointer]
+                      - button "停止圣经" [disabled]
+                      - button "手动重生成拍点" [ref=e348] [cursor=pointer]
+                      - button "停止拍点" [disabled]
+                    - generic [ref=e349]: 自动准备已并入批量出稿：启动流水线时会先检查作品圣经和本次章节范围的剧情拍点，缺失时自动生成，已存在则跳过。 当前圣经：已保存；本次范围拍点：16/80，启动流水线时会自动补齐。
+                    - generic [ref=e350]: 当前已连续写到规划上限第 16 章，快捷续写已锁住；若要继续，请先创建续写项目或扩展卷战略/章节骨架。
+                    - generic [ref=e351]: 当前无低于阈值的章节。
+                    - generic [ref=e352]:
+                      - generic [ref=e353]: 任务状态
+                      - generic [ref=e354]: 暂无运行中的流水线任务。
+                    - generic [ref=e355]:
+                      - generic [ref=e356]: 连续写作进度
+                      - generic [ref=e357]:
+                        - generic [ref=e358]: 已连续出稿到：第 16 章
+                        - generic [ref=e359]: 下一章目标：当前已连续写满
+                        - generic [ref=e360]: 当前聚焦：-
+                        - generic [ref=e361]: 后台队列：-
+                    - generic [ref=e362]:
+                      - generic [ref=e363]:
+                        - generic [ref=e364]:
+                          - generic [ref=e365]: AI 输出
+                          - generic [ref=e367]: 字数：0
+                        - paragraph [ref=e369]: 等待流式输出...
+                      - generic [ref=e370]:
+                        - generic [ref=e371]:
+                          - generic [ref=e372]: AI 输出
+                          - generic [ref=e374]: 字数：0
+                        - paragraph [ref=e376]: 等待流式输出...
+                - generic [ref=e377]:
+                  - heading "全书连贯守门" [level=3] [ref=e379]
+                  - generic [ref=e380]:
+                    - generic [ref=e381]: 这里负责跨章顺序检查：上一章尾钩、本章开头、时间地点、物件归属、人物状态和未解决冲突。它不是单章润色工具，建议在单章质量修复通过后按 20 章一批运行。
+                    - generic [ref=e382]:
+                      - generic [ref=e383]: 已写完正文：16 章
+                      - generic [ref=e384]: 已连续审查通过到：第 1 章
+                    - generic [ref=e385]:
+                      - button "继续自动连贯性审查" [ref=e386] [cursor=pointer]
+                      - button "一键修复当前阻塞" [ref=e387] [cursor=pointer]
+                    - generic [ref=e388]:
+                      - generic [ref=e389]:
+                        - generic [ref=e390]:
+                          - generic [ref=e391]: 处理状态
+                          - generic [ref=e392]:
+                            - generic [ref=e393]: 等待修复
+                            - generic [ref=e394]: 阻塞 14 章
+                          - generic [ref=e395]: 当前批次发现阻塞章节；你可以手动修复，也可以直接重新启动自动连贯性审查。
+                        - generic [ref=e396]:
+                          - generic [ref=e397]: 6%
+                          - generic [ref=e398]: 累计进度
+                      - generic [ref=e401]:
+                        - generic [ref=e402]:
+                          - generic [ref=e403]: 下一批目标
+                          - generic [ref=e404]: 第 2 章 - 第 16 章
+                        - generic [ref=e405]:
+                          - generic [ref=e406]: 当前批次
+                          - generic [ref=e407]: 第 2 章 - 第 16 章
+                        - generic [ref=e408]:
+                          - generic [ref=e409]: 当前章节
+                          - generic [ref=e410]: 第2章 - 我用退烧药换一个月
+                        - generic [ref=e411]:
+                          - generic [ref=e412]: 累计通过
+                          - generic [ref=e413]: 1/16
+                      - generic [ref=e414]:
+                        - generic [ref=e415]: 累计进度：1/16
+                        - generic [ref=e416]: 已恢复最近一次连贯性审查的阻塞章节。
+                    - generic [ref=e417]:
+                      - generic [ref=e418]: 当前阻塞章节
+                      - generic [ref=e419]:
+                        - generic [ref=e420]: 第2章 - 我用退烧药换一个月
+                        - generic [ref=e422]: 记录已过期
+                      - generic [ref=e423]:
+                        - generic [ref=e424]: 第3章 - 双胞胎第一次喊我别走
+                        - generic [ref=e426]: 记录已过期
+                      - generic [ref=e427]:
+                        - generic [ref=e428]: 第4章 - 津贴被我锁进铁皮盒
+                        - generic [ref=e430]: 记录已过期
+                      - generic [ref=e431]:
+                        - generic [ref=e432]: 第5章 - 娘家人跪着吐出钱
+                        - generic [ref=e434]: 记录已过期
+                      - generic [ref=e435]:
+                        - generic [ref=e436]: 第6章 - 红烧肉香飘满家属院
+                        - generic [ref=e438]: 记录已过期
+                      - generic [ref=e439]:
+                        - generic [ref=e440]: 第7章 - 黑市第一桶金
+                        - generic [ref=e442]: 记录已过期
+                      - generic [ref=e443]:
+                        - generic [ref=e444]: 第9章 - 他发现我不是从前的苏清月
+                        - generic [ref=e446]: 记录已过期
+                      - generic [ref=e447]:
+                        - generic [ref=e448]: 第10章 - 被撕碎的离婚报告
+                        - generic [ref=e450]: 记录已过期
+                      - generic [ref=e451]:
+                        - generic [ref=e452]: 第11章 - 明天去领离婚证
+                        - generic [ref=e454]: 记录已过期
+                      - generic [ref=e455]:
+                        - generic [ref=e456]: 第12章 - 我在特区开第一间批发铺
+                        - generic [ref=e458]: 记录已过期
+                      - generic [ref=e459]:
+                        - generic [ref=e460]: 第13章 - 两个孩子要换新爸爸
+                        - generic [ref=e462]: 未审计
+                      - generic [ref=e463]:
+                        - generic [ref=e464]: 第14章 - 雨夜扛包的贺团长
+                        - generic [ref=e466]: 记录已过期
+                      - generic [ref=e467]:
+                        - generic [ref=e468]: 第15章 - 命给你也要平等
+                        - generic [ref=e470]: 记录已过期
+                      - generic [ref=e471]:
+                        - generic [ref=e472]: 第16章 - 我的路自己走
+                        - generic [ref=e474]: 未审计
+                - generic [ref=e475]:
+                  - heading "单章质量修复" [level=3] [ref=e477]
+                  - generic [ref=e478]:
+                    - generic [ref=e479]:
+                      - generic [ref=e480]: 待审校章节：0
+                      - generic [ref=e481]: 待修复章节：0
+                      - generic [ref=e482]: 待重检章节：0
+                    - generic [ref=e483]: 这里负责单章质量：推进是否有效、节奏是否拖沓、重复是否过多、结尾是否有承接点。一键修复会先做质量审校，再补局部连贯护栏；全书级跨章窗口请交给“全书连贯守门”。
+                    - generic [ref=e484]: 当前没有低于阈值的待修章节。若还有待检新稿，“一键修复到合格”会先自动审校，再继续修到达标。
+                    - generic [ref=e485]:
+                      - button "一键审校待检章节" [disabled]
+                      - button "复核已定稿旧章" [ref=e486] [cursor=pointer]
+                      - button "一键修复到合格" [disabled]
+                      - button "执行审校" [disabled]
+                      - button "执行修复" [disabled]
+                      - button "生成钩子" [disabled]
+                    - generic [ref=e487]:
+                      - generic [ref=e488]:
+                        - generic [ref=e489]: AI 输出
+                        - generic [ref=e491]: 字数：0
+                      - paragraph [ref=e493]: 等待流式输出...
+                    - generic [ref=e494]:
+                      - generic [ref=e495]: 已定稿待复核章节
+                      - generic [ref=e496]: 另有 15 章已定稿章节存在历史质量报告过期记录； 它们不会出现在“待修复”里，但你可以用“复核已定稿旧章”单独补审。
+                      - generic [ref=e497]:
+                        - generic [ref=e498]: 第2章 - 我用退烧药换一个月
+                        - generic [ref=e499]: 第3章 - 双胞胎第一次喊我别走
+                        - generic [ref=e500]: 第4章 - 津贴被我锁进铁皮盒
+                        - generic [ref=e501]: 第5章 - 娘家人跪着吐出钱
+                        - generic [ref=e502]: 第6章 - 红烧肉香飘满家属院
+                        - generic [ref=e503]: 第7章 - 黑市第一桶金
+                        - generic [ref=e504]: 第8章 - 贺峥负伤推门而入
+                        - generic [ref=e505]: 第9章 - 他发现我不是从前的苏清月
+                      - generic [ref=e506]: 其余 7 章已省略显示。
+              - generic [ref=e507]:
+                - heading "质量报告总览" [level=3] [ref=e509]
+                - generic [ref=e510]:
+                  - generic [ref=e511]:
+                    - generic [ref=e512]: 连贯性：85
+                    - generic [ref=e513]: 重复率：2
+                    - generic [ref=e514]: 节奏：82
+                    - generic [ref=e515]: 口吻：80
+                    - generic [ref=e516]: 追更感：78
+                    - generic [ref=e517]: 综合：83
+                  - generic [ref=e518]:
+                    - generic [ref=e519]:
+                      - generic [ref=e520]: 章节：第1章 - 离婚报告拍在饭桌上
+                      - generic [ref=e521]: 综合：83，连贯性：85，重复率：2
+                    - generic [ref=e522]:
+                      - generic [ref=e523]: 章节：第2章 - 我用退烧药换一个月
+                      - generic [ref=e524]: 综合：84，连贯性：85，重复率：1
+                    - generic [ref=e525]:
+                      - generic [ref=e526]: 章节：第3章 - 双胞胎第一次喊我别走
+                      - generic [ref=e527]: 综合：83，连贯性：85，重复率：4
+                    - generic [ref=e528]:
+                      - generic [ref=e529]: 章节：第4章 - 津贴被我锁进铁皮盒
+                      - generic [ref=e530]: 综合：84，连贯性：85，重复率：1
+                    - generic [ref=e531]:
+                      - generic [ref=e532]: 章节：第5章 - 娘家人跪着吐出钱
+                      - generic [ref=e533]: 综合：84，连贯性：85，重复率：1
+                    - generic [ref=e534]:
+                      - generic [ref=e535]: 章节：第6章 - 红烧肉香飘满家属院
+                      - generic [ref=e536]: 综合：84，连贯性：85，重复率：1
+                    - generic [ref=e537]:
+                      - generic [ref=e538]: 章节：第7章 - 黑市第一桶金
+                      - generic [ref=e539]: 综合：84，连贯性：85，重复率：1
+                    - generic [ref=e540]:
+                      - generic [ref=e541]: 章节：第8章 - 贺峥负伤推门而入
+                      - generic [ref=e542]: 综合：84，连贯性：85，重复率：1
+                    - generic [ref=e543]:
+                      - generic [ref=e544]: 章节：第9章 - 他发现我不是从前的苏清月
+                      - generic [ref=e545]: 综合：84，连贯性：85，重复率：0
+                    - generic [ref=e546]:
+                      - generic [ref=e547]: 章节：第10章 - 被撕碎的离婚报告
+                      - generic [ref=e548]: 综合：84，连贯性：85，重复率：1
+              - generic [ref=e549]:
+                - generic [ref=e550]:
+                  - heading "已保存圣经" [level=3] [ref=e552]
+                  - generic [ref=e553]:
+                    - generic [ref=e554]:
+                      - generic [ref=e555]: 主线承诺
+                      - generic [ref=e556]: 救崽洗白、打脸极品、空间搞钱、糙汉追妻、事业爱情平等收束。
+                    - generic [ref=e557]:
+                      - generic [ref=e558]: 核心设定
+                      - generic [ref=e559]: 八零年代驻岛部队家属院，苏清月穿成恶名昭彰的军嫂后妈，拥有随身现代独栋超市空间和微型灵泉。
+                    - generic [ref=e560]:
+                      - generic [ref=e561]: 世界规则
+                      - generic [ref=e562]: 八零物资紧张，有票证和津贴；黑市有风险；军人纪律和家属院舆论真实存在；南方特区代表商业机会。
+                - generic [ref=e563]:
+                  - heading "已保存拍点" [level=3] [ref=e565]
+                  - generic [ref=e566]:
+                    - generic [ref=e567]:
+                      - generic [ref=e568]:
+                        - generic [ref=e569]: 第 1 章 · 离婚报告拍在饭桌上
+                        - generic [ref=e570]: planned
+                      - generic [ref=e571]: 类型：turning_point
+                    - generic [ref=e572]:
+                      - generic [ref=e573]:
+                        - generic [ref=e574]: 第 2 章 · 我用退烧药换一个月
+                        - generic [ref=e575]: planned
+                      - generic [ref=e576]: 类型：turning_point
+                    - generic [ref=e577]:
+                      - generic [ref=e578]:
+                        - generic [ref=e579]: 第 3 章 · 双胞胎第一次喊我别走
+                        - generic [ref=e580]: planned
+                      - generic [ref=e581]: 类型：turning_point
+                    - generic [ref=e582]:
+                      - generic [ref=e583]:
+                        - generic [ref=e584]: 第 4 章 · 津贴被我锁进铁皮盒
+                        - generic [ref=e585]: planned
+                      - generic [ref=e586]: 类型：turning_point
+                    - generic [ref=e587]:
+                      - generic [ref=e588]:
+                        - generic [ref=e589]: 第 5 章 · 娘家人跪着吐出钱
+                        - generic [ref=e590]: planned
+                      - generic [ref=e591]: 类型：turning_point
+                    - generic [ref=e592]:
+                      - generic [ref=e593]:
+                        - generic [ref=e594]: 第 6 章 · 红烧肉香飘满家属院
+                        - generic [ref=e595]: planned
+                      - generic [ref=e596]: 类型：turning_point
+                    - generic [ref=e597]:
+                      - generic [ref=e598]:
+                        - generic [ref=e599]: 第 7 章 · 黑市第一桶金
+                        - generic [ref=e600]: planned
+                      - generic [ref=e601]: 类型：turning_point
+                    - generic [ref=e602]:
+                      - generic [ref=e603]:
+                        - generic [ref=e604]: 第 8 章 · 贺峥负伤推门而入
+                        - generic [ref=e605]: planned
+                      - generic [ref=e606]: 类型：turning_point
+                    - generic [ref=e607]:
+                      - generic [ref=e608]:
+                        - generic [ref=e609]: 第 9 章 · 他发现我不是从前的苏清月
+                        - generic [ref=e610]: planned
+                      - generic [ref=e611]: 类型：turning_point
+                    - generic [ref=e612]:
+                      - generic [ref=e613]:
+                        - generic [ref=e614]: 第 10 章 · 被撕碎的离婚报告
+                        - generic [ref=e615]: planned
+                      - generic [ref=e616]: 类型：turning_point
+                    - generic [ref=e617]:
+                      - generic [ref=e618]:
+                        - generic [ref=e619]: 第 11 章 · 明天去领离婚证
+                        - generic [ref=e620]: planned
+                      - generic [ref=e621]: 类型：turning_point
+                    - generic [ref=e622]:
+                      - generic [ref=e623]:
+                        - generic [ref=e624]: 第 12 章 · 我在特区开第一间批发铺
+                        - generic [ref=e625]: planned
+                      - generic [ref=e626]: 类型：turning_point
+                    - generic [ref=e627]:
+                      - generic [ref=e628]:
+                        - generic [ref=e629]: 第 13 章 · 两个孩子要换新爸爸
+                        - generic [ref=e630]: planned
+                      - generic [ref=e631]: 类型：turning_point
+                    - generic [ref=e632]:
+                      - generic [ref=e633]:
+                        - generic [ref=e634]: 第 14 章 · 雨夜扛包的贺团长
+                        - generic [ref=e635]: planned
+                      - generic [ref=e636]: 类型：turning_point
+                    - generic [ref=e637]:
+                      - generic [ref=e638]:
+                        - generic [ref=e639]: 第 15 章 · 命给你也要平等
+                        - generic [ref=e640]: planned
+                      - generic [ref=e641]: 类型：turning_point
+                    - generic [ref=e642]:
+                      - generic [ref=e643]:
+                        - generic [ref=e644]: 第 16 章 · 我的路自己走
+                        - generic [ref=e645]: planned
+                      - generic [ref=e646]: 类型：payoff
+  - region "Notifications alt+T":
+    - list:
+      - listitem [ref=e647]:
+        - img [ref=e649]
+        - generic [ref=e652]: 请求参数校验失败。
+      - listitem [ref=e653]:
+        - img [ref=e655]
+        - generic [ref=e658]: 请求参数校验失败。

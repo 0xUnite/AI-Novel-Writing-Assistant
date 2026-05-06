@@ -1,5 +1,6 @@
 export const LLM_PROVIDERS = [
   "deepseek",
+  "minimax",
   "siliconflow",
   "openai",
   "anthropic",

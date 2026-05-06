@@ -1,29 +1,44 @@
 import { z } from "zod";
 
+function coerceList(value: unknown): unknown {
+  const list = Array.isArray(value)
+    ? value
+    : value && typeof value === "object"
+      ? Object.values(value as Record<string, unknown>)
+      : value;
+  if (Array.isArray(list)) {
+    return list.filter((item) => item && typeof item === "object" && !Array.isArray(item));
+  }
+  if (value && typeof value === "object") {
+    return Object.values(value as Record<string, unknown>);
+  }
+  return list;
+}
+
 export const chapterDynamicExtractionSchema = z.object({
-  candidates: z.array(z.object({
+  candidates: z.preprocess(coerceList, z.array(z.object({
     proposedName: z.string().trim().min(1),
     proposedRole: z.string().trim().optional().nullable(),
     summary: z.string().trim().optional().nullable(),
     evidence: z.array(z.string().trim().min(1)).max(4).default([]),
     matchedCharacterName: z.string().trim().optional().nullable(),
     confidence: z.number().min(0).max(1).optional().nullable(),
-  })).default([]),
-  factionUpdates: z.array(z.object({
+  }))).default([]),
+  factionUpdates: z.preprocess(coerceList, z.array(z.object({
     characterName: z.string().trim().min(1),
     factionLabel: z.string().trim().min(1),
     stanceLabel: z.string().trim().optional().nullable(),
     summary: z.string().trim().optional().nullable(),
     confidence: z.number().min(0).max(1).optional().nullable(),
-  })).default([]),
-  relationStages: z.array(z.object({
+  }))).default([]),
+  relationStages: z.preprocess(coerceList, z.array(z.object({
     sourceCharacterName: z.string().trim().min(1),
     targetCharacterName: z.string().trim().min(1),
     stageLabel: z.string().trim().min(1),
     stageSummary: z.string().trim().min(1),
     nextTurnPoint: z.string().trim().optional().nullable(),
     confidence: z.number().min(0).max(1).optional().nullable(),
-  })).default([]),
+  }))).default([]),
 });
 
 export const volumeDynamicsProjectionSchema = z.object({

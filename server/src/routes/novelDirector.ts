@@ -33,6 +33,7 @@ const llmOptionsSchema = z.object({
 });
 
 const projectContextSchema = z.object({
+  contentForm: z.enum(["novel", "short_story"]).optional(),
   title: z.string().trim().optional(),
   description: z.string().trim().optional(),
   targetAudience: z.string().trim().optional(),
@@ -52,7 +53,8 @@ const projectContextSchema = z.object({
   emotionIntensity: z.enum(["low", "medium", "high"]).optional(),
   aiFreedom: z.enum(["low", "medium", "high"]).optional(),
   defaultChapterLength: z.number().int().min(500).max(10000).optional(),
-  estimatedChapterCount: z.number().int().min(1).max(500).optional(),
+  estimatedChapterCount: z.number().int().min(0).max(500).optional(),
+  targetTotalWordCount: z.number().int().min(0).max(2_000_000).optional(),
   projectStatus: z.enum(["not_started", "in_progress", "completed", "rework", "blocked"]).optional(),
   storylineStatus: z.enum(["not_started", "in_progress", "completed", "rework", "blocked"]).optional(),
   outlineStatus: z.enum(["not_started", "in_progress", "completed", "rework", "blocked"]).optional(),

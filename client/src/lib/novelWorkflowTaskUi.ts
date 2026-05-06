@@ -1,6 +1,7 @@
 import type { NovelAutoDirectorTaskSummary } from "@ai-novel/shared/types/novel";
 import type { NovelWorkflowCheckpoint } from "@ai-novel/shared/types/novelWorkflow";
 import type { TaskStatus } from "@ai-novel/shared/types/task";
+import { formatCurrentItemLabel } from "./formatCurrentItemLabel";
 
 export type WorkflowBadgeVariant = "default" | "outline" | "secondary" | "destructive";
 
@@ -23,7 +24,7 @@ export function formatWorkflowCheckpoint(checkpoint?: NovelWorkflowCheckpoint | 
     return "前 10 章可开写";
   }
   if (checkpoint === "chapter_batch_ready") {
-    return "前 10 章自动执行已暂停";
+    return "章节资源已就绪";
   }
   if (checkpoint === "replan_required") {
     return "等待重规划";
@@ -49,7 +50,7 @@ export function getWorkflowBadge(task?: NovelAutoDirectorTaskSummary | null): {
   }
   if ((task.status === "failed" || task.status === "cancelled") && task.checkpointType === "chapter_batch_ready") {
     return {
-      label: task.status === "failed" ? "前 10 章自动执行已暂停" : "前 10 章自动执行已取消",
+      label: task.status === "failed" ? "章节批量执行已暂停" : "章节批量执行已取消",
       variant: task.status === "failed" ? "destructive" : "outline",
     };
   }
@@ -97,13 +98,14 @@ export function getWorkflowDescription(task?: NovelAutoDirectorTaskSummary | nul
     return `AI 正在后台继续执行前 10 章，当前进度 ${Math.round(task.progress * 100)}%。`;
   }
   if ((task.status === "failed" || task.status === "cancelled") && task.checkpointType === "chapter_batch_ready") {
-    return "前 10 章自动执行在批量阶段暂停了，建议先查看任务，再决定是否继续自动执行。";
+    return "章节批量执行在中途暂停了，建议先查看任务，再决定是否继续自动执行。";
   }
   if (task.checkpointSummary?.trim()) {
     return task.checkpointSummary.trim();
   }
-  if (task.currentItemLabel?.trim()) {
-    return task.currentItemLabel.trim();
+  const currentItemLabel = formatCurrentItemLabel(task.currentItemLabel);
+  if (currentItemLabel) {
+    return currentItemLabel;
   }
   if (task.nextActionLabel?.trim()) {
     return `下一步：${task.nextActionLabel.trim()}`;

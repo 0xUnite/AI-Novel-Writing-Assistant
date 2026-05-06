@@ -4,6 +4,7 @@ import { compactSnippet, normalizeRagText, toKeywordTerms } from "./utils";
 import { EmbeddingService } from "./EmbeddingService";
 import { VectorStoreService } from "./VectorStoreService";
 import { resolveKnowledgeDocumentIds } from "../knowledge/common";
+import { retrieveWorldbuildingBibleChunks } from "../novel/worldbuildingWorldBible";
 import { RAG_OWNER_TYPES, type RagOwnerType, type RagSearchOptions, type RetrievedChunk } from "./types";
 
 const RRF_K = 60;
@@ -167,15 +168,23 @@ export class HybridRetrievalService {
   }
 
   async retrieve(query: string, options: RagSearchOptions = {}): Promise<RetrievedChunk[]> {
-    if (!ragConfig.enabled) {
-      return [];
-    }
     const normalizedQuery = normalizeRagText(query);
     if (!normalizedQuery) {
       return [];
     }
-    const tenantId = options.tenantId ?? ragConfig.defaultTenantId;
     const finalTopK = options.finalTopK ?? ragConfig.finalTopK;
+    // Curated worldbuilding bible docs are canonical project knowledge. They are
+    // prepended ahead of vector/keyword chunks so chapter generation sees them
+    // before looser RAG hits.
+    const worldbuildingBibleRows = retrieveWorldbuildingBibleChunks(normalizedQuery, {
+      novelId: options.novelId,
+      worldId: options.worldId,
+      finalTopK,
+    });
+    if (!ragConfig.enabled) {
+      return worldbuildingBibleRows.slice(0, finalTopK);
+    }
+    const tenantId = options.tenantId ?? ragConfig.defaultTenantId;
     const filteredBaseOwnerTypes = (options.ownerTypes ?? NON_KNOWLEDGE_OWNER_TYPES)
       .filter((item) => item !== "knowledge_document");
     const baseOwnerTypes = options.ownerTypes
@@ -234,7 +243,16 @@ export class HybridRetrievalService {
         .slice(0, finalTopK);
     }
 
-    return fused;
+    const seen = new Set<string>();
+    return [...worldbuildingBibleRows, ...fused]
+      .filter((item) => {
+        if (seen.has(item.id)) {
+          return false;
+        }
+        seen.add(item.id);
+        return true;
+      })
+      .slice(0, finalTopK);
   }
 
   async buildContextBlock(query: string, options: RagSearchOptions = {}): Promise<string> {

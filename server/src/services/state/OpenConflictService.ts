@@ -194,6 +194,20 @@ export class OpenConflictService {
     });
   }
 
+  async resolveStateDiffConflictsForChapter(novelId: string, chapterId: string) {
+    await prisma.openConflict.updateMany({
+      where: {
+        novelId,
+        chapterId,
+        sourceType: STATE_DIFF_SOURCE_TYPE,
+        status: "open",
+      },
+      data: {
+        status: "resolved",
+      },
+    });
+  }
+
   async syncFromStateDiff(input: {
     novelId: string;
     chapterId: string;
@@ -205,6 +219,19 @@ export class OpenConflictService {
     const activeKeys = input.conflicts.map((item) => item.conflictKey);
 
     await prisma.$transaction(async (tx) => {
+      await tx.openConflict.updateMany({
+        where: {
+          novelId: input.novelId,
+          chapterId: input.chapterId,
+          sourceType: STATE_DIFF_SOURCE_TYPE,
+          status: "open",
+          conflictKey: { notIn: activeKeys },
+        },
+        data: {
+          status: "resolved",
+        },
+      });
+
       if (input.trackedConflictKeys.length > 0) {
         await tx.openConflict.updateMany({
           where: {

@@ -23,6 +23,13 @@ enum PipelineJobStatus {
   cancelled
 }
 
+enum NovelReviewBatchJobType {
+  quality_review_all
+  quality_repair_until_pass
+  continuity_audit
+  continuity_repair_blocked
+}
+
 enum BeatStatus {
   planned
   completed
@@ -291,6 +298,7 @@ enum CharacterGender {
 
 model Novel {
   id                String      @id @default(cuid())
+  contentForm       String      @default("novel")
   title             String
   description       String?
   targetAudience    String?
@@ -308,6 +316,7 @@ model Novel {
   aiFreedom         AIFreedom?
   defaultChapterLength Int?
   estimatedChapterCount Int?
+  targetTotalWordCount Int?
   projectStatus     ProjectProgressStatus? @default(not_started)
   storylineStatus   ProjectProgressStatus? @default(not_started)
   outlineStatus     ProjectProgressStatus? @default(not_started)
@@ -347,6 +356,7 @@ model Novel {
   chapterSummaries  ChapterSummary[]
   facts             ConsistencyFact[]
   generationJobs    GenerationJob[]
+  reviewBatchJobs   NovelReviewBatchJob[]
   agentRuns          AgentRun[]
   creativeDecisions  CreativeDecision[]
   novelSnapshots     NovelSnapshot[]
@@ -366,6 +376,7 @@ model Novel {
   updatedAt         DateTime    @updatedAt
 
   @@index([genreId])
+  @@index([contentForm])
   @@index([primaryStoryModeId])
   @@index([secondaryStoryModeId])
   @@index([worldId])
@@ -1177,6 +1188,34 @@ model GenerationJob {
 
   @@index([novelId])
   @@index([novelId, status])
+}
+
+model NovelReviewBatchJob {
+  id                String                 @id @default(cuid())
+  novelId           String
+  jobType           NovelReviewBatchJobType
+  status            PipelineJobStatus      @default(queued)
+  progress          Float                  @default(0)
+  completedCount    Int                    @default(0)
+  totalCount        Int                    @default(0)
+  retryCount        Int                    @default(0)
+  maxRetries        Int                    @default(0)
+  heartbeatAt       DateTime?
+  currentStage      String?
+  currentItemKey    String?
+  currentItemLabel  String?
+  cancelRequestedAt DateTime?
+  error             String?
+  payload           String?
+  startedAt         DateTime?
+  finishedAt        DateTime?
+  novel             Novel                  @relation(fields: [novelId], references: [id], onDelete: Cascade)
+  createdAt         DateTime               @default(now())
+  updatedAt         DateTime               @updatedAt
+
+  @@index([novelId])
+  @@index([novelId, status])
+  @@index([novelId, jobType, status])
 }
 
 model AgentRun {

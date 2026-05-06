@@ -1,5 +1,7 @@
 import type { BookAnalysisSectionKey } from "@ai-novel/shared/types/bookAnalysis";
+import type { NovelContentForm } from "@ai-novel/shared/types/novel";
 import { Button } from "@/components/ui/button";
+import { decorateNovelTitleWithContentForm } from "@/lib/novelContentForm";
 import {
   BASIC_INFO_FIELD_HINTS,
   type NovelBasicFormState,
@@ -13,7 +15,7 @@ import {
 
 interface ContinuationSourceSectionProps {
   basicForm: NovelBasicFormState;
-  sourceNovelOptions: Array<{ id: string; title: string }>;
+  sourceNovelOptions: Array<{ id: string; title: string; contentForm?: NovelContentForm | null }>;
   sourceKnowledgeOptions: Array<{ id: string; title: string }>;
   sourceNovelBookAnalysisOptions: Array<{
     id: string;
@@ -50,8 +52,8 @@ export function ContinuationSourceSection(props: ContinuationSourceSectionProps)
           <SelectionCard
             option={{
               value: "novel",
-              label: "站内小说",
-              summary: "适合基于当前系统里的既有小说继续创作。",
+              label: "站内作品",
+              summary: "适合基于当前系统里的长篇小说或短故事继续创作。",
             }}
             selected={basicForm.continuationSourceType === "novel"}
             onSelect={(value) => onFormChange({ continuationSourceType: value })}
@@ -70,16 +72,16 @@ export function ContinuationSourceSection(props: ContinuationSourceSectionProps)
 
       {basicForm.continuationSourceType === "novel" ? (
         <div className="space-y-2">
-          <FieldLabel htmlFor="basic-source-novel">前作小说</FieldLabel>
+          <FieldLabel htmlFor="basic-source-novel">前作作品</FieldLabel>
           <select
             id="basic-source-novel"
             className="w-full rounded-md border bg-background p-2 text-sm"
             value={basicForm.sourceNovelId}
             onChange={(event) => onFormChange({ sourceNovelId: event.target.value })}
           >
-            <option value="">请选择前作小说</option>
+            <option value="">请选择前作作品</option>
             {sourceNovelOptions.map((novel) => (
-              <option key={novel.id} value={novel.id}>{novel.title}</option>
+              <option key={novel.id} value={novel.id}>{decorateNovelTitleWithContentForm(novel)}</option>
             ))}
           </select>
         </div>

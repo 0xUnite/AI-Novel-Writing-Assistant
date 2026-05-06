@@ -3,7 +3,8 @@ import type { BaseChatModel } from "@langchain/core/language_models/chat_models"
 import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 
 function cleanJsonText(source: string): string {
-  return source.replace(/```json|```/gi, "").trim();
+  const withoutThink = source.replace(/<think>[\s\S]*?<\/think>/gi, "");
+  return withoutThink.replace(/```json|```/gi, "").trim();
 }
 
 function parseJSONObject(source: string): Record<string, string> {

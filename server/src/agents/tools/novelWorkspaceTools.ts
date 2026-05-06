@@ -1,5 +1,6 @@
 import { prisma } from "../../db/prisma";
 import { novelSetupStatusService } from "../../services/novel/NovelSetupStatusService";
+import { normalizeNovelPlanningScale } from "../../services/novel/novelPlanningScale";
 import { AgentToolError, type AgentToolName } from "../types";
 import type { AgentToolDefinition } from "./toolTypes";
 import {
@@ -58,6 +59,11 @@ export const novelWorkspaceToolDefinitions: Partial<
     execute: async (_context, rawInput) => {
       const input = listNovelsInput.parse(rawInput);
       const where = {
+        ...(input.contentForm
+          ? {
+            contentForm: input.contentForm,
+          }
+          : {}),
         ...(input.query
           ? {
             title: {
@@ -113,8 +119,10 @@ export const novelWorkspaceToolDefinitions: Partial<
     execute: async (_context, rawInput) => {
       const input = createNovelInput.parse(rawInput);
       const genreId = await resolveGenreIdByName(input.genre);
+      const planningScale = normalizeNovelPlanningScale(input);
       const novel = await prisma.novel.create({
         data: {
+          contentForm: planningScale.contentForm,
           title: input.title,
           description: input.description ?? null,
           genreId,
@@ -123,7 +131,9 @@ export const novelWorkspaceToolDefinitions: Partial<
           styleTone: input.styleTone ?? null,
           emotionIntensity: input.emotionIntensity,
           aiFreedom: input.aiFreedom,
-          defaultChapterLength: input.defaultChapterLength,
+          defaultChapterLength: planningScale.defaultChapterLength,
+          estimatedChapterCount: planningScale.estimatedChapterCount,
+          targetTotalWordCount: planningScale.targetTotalWordCount,
           projectStatus: input.projectStatus ?? "in_progress",
           outlineStatus: "not_started",
           storylineStatus: "not_started",
@@ -136,10 +146,11 @@ export const novelWorkspaceToolDefinitions: Partial<
       }
       return createNovelOutput.parse({
         novelId: novel.id,
+        contentForm: novel.contentForm === "short_story" ? "short_story" : "novel",
         title: novel.title,
         status: novel.status,
         chapterCount: 0,
-        summary: `已创建小说《${novel.title}》，当前进入初始化引导。`,
+        summary: `已创建${novel.contentForm === "short_story" ? "短故事" : "小说"}《${novel.title}》，当前进入初始化引导。`,
         setup,
       });
     },
@@ -205,9 +216,10 @@ export const novelWorkspaceToolDefinitions: Partial<
       }
       return selectNovelWorkspaceOutput.parse({
         novelId: resolved.id,
+        contentForm: resolved.contentForm === "short_story" ? "short_story" : "novel",
         title: resolved.title,
         chapterCount: resolved._count.chapters,
-        summary: `已切换到小说《${resolved.title}》的工作区。`,
+        summary: `已切换到${resolved.contentForm === "short_story" ? "短故事" : "小说"}《${resolved.title}》的工作区。`,
         setup,
       });
     },

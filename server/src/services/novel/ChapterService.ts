@@ -1,4 +1,5 @@
 import { prisma } from "../../db/prisma";
+import { ensureChapterTitle } from "./chapterTitle";
 
 interface ChapterWriteInput {
   title?: string;
@@ -15,10 +16,15 @@ export class ChapterService {
   }
 
   async createChapter(novelId: string, input: Required<Pick<ChapterWriteInput, "title" | "order">> & ChapterWriteInput) {
+    const chapterTitle = ensureChapterTitle({
+      order: input.order,
+      title: input.title,
+      content: input.content ?? "",
+    });
     return prisma.chapter.create({
       data: {
         novelId,
-        title: input.title,
+        title: chapterTitle,
         order: input.order,
         content: input.content ?? "",
       },
@@ -28,14 +34,23 @@ export class ChapterService {
   async updateChapter(novelId: string, chapterId: string, input: ChapterWriteInput) {
     const exists = await prisma.chapter.findFirst({
       where: { id: chapterId, novelId },
-      select: { id: true },
+      select: { id: true, title: true, order: true, content: true },
     });
     if (!exists) {
       throw new Error("章节不存在。");
     }
+    const nextOrder = input.order ?? exists.order;
+    const nextTitle = ensureChapterTitle({
+      order: nextOrder,
+      title: input.title ?? exists.title,
+      content: input.content ?? exists.content,
+    });
     return prisma.chapter.update({
       where: { id: chapterId },
-      data: input,
+      data: {
+        ...input,
+        title: nextTitle,
+      },
     });
   }
 

@@ -7,6 +7,16 @@ import {
   type StateServiceOptions,
 } from "./stateSnapshotExtraction";
 import { detectStateDiffConflicts } from "./stateConflictDetection";
+import { normalizeChapterMeta, serializeChapterMetaForPrompt, toStoredChapterMeta } from "../novel/chapterMeta";
+import {
+  sanitizeMemoryList,
+  sanitizeMemoryText,
+  sanitizeStateText,
+} from "../novel/chapterMemorySanitizer";
+import {
+  buildProtectedCharacterIdentityBlock,
+  getProtectedCharacterIdentities,
+} from "../novel/worldbuildingWorldBible";
 
 function clampStateScore(value: unknown): number | null {
   if (typeof value !== "number" || !Number.isFinite(value)) {
@@ -18,6 +28,42 @@ function clampStateScore(value: unknown): number | null {
 function normalizeStatus(value: unknown, fallback: string): string {
   const text = String(value ?? "").trim();
   return text || fallback;
+}
+
+function normalizeChapterReference(
+  value: unknown,
+  chapterLookup: {
+    byId: Set<string>;
+    byOrder: Map<number, string>;
+    byTitle: Map<string, string>;
+  },
+  fallback: string | null,
+): string | null {
+  const text = String(value ?? "").trim();
+  if (!text) {
+    return fallback;
+  }
+  if (chapterLookup.byId.has(text)) {
+    return text;
+  }
+  const match = text.match(/^第\s*(\d+)\s*章$/);
+  if (match) {
+    return chapterLookup.byOrder.get(Number.parseInt(match[1] ?? "", 10)) ?? fallback;
+  }
+  const normalizedTitle = text.replace(/^《|》$/g, "");
+  return chapterLookup.byTitle.get(normalizedTitle) ?? fallback;
+}
+
+function parseSnapshotChapterMeta(rawStateJson: string | null | undefined) {
+  if (!rawStateJson?.trim()) {
+    return null;
+  }
+  try {
+    const parsed = JSON.parse(rawStateJson) as Record<string, unknown>;
+    return normalizeChapterMeta(parsed.chapter_meta ?? parsed.chapterMeta ?? parsed);
+  } catch {
+    return null;
+  }
 }
 
 export class StateService {
@@ -71,9 +117,10 @@ export class StateService {
   }
 
   async buildStateContextBlock(novelId: string, chapterOrder: number): Promise<string> {
+    const protectedIdentityBlock = buildProtectedCharacterIdentityBlock(novelId);
     const snapshot = await this.getLatestSnapshotBeforeChapter(novelId, chapterOrder);
     if (!snapshot) {
-      return "";
+      return protectedIdentityBlock;
     }
     const characterLines = snapshot.characterStates
       .map((item) => item.summary?.trim())
@@ -89,8 +136,11 @@ export class StateService {
     const foreshadowLines = snapshot.foreshadowStates
       .map((item) => `${item.title}(${item.status})`)
       .slice(0, 4);
+    const chapterMeta = parseSnapshotChapterMeta(snapshot.rawStateJson);
     return [
+      protectedIdentityBlock,
       `State snapshot summary: ${snapshot.summary ?? "暂无摘要"}`,
+      chapterMeta ? `Chapter meta: ${serializeChapterMetaForPrompt(chapterMeta)}` : "",
       characterLines.length > 0 ? `Character states:\n- ${characterLines.join("\n- ")}` : "",
       relationLines.length > 0 ? `Relations:\n- ${relationLines.join("\n- ")}` : "",
       infoLines.length > 0 ? `Knowledge:\n- ${infoLines.join("\n- ")}` : "",
@@ -172,6 +222,15 @@ export class StateService {
     previousSnapshot: Awaited<ReturnType<StateService["getLatestSnapshotBeforeChapter"]>>;
     extracted: SnapshotExtractionOutput;
   }) {
+    const chapters = await prisma.chapter.findMany({
+      where: { novelId: input.novelId },
+      select: { id: true, order: true, title: true },
+    });
+    const chapterLookup = {
+      byId: new Set(chapters.map((item) => item.id)),
+      byOrder: new Map(chapters.map((item) => [item.order, item.id])),
+      byTitle: new Map(chapters.map((item) => [item.title.trim(), item.id])),
+    };
     const characterMap = new Map<string, string>();
     for (const character of input.characters) {
       characterMap.set(character.id, character.id);
@@ -186,13 +245,13 @@ export class StateService {
         }
         return {
           characterId,
-          currentGoal: item.currentGoal?.trim() || null,
-          emotion: item.emotion?.trim() || null,
+          currentGoal: sanitizeMemoryText(item.currentGoal, { maxLength: 72 }) || null,
+          emotion: sanitizeStateText(item.emotion, 72) || null,
           stressLevel: clampStateScore(item.stressLevel),
-          secretExposure: item.secretExposure?.trim() || null,
-          knownFactsJson: stringifyStringArray(item.knownFacts),
-          misbeliefsJson: stringifyStringArray(item.misbeliefs),
-          summary: item.summary?.trim() || null,
+          secretExposure: sanitizeMemoryText(item.secretExposure, { maxLength: 72 }) || null,
+          knownFactsJson: stringifyStringArray(sanitizeMemoryList(item.knownFacts, { maxItems: 4, maxLength: 80 })),
+          misbeliefsJson: stringifyStringArray(sanitizeMemoryList(item.misbeliefs, { maxItems: 3, maxLength: 80 })),
+          summary: sanitizeMemoryText(item.summary, { maxLength: 96, preferStateLabel: true }) || null,
         };
       })
       .filter((item): item is NonNullable<typeof item> => Boolean(item));
@@ -211,7 +270,7 @@ export class StateService {
           intimacyScore: clampStateScore(item.intimacyScore),
           conflictScore: clampStateScore(item.conflictScore),
           dependencyScore: clampStateScore(item.dependencyScore),
-          summary: item.summary?.trim() || null,
+          summary: sanitizeMemoryText(item.summary, { maxLength: 96 }) || null,
         };
       })
       .filter((item): item is NonNullable<typeof item> => Boolean(item));
@@ -228,12 +287,28 @@ export class StateService {
         return {
           holderType,
           holderRefId,
-          fact: item.fact.trim(),
+          fact: sanitizeMemoryText(item.fact, { maxLength: 120 }) ?? item.fact.trim().slice(0, 120),
           status: normalizeStatus(item.status, "known"),
-          summary: item.summary?.trim() || null,
+          summary: sanitizeMemoryText(item.summary, { maxLength: 80 }) || null,
         };
       })
       .filter((item): item is NonNullable<typeof item> => Boolean(item));
+    const protectedInformationStates = getProtectedCharacterIdentities(input.novelId).map((item) => ({
+      holderType: "reader",
+      holderRefId: null,
+      fact: `受保护真实身份｜${item.characterName}: ${item.trueIdentity}`,
+      status: "known",
+      summary: `protected_identity:${item.sourceFile}`,
+    }));
+    const protectedFactSet = new Set<string>();
+    const allInformationStates = [...protectedInformationStates, ...normalizedInformationStates]
+      .filter((item) => {
+        if (protectedFactSet.has(item.fact)) {
+          return false;
+        }
+        protectedFactSet.add(item.fact);
+        return true;
+      });
 
     const normalizedForeshadowStates = (input.extracted.foreshadowStates ?? [])
       .map((item) => {
@@ -241,23 +316,25 @@ export class StateService {
           return null;
         }
         return {
-          title: item.title.trim(),
-          summary: item.summary?.trim() || null,
+          title: sanitizeMemoryText(item.title, { maxLength: 80 }) ?? item.title.trim().slice(0, 80),
+          summary: sanitizeMemoryText(item.summary, { maxLength: 120 }) || null,
           status: normalizeStatus(item.status, "setup"),
-          setupChapterId: item.setupChapterId?.trim() || input.chapterId,
-          payoffChapterId: item.payoffChapterId?.trim() || null,
+          setupChapterId: normalizeChapterReference(item.setupChapterId, chapterLookup, input.chapterId),
+          payoffChapterId: normalizeChapterReference(item.payoffChapterId, chapterLookup, null),
         };
       })
       .filter((item): item is NonNullable<typeof item> => Boolean(item));
+    const normalizedChapterMeta = normalizeChapterMeta(input.extracted.chapter_meta ?? input.extracted.chapterMeta);
 
+    const summary = sanitizeMemoryText(input.extracted.summary, { maxLength: 180 }) || `第${input.chapterOrder}章状态快照`;
     const rawStateJson = JSON.stringify({
-      summary: input.extracted.summary ?? null,
+      summary,
+      chapter_meta: toStoredChapterMeta(normalizedChapterMeta),
       characterStates: normalizedCharacterStates,
       relationStates: normalizedRelationStates,
-      informationStates: normalizedInformationStates,
+      informationStates: allInformationStates,
       foreshadowStates: normalizedForeshadowStates,
     });
-    const summary = input.extracted.summary?.trim() || `第${input.chapterOrder}章状态快照`;
     const existing = await prisma.storyStateSnapshot.findFirst({
       where: { novelId: input.novelId, sourceChapterId: input.chapterId },
       select: { id: true },
@@ -306,9 +383,9 @@ export class StateService {
           })),
         });
       }
-      if (normalizedInformationStates.length > 0) {
+      if (allInformationStates.length > 0) {
         await tx.informationState.createMany({
-          data: normalizedInformationStates.map((item) => ({
+          data: allInformationStates.map((item) => ({
             snapshotId: snapshot.id,
             ...item,
           })),

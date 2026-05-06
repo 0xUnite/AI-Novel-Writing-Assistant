@@ -87,12 +87,12 @@ router.post("/bootstrap", validate({ body: bootstrapSchema }), async (req, res, 
 router.get("/novels/:novelId/auto-director", validate({ params: novelParamsSchema }), async (req, res, next) => {
   try {
     const { novelId } = req.params as z.infer<typeof novelParamsSchema>;
-    const row = await workflowService.findLatestVisibleTaskByNovelId(novelId, "auto_director");
+    const row = await workflowService.findDisplayAutoDirectorTaskByNovelId(novelId);
     const data = row ? await workflowAdapter.detail(row.id) : null;
     res.status(200).json({
       success: true,
       data,
-      message: data ? "Latest auto director task loaded." : "No auto director task found.",
+      message: data ? "Latest novel workflow task loaded." : "No novel workflow task found.",
     } satisfies ApiResponse<typeof data>);
   } catch (error) {
     next(error);

@@ -169,6 +169,42 @@ export class NovelService extends NovelPipelineService {
     return this.core.listChapterAuditReports(...args);
   }
 
+  getContinuityAuditProgress(...args: Parameters<NovelCoreService["getContinuityAuditProgress"]>) {
+    return this.core.getContinuityAuditProgress(...args);
+  }
+
+  listReviewBatchJobs(...args: Parameters<NovelCoreService["listReviewBatchJobs"]>) {
+    return this.core.listReviewBatchJobs(...args);
+  }
+
+  getReviewBatchJob(...args: Parameters<NovelCoreService["getReviewBatchJob"]>) {
+    return this.core.getReviewBatchJob(...args);
+  }
+
+  startQualityReviewJob(...args: Parameters<NovelCoreService["startQualityReviewJob"]>) {
+    return this.core.startQualityReviewJob(...args);
+  }
+
+  startQualityRepairJob(...args: Parameters<NovelCoreService["startQualityRepairJob"]>) {
+    return this.core.startQualityRepairJob(...args);
+  }
+
+  startContinuityAuditJob(...args: Parameters<NovelCoreService["startContinuityAuditJob"]>) {
+    return this.core.startContinuityAuditJob(...args);
+  }
+
+  startContinuityRepairJob(...args: Parameters<NovelCoreService["startContinuityRepairJob"]>) {
+    return this.core.startContinuityRepairJob(...args);
+  }
+
+  getProductionNextAction(...args: Parameters<NovelCoreService["getProductionNextAction"]>) {
+    return this.core.getProductionNextAction(...args);
+  }
+
+  cancelReviewBatchJob(...args: Parameters<NovelCoreService["cancelReviewBatchJob"]>) {
+    return this.core.cancelReviewBatchJob(...args);
+  }
+
   resolveAuditIssues(...args: Parameters<NovelCoreService["resolveAuditIssues"]>) {
     return this.core.resolveAuditIssues(...args);
   }

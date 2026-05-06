@@ -9,6 +9,7 @@ import type {
   EmotionIntensity,
   NarrativePov,
   Novel,
+  NovelContentForm,
   PacePreference,
   ProjectMode,
   ProjectProgressStatus,
@@ -21,11 +22,12 @@ import {
   normalizeNovelListLimit,
 } from "./shared";
 
-export async function getNovelList(params?: { page?: number; limit?: number }) {
+export async function getNovelList(params?: { page?: number; limit?: number; contentForm?: NovelContentForm }) {
   const { data } = await apiClient.get<ApiResponse<NovelListResponse>>("/novels", {
     params: {
       page: params?.page ?? 1,
       limit: normalizeNovelListLimit(params?.limit),
+      contentForm: params?.contentForm,
     },
   });
   return data;
@@ -37,6 +39,7 @@ export async function getNovelDetail(id: string) {
 }
 
 export async function createNovel(payload: {
+  contentForm?: NovelContentForm;
   title: string;
   description?: string;
   targetAudience?: string;
@@ -57,6 +60,7 @@ export async function createNovel(payload: {
   aiFreedom?: AIFreedom;
   defaultChapterLength?: number;
   estimatedChapterCount?: number;
+  targetTotalWordCount?: number;
   projectStatus?: ProjectProgressStatus;
   storylineStatus?: ProjectProgressStatus;
   outlineStatus?: ProjectProgressStatus;
@@ -74,6 +78,7 @@ export async function updateNovel(
   id: string,
   payload: Partial<{
     title: string;
+    contentForm: NovelContentForm;
     description: string;
     targetAudience: string | null;
     bookSellingPoint: string | null;
@@ -90,6 +95,7 @@ export async function updateNovel(
     aiFreedom: AIFreedom | null;
     defaultChapterLength: number | null;
     estimatedChapterCount: number | null;
+    targetTotalWordCount: number | null;
     projectStatus: ProjectProgressStatus | null;
     storylineStatus: ProjectProgressStatus | null;
     outlineStatus: ProjectProgressStatus | null;
@@ -152,4 +158,21 @@ export async function downloadNovelExport(id: string, format: "txt" | "markdown"
     blob: response.data,
     fileName: extractFileName(response.headers["content-disposition"], fallback),
   };
+}
+
+export async function sanitizeNovelTypography(id: string) {
+  const { data } = await apiClient.post<ApiResponse<{
+    totalChapterCount: number;
+    contentChapterCount: number;
+    changedCount: number;
+    unchangedCount: number;
+    snapshotId: string | null;
+    snapshotLabel: string | null;
+    changedChapters: Array<{
+      id: string;
+      title: string;
+      order: number;
+    }>;
+  }>>(`/novels/${id}/sanitize-typography`);
+  return data;
 }

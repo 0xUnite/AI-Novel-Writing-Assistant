@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/components/ui/toast";
 import { useLLMStore } from "@/store/llmStore";
+import { decorateNovelTitleWithContentForm } from "@/lib/novelContentForm";
 import TitleSuggestionList from "./TitleSuggestionList";
 
 interface TitleFactoryPanelProps {
@@ -147,7 +148,7 @@ export default function TitleFactoryPanel({ genreTree, novels }: TitleFactoryPan
               <option value="">请选择项目</option>
               {novels.map((novel) => (
                 <option key={novel.id} value={novel.id}>
-                  {novel.title}
+                  {decorateNovelTitleWithContentForm(novel)}
                 </option>
               ))}
             </select>

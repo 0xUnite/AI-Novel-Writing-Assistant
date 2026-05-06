@@ -1,8 +1,7 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import type { BaseCharacter, Character, VolumePlan } from "@ai-novel/shared/types/novel";
 import type { NovelDetailResponse } from "@/api/novel";
 import {
-  DEFAULT_ESTIMATED_CHAPTER_COUNT,
   formatCommercialTagsInput,
   type NovelBasicFormState,
 } from "../novelBasicInfo.shared";
@@ -84,12 +83,16 @@ export function useNovelEditInitialization({
   setSelectedBaseCharacterId,
   setCharacterForm,
 }: UseNovelEditInitializationArgs) {
+  const hasInitialized = useRef(false);
+
   useEffect(() => {
-    if (!detail) {
+    if (!detail || hasInitialized.current) {
       return;
     }
+    hasInitialized.current = true;
 
     setBasicForm({
+      contentForm: detail.contentForm ?? "novel",
       title: detail.title,
       description: detail.description ?? "",
       targetAudience: detail.targetAudience ?? "",
@@ -109,8 +112,9 @@ export function useNovelEditInitialization({
       styleTone: detail.styleTone ?? "",
       emotionIntensity: detail.emotionIntensity ?? "medium",
       aiFreedom: detail.aiFreedom ?? "medium",
-      defaultChapterLength: detail.defaultChapterLength ?? 2800,
-      estimatedChapterCount: detail.estimatedChapterCount ?? DEFAULT_ESTIMATED_CHAPTER_COUNT,
+      defaultChapterLength: detail.defaultChapterLength ?? 2000,
+      estimatedChapterCount: detail.estimatedChapterCount ?? 0,
+      targetTotalWordCount: detail.targetTotalWordCount ?? 0,
       projectStatus: detail.projectStatus ?? "not_started",
       storylineStatus: detail.storylineStatus ?? "not_started",
       outlineStatus: detail.outlineStatus ?? "not_started",
@@ -123,7 +127,7 @@ export function useNovelEditInitialization({
     });
     setVolumeDraft(detail.volumes ?? []);
     const recommendedEndOrder = Math.max(
-      detail.estimatedChapterCount ?? DEFAULT_ESTIMATED_CHAPTER_COUNT,
+      detail.estimatedChapterCount ?? 0,
       detail.volumes?.flatMap((volume) => volume.chapters).length ?? 0,
       detail.chapters.length || 0,
       1,
@@ -132,7 +136,7 @@ export function useNovelEditInitialization({
       ...prev,
       endOrder: Math.max(prev.endOrder, recommendedEndOrder),
     }));
-  }, [detail, setBasicForm, setPipelineForm, setVolumeDraft]);
+  }, [detail]);
 
   useEffect(() => {
     if (!selectedChapterId && chapters.length > 0) {

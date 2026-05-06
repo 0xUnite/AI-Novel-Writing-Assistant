@@ -11,6 +11,7 @@ import {
   Route,
   ScanSearch,
   Settings2,
+  ScrollText,
   SquarePen,
   Tags,
   UsersRound,
@@ -43,6 +44,7 @@ const navGroups: NavGroup[] = [
     items: [
       { to: "/", label: "首页", icon: House },
       { to: "/novels", label: "小说列表", icon: BookOpenText },
+      { to: "/short-stories", label: "短故事", icon: ScrollText },
       { to: "/creative-hub", label: "创作中枢", icon: LayoutDashboard },
       { to: "/book-analysis", label: "拆书", icon: ScanSearch },
       { to: "/tasks", label: "任务中心", icon: ListTodo },
@@ -174,7 +176,7 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
 
             {group.items.map((item) => {
               const Icon = item.icon;
-              const isNovelEntry = item.to === "/novels";
+              const isNovelEntry = item.to === "/novels" || item.to === "/short-stories";
 
               return (
                 <NavLink key={item.to} to={item.to} title={collapsed ? item.label : undefined}>

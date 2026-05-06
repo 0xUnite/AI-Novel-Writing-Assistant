@@ -9,7 +9,8 @@ export interface StructuredOutlineChapter {
 const REQUIRED_KEYS = ["chapter", "title", "summary", "key_events", "roles"] as const;
 
 function cleanJsonText(source: string): string {
-  return source.replace(/```json|```/gi, "").trim();
+  const withoutThink = source.replace(/<think>[\s\S]*?<\/think>/gi, "");
+  return withoutThink.replace(/```json|```/gi, "").trim();
 }
 
 function extractJSONArray(source: string): string {

@@ -5,6 +5,7 @@ import type { LLMProvider } from "@ai-novel/shared/types/llm";
 import type { TaskType } from "./modelRouter";
 import { getLLM } from "./factory";
 import { getJsonCapability } from "./capabilities";
+import { isTransientLlmTransportError } from "./transientErrors";
 import { toText, extractJSONValue } from "../services/novel/novelP0Utils";
 import type { PromptInvocationMeta } from "../prompting/core/promptTypes";
 
@@ -77,36 +78,403 @@ function tryFixTruncatedJson(raw: string): string {
   return fixed;
 }
 
-function tryParseStructuredJsonValue(source: string): { parsed: unknown } | { error: string } {
-  try {
-    return {
-      parsed: JSON.parse(extractJSONValue(source)) as unknown,
-    };
-  } catch (error) {
-    const fixed = tryFixTruncatedJson(source);
-    if (fixed === source) {
-      return {
-        error: [
-          "JSON 解析失败：",
-          error instanceof Error ? error.message : String(error),
-        ].join("\n"),
-      };
+function normalizeSmartQuotes(raw: string): string {
+  return raw
+    .replace(/[“”„‟]/g, "\"")
+    .replace(/[‘’‚‛]/g, "'");
+}
+
+function normalizeJsonPunctuationOutsideStrings(raw: string): string {
+  if (!raw) {
+    return raw;
+  }
+
+  let result = "";
+  let inString = false;
+  let escaped = false;
+
+  for (const char of raw) {
+    if (escaped) {
+      result += char;
+      escaped = false;
+      continue;
     }
 
-    try {
-      return {
-        parsed: JSON.parse(extractJSONValue(fixed)) as unknown,
-      };
-    } catch (fixedError) {
-      return {
-        error: [
-          "JSON 解析失败：",
-          error instanceof Error ? error.message : String(error),
-          "截断修复后仍失败：",
-          fixedError instanceof Error ? fixedError.message : String(fixedError),
-        ].join("\n"),
-      };
+    if (char === "\\") {
+      result += char;
+      escaped = true;
+      continue;
     }
+
+    if (char === "\"") {
+      result += char;
+      inString = !inString;
+      continue;
+    }
+
+    if (!inString) {
+      if (char === "，") {
+        result += ",";
+        continue;
+      }
+      if (char === "：") {
+        result += ":";
+        continue;
+      }
+    }
+
+    result += char;
+  }
+
+  return result;
+}
+
+function stripTrailingCommasBeforeClosers(raw: string): string {
+  return raw.replace(/,\s*([}\]])/g, "$1");
+}
+
+function insertMissingCommasBetweenTokens(raw: string): string {
+  const pattern = /("(?:\\.|[^"\\])*"|\btrue\b|\bfalse\b|\bnull\b|-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?|[}\]])(\s+)(?=("|\{|\[|-?\d|\btrue\b|\bfalse\b|\bnull\b))/g;
+  let fixed = raw;
+
+  for (let round = 0; round < 6; round += 1) {
+    const next = fixed.replace(pattern, "$1,$2");
+    if (next === fixed) {
+      break;
+    }
+    fixed = next;
+  }
+
+  return fixed;
+}
+
+function escapeSuspiciousQuotesInsideStrings(raw: string): string {
+  if (!raw) {
+    return raw;
+  }
+
+  let result = "";
+  let inString = false;
+  let escaped = false;
+
+  const findNextNonWhitespace = (from: number): string => {
+    for (let index = from; index < raw.length; index += 1) {
+      const char = raw[index];
+      if (!/\s/.test(char)) {
+        return char;
+      }
+    }
+    return "";
+  };
+
+  for (let index = 0; index < raw.length; index += 1) {
+    const char = raw[index];
+
+    if (!inString) {
+      result += char;
+      if (char === "\"") {
+        inString = true;
+      }
+      continue;
+    }
+
+    if (escaped) {
+      result += char;
+      escaped = false;
+      continue;
+    }
+
+    if (char === "\\") {
+      result += char;
+      escaped = true;
+      continue;
+    }
+
+    if (char === "\"") {
+      const nextNonWhitespace = findNextNonWhitespace(index + 1);
+      if (nextNonWhitespace && ![",", "}", "]", ":"].includes(nextNonWhitespace)) {
+        result += "\\\"";
+        continue;
+      }
+
+      result += char;
+      inString = false;
+      continue;
+    }
+
+    result += char;
+  }
+
+  return result;
+}
+
+function extractJsonErrorPosition(message: string): number | null {
+  const match = message.match(/position\s+(\d+)/i);
+  if (!match) {
+    return null;
+  }
+  const value = Number.parseInt(match[1] ?? "", 10);
+  return Number.isFinite(value) ? value : null;
+}
+
+function insertCommaAtPosition(raw: string, position: number): string {
+  if (position < 0 || position > raw.length) {
+    return raw;
+  }
+  return `${raw.slice(0, position)},${raw.slice(position)}`;
+}
+
+function escapeQuoteAtPosition(raw: string, position: number): string {
+  if (position < 0 || position >= raw.length || raw[position] !== "\"") {
+    return raw;
+  }
+  if (position > 0 && raw[position - 1] === "\\") {
+    return raw;
+  }
+  return `${raw.slice(0, position)}\\${raw.slice(position)}`;
+}
+
+function findPreviousUnescapedQuote(raw: string, position: number): number | null {
+  for (let index = Math.min(position - 1, raw.length - 1); index >= 0; index -= 1) {
+    if (raw[index] !== "\"") {
+      continue;
+    }
+    if (index > 0 && raw[index - 1] === "\\") {
+      continue;
+    }
+    return index;
+  }
+  return null;
+}
+
+function findPreviousNonWhitespaceChar(raw: string, position: number): string {
+  for (let index = Math.min(position - 1, raw.length - 1); index >= 0; index -= 1) {
+    const char = raw[index];
+    if (!/\s/.test(char)) {
+      return char;
+    }
+  }
+  return "";
+}
+
+function isLikelyStringBoundaryQuote(raw: string, position: number): boolean {
+  const previousNonWhitespace = findPreviousNonWhitespaceChar(raw, position);
+  return previousNonWhitespace === ":"
+    || previousNonWhitespace === ","
+    || previousNonWhitespace === "{"
+    || previousNonWhitespace === "[";
+}
+
+function buildErrorPositionRepairCandidates(raw: string, errorMessage: string): string[] {
+  const position = extractJsonErrorPosition(errorMessage);
+  if (position == null) {
+    return [];
+  }
+
+  const candidates = new Set<string>();
+  const isStringLiteralError = /string literal|control character/i.test(errorMessage);
+
+  if (!isStringLiteralError) {
+    candidates.add(insertCommaAtPosition(raw, position));
+  }
+
+  if (position < raw.length && raw[position] === "\"" && !isLikelyStringBoundaryQuote(raw, position)) {
+    candidates.add(escapeQuoteAtPosition(raw, position));
+  }
+
+  const previousQuote = findPreviousUnescapedQuote(raw, position);
+  if (previousQuote != null) {
+    if (!isLikelyStringBoundaryQuote(raw, previousQuote)) {
+      candidates.add(escapeQuoteAtPosition(raw, previousQuote));
+    }
+    if (!isStringLiteralError) {
+      candidates.add(insertCommaAtPosition(raw, previousQuote + 1));
+    }
+  }
+
+  candidates.delete(raw);
+  return Array.from(candidates).filter(Boolean);
+}
+
+function sanitizeControlCharactersInsideJsonStrings(raw: string): string {
+  if (!raw) {
+    return raw;
+  }
+
+  let result = "";
+  let inString = false;
+  let escaped = false;
+
+  for (const char of raw) {
+    if (!inString) {
+      result += char;
+      if (char === "\"") {
+        inString = true;
+      }
+      continue;
+    }
+
+    if (escaped) {
+      result += char;
+      escaped = false;
+      continue;
+    }
+
+    if (char === "\\") {
+      result += char;
+      escaped = true;
+      continue;
+    }
+
+    if (char === "\"") {
+      result += char;
+      inString = false;
+      continue;
+    }
+
+    const code = char.charCodeAt(0);
+    if (code <= 0x1f) {
+      if (char === "\n") {
+        result += "\\n";
+      } else if (char === "\r") {
+        result += "\\r";
+      } else if (char === "\t") {
+        result += "\\t";
+      } else {
+        result += " ";
+      }
+      continue;
+    }
+
+    result += char;
+  }
+
+  return result;
+}
+
+function extractParseCandidate(raw: string): string {
+  const withoutThink = raw.replace(/<think>[\s\S]*?<\/think>/gi, "");
+  try {
+    return extractJSONValue(withoutThink);
+  } catch {
+    return withoutThink.replace(/```json|```/gi, "").trim();
+  }
+}
+
+function tryParseJsonCandidate(candidate: string): { parsed: unknown } | { error: string } {
+  try {
+    return {
+      parsed: JSON.parse(candidate) as unknown,
+    };
+  } catch (error) {
+    return {
+      error: error instanceof Error ? error.message : String(error),
+    };
+  }
+}
+
+function pushJsonRepairCandidate(
+  candidates: Array<{ label: string; value: string }>,
+  seen: Set<string>,
+  label: string,
+  value: string,
+): void {
+  if (!value || seen.has(value)) {
+    return;
+  }
+  seen.add(value);
+  candidates.push({ label, value });
+}
+
+function buildJsonRepairCandidates(source: string): Array<{ label: string; value: string }> {
+  const candidates: Array<{ label: string; value: string }> = [];
+  const seen = new Set<string>();
+  const base = extractParseCandidate(source);
+
+  pushJsonRepairCandidate(candidates, seen, "原始提取", base);
+
+  const sanitized = sanitizeControlCharactersInsideJsonStrings(base);
+  pushJsonRepairCandidate(candidates, seen, "控制字符清洗", sanitized);
+
+  const normalizedQuotes = normalizeSmartQuotes(sanitized);
+  pushJsonRepairCandidate(candidates, seen, "智能引号归一化", normalizedQuotes);
+
+  const normalizedPunctuation = normalizeJsonPunctuationOutsideStrings(normalizedQuotes);
+  pushJsonRepairCandidate(candidates, seen, "标点归一化", normalizedPunctuation);
+
+  const withoutTrailingCommas = stripTrailingCommasBeforeClosers(normalizedPunctuation);
+  pushJsonRepairCandidate(candidates, seen, "去除尾随逗号", withoutTrailingCommas);
+
+  const withInsertedCommas = insertMissingCommasBetweenTokens(withoutTrailingCommas);
+  pushJsonRepairCandidate(candidates, seen, "缺失逗号修复", withInsertedCommas);
+
+  const withEscapedQuotes = escapeSuspiciousQuotesInsideStrings(withInsertedCommas);
+  pushJsonRepairCandidate(candidates, seen, "字符串裸引号转义", withEscapedQuotes);
+
+  // 裸引号修复后，字符串边界可能恢复正常，此时再清洗一次控制字符。
+  const resanitizedAfterQuoteEscape = sanitizeControlCharactersInsideJsonStrings(withEscapedQuotes);
+  pushJsonRepairCandidate(candidates, seen, "二次控制字符清洗", resanitizedAfterQuoteEscape);
+
+  const repunctuatedAfterResanitize = normalizeJsonPunctuationOutsideStrings(resanitizedAfterQuoteEscape);
+  pushJsonRepairCandidate(candidates, seen, "二次标点归一化", repunctuatedAfterResanitize);
+
+  const withoutTrailingCommasAfterResanitize = stripTrailingCommasBeforeClosers(repunctuatedAfterResanitize);
+  pushJsonRepairCandidate(candidates, seen, "二次去除尾随逗号", withoutTrailingCommasAfterResanitize);
+
+  const withInsertedCommasAfterResanitize = insertMissingCommasBetweenTokens(withoutTrailingCommasAfterResanitize);
+  pushJsonRepairCandidate(candidates, seen, "二次缺失逗号修复", withInsertedCommasAfterResanitize);
+
+  const truncatedFixed = tryFixTruncatedJson(withInsertedCommasAfterResanitize);
+  pushJsonRepairCandidate(candidates, seen, "截断补全", truncatedFixed);
+
+  return candidates;
+}
+
+function tryParseStructuredJsonValue(source: string): { parsed: unknown } | { error: string } {
+  const attempts: string[] = [];
+  const seenCandidateValues = new Set<string>();
+  const candidates = buildJsonRepairCandidates(source);
+
+  for (const candidate of candidates) {
+    if (seenCandidateValues.has(candidate.value)) {
+      continue;
+    }
+    seenCandidateValues.add(candidate.value);
+    const result = tryParseJsonCandidate(candidate.value);
+    if ("parsed" in result) {
+      return result;
+    }
+    attempts.push(`${candidate.label}后仍失败：${result.error}`);
+
+    for (const extraCandidate of buildErrorPositionRepairCandidates(candidate.value, result.error)) {
+      for (const nestedCandidate of buildJsonRepairCandidates(extraCandidate)) {
+        if (seenCandidateValues.has(nestedCandidate.value)) {
+          continue;
+        }
+        seenCandidateValues.add(nestedCandidate.value);
+        const nestedResult = tryParseJsonCandidate(nestedCandidate.value);
+        if ("parsed" in nestedResult) {
+          return nestedResult;
+        }
+        attempts.push(`按报错位置定点修复/${nestedCandidate.label}后仍失败：${nestedResult.error}`);
+      }
+    }
+  }
+
+  return {
+    error: ["JSON 解析失败：", ...attempts].join("\n"),
+  };
+}
+
+class StructuredRepairError extends Error {
+  readonly repairedRaw: string;
+  readonly nextValidationError: string;
+
+  constructor(message: string, input: { repairedRaw: string; nextValidationError: string }) {
+    super(message);
+    this.name = "StructuredRepairError";
+    this.repairedRaw = input.repairedRaw;
+    this.nextValidationError = input.nextValidationError;
   }
 }
 
@@ -168,6 +536,32 @@ function logStructuredInvokeEvent(input: {
   );
 }
 
+function isRetryableStructuredInvokeError(error: unknown): boolean {
+  if (!(error instanceof Error)) {
+    return false;
+  }
+  if (isTransientLlmTransportError(error)) {
+    return true;
+  }
+  const message = error.message.toLowerCase();
+  return [
+    "fetch failed",
+    "network error",
+    "socket hang up",
+    "econnreset",
+    "eai_again",
+    "etimedout",
+    "timeout",
+    "temporarily unavailable",
+  ].some((fragment) => message.includes(fragment));
+}
+
+async function delayMs(ms: number): Promise<void> {
+  await new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
+
 export function shouldUseJsonObjectResponseFormat<T>(
   provider: LLMProvider,
   model: string | undefined,
@@ -215,6 +609,8 @@ async function repairWithLlm<T>(
     "如果目标结构顶层是数组，就直接输出数组本身，不要再外包一层对象。",
     "如果原始 JSON 多包了一层无关包装键，例如 data、result、output、xxxProjection、xxxList 等，必须去掉包装层，把真正目标结构提升到顶层。",
     "如果缺失必填字符串字段，必须补出非空字符串；可根据原始 JSON 中已有内容做最小、保守、语义一致的补全，不能输出空字符串、null 或 undefined。",
+    "如果目标结构顶层需要多个兄弟字段，例如 expansion、decomposition、constraints，必须一次性补齐所有必填顶层字段，不能只返回其中一部分。",
+    "如果必填字段是对象或数组，必须输出合法对象或数组，不能用空字符串、null、undefined 占位。",
   ].join("\n");
 
   const validationPaths = extractValidationPaths(validationError);
@@ -248,12 +644,18 @@ async function repairWithLlm<T>(
   });
   const repairParse = tryParseStructuredJsonValue(repairedRaw);
   if ("error" in repairParse) {
-    throw new Error(`[${input.label}] JSON repair 后仍无法解析。错误：${repairParse.error}`);
+    throw new StructuredRepairError(`[${input.label}] JSON repair 后仍无法解析。错误：${repairParse.error}`, {
+      repairedRaw,
+      nextValidationError: repairParse.error,
+    });
   }
 
   const final = input.schema.safeParse(repairParse.parsed);
   if (!final.success) {
-    throw new Error(`[${input.label}] JSON repair 后仍未通过 Schema 校验。错误：${formatZodErrors(final.error)}`);
+    throw new StructuredRepairError(`[${input.label}] JSON repair 后仍未通过 Schema 校验。错误：${formatZodErrors(final.error)}`, {
+      repairedRaw,
+      nextValidationError: `Zod 校验错误：\n${formatZodErrors(final.error)}`,
+    });
   }
   return final.data;
 }
@@ -267,14 +669,20 @@ export async function parseStructuredLlmRawContentDetailed<T>(
 
   const maxRepairAttempts = input.maxRepairAttempts ?? 1;
   if (parseErrorMessage) {
+    let repairRaw = input.rawContent;
+    let currentValidationError = parseErrorMessage;
     for (let attempt = 1; attempt <= maxRepairAttempts; attempt += 1) {
       try {
         return {
-          data: await repairWithLlm(input, input.rawContent, parseErrorMessage, attempt),
+          data: await repairWithLlm(input, repairRaw, currentValidationError, attempt),
           repairUsed: true,
           repairAttempts: attempt,
         };
       } catch (repairError) {
+        if (repairError instanceof StructuredRepairError) {
+          repairRaw = repairError.repairedRaw;
+          currentValidationError = repairError.nextValidationError;
+        }
         if (attempt >= maxRepairAttempts) {
           throw repairError;
         }
@@ -293,15 +701,21 @@ export async function parseStructuredLlmRawContentDetailed<T>(
   }
 
   let zodError: ZodError = first.error;
+  let repairRaw = input.rawContent;
+  let currentValidationError = `Zod 校验错误：\n${formatZodErrors(zodError)}`;
 
   for (let attempt = 1; attempt <= maxRepairAttempts; attempt += 1) {
     try {
       return {
-        data: await repairWithLlm(input, input.rawContent, `Zod 校验错误：\n${formatZodErrors(zodError)}`, attempt),
+        data: await repairWithLlm(input, repairRaw, currentValidationError, attempt),
         repairUsed: true,
         repairAttempts: attempt,
       };
     } catch (error) {
+      if (error instanceof StructuredRepairError) {
+        repairRaw = error.repairedRaw;
+        currentValidationError = error.nextValidationError;
+      }
       if (attempt >= maxRepairAttempts) {
         throw error;
       }
@@ -324,10 +738,11 @@ export async function invokeStructuredLlmDetailed<T>(input: StructuredInvokeInpu
     promptMeta: input.promptMeta,
   });
 
-  const cap = getJsonCapability(input.provider ?? "deepseek", input.model);
+  const capabilityProvider = input.provider ?? "minimax";
+  const cap = getJsonCapability(capabilityProvider, input.model);
 
   const invokeOptions: Record<string, unknown> = {};
-  if (cap.supportsJsonObject && shouldUseJsonObjectResponseFormat(input.provider ?? "deepseek", input.model, input.schema)) {
+  if (cap.supportsJsonObject && shouldUseJsonObjectResponseFormat(capabilityProvider, input.model, input.schema)) {
     invokeOptions.response_format = { type: "json_object" };
   }
 
@@ -339,18 +754,45 @@ export async function invokeStructuredLlmDetailed<T>(input: StructuredInvokeInpu
     model: input.model,
     taskType: input.taskType,
   });
-  const startedAt = Date.now();
-  const result = await llm.invoke(messages, invokeOptions);
-  const rawContent = toText(result.content);
-  logStructuredInvokeEvent({
-    event: "invoke_done",
-    label: input.label,
-    provider: input.provider,
-    model: input.model,
-    taskType: input.taskType,
-    latencyMs: Date.now() - startedAt,
-    rawChars: rawContent.length,
-  });
+  let rawContent = "";
+  let lastError: unknown = null;
+  for (let attempt = 1; attempt <= 2; attempt += 1) {
+    const startedAt = Date.now();
+    try {
+      const result = await llm.invoke(messages, invokeOptions);
+      rawContent = toText(result.content);
+      logStructuredInvokeEvent({
+        event: "invoke_done",
+        label: input.label,
+        provider: input.provider,
+        model: input.model,
+        taskType: input.taskType,
+        latencyMs: Date.now() - startedAt,
+        rawChars: rawContent.length,
+      });
+      lastError = null;
+      break;
+    } catch (error) {
+      lastError = error;
+      logStructuredInvokeEvent({
+        event: attempt >= 2 || !isRetryableStructuredInvokeError(error) ? "invoke_failed" : "invoke_retry",
+        label: input.label,
+        provider: input.provider,
+        model: input.model,
+        taskType: input.taskType,
+        latencyMs: Date.now() - startedAt,
+        repairAttempt: attempt,
+      });
+      if (attempt >= 2 || !isRetryableStructuredInvokeError(error)) {
+        throw error;
+      }
+      await delayMs(600 * attempt);
+    }
+  }
+
+  if (lastError) {
+    throw lastError;
+  }
 
   return parseStructuredLlmRawContentDetailed({
     rawContent,

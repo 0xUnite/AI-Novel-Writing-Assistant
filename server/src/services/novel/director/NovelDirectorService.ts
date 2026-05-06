@@ -65,8 +65,11 @@ import {
   loadDirectorTakeoverState,
   resolveDirectorRunningStateForPhase,
 } from "./novelDirectorTakeoverRuntime";
+import { DirectorRecoveryNotNeededError } from "./novelDirectorErrors";
 
 export class NovelDirectorService {
+  private static readonly activeBackgroundTaskIds = new Set<string>();
+
   private readonly novelContextService = new NovelContextService();
   private readonly characterPreparationService = new CharacterPreparationService();
   private readonly storyMacroService = new StoryMacroPlanService();
@@ -76,12 +79,23 @@ export class NovelDirectorService {
   private readonly workflowService = new NovelWorkflowService();
   private readonly candidateStageService = new NovelDirectorCandidateStageService(this.workflowService);
 
+  private isBackgroundRunActive(taskId: string): boolean {
+    return NovelDirectorService.activeBackgroundTaskIds.has(taskId);
+  }
+
   private scheduleBackgroundRun(taskId: string, runner: () => Promise<void>) {
+    if (this.isBackgroundRunActive(taskId)) {
+      return;
+    }
+    NovelDirectorService.activeBackgroundTaskIds.add(taskId);
     void Promise.resolve()
       .then(runner)
       .catch(async (error) => {
         const message = error instanceof Error ? error.message : "自动导演后台任务执行失败。";
         await this.workflowService.markTaskFailed(taskId, message);
+      })
+      .finally(() => {
+        NovelDirectorService.activeBackgroundTaskIds.delete(taskId);
       });
   }
 
@@ -185,6 +199,7 @@ export class NovelDirectorService {
     novelId: string;
     request: DirectorConfirmRequest;
     existingPipelineJobId?: string | null;
+    forceRecheckCompleted?: boolean;
   }): Promise<void> {
     const range = await this.resolveAutoExecutionRange(input.novelId);
     let pipelineJobId = input.existingPipelineJobId?.trim() || "";
@@ -225,6 +240,8 @@ export class NovelDirectorService {
             temperature: input.request.temperature,
             startOrder: range.startOrder,
             endOrder: range.endOrder,
+            skipCompleted: input.forceRecheckCompleted ? false : true,
+            autoPrepareStoryAssets: true,
           }),
         );
         pipelineJobId = job.id;
@@ -353,7 +370,7 @@ export class NovelDirectorService {
       if (assets.chapterCount === 0 || assets.firstVolumeChapterCount === 0) {
         return assets.volumeCount > 0 ? "structured_outline" : "volume_strategy";
       }
-      throw new Error("当前导演产物已经完整，无需继续自动导演。");
+      throw new DirectorRecoveryNotNeededError();
     }
     if (
       input.directorSessionPhase === "story_macro"
@@ -377,7 +394,7 @@ export class NovelDirectorService {
       await this.workflowService.continueTask(taskId);
       return;
     }
-    if (row.status === "running") {
+    if (row.status === "running" && this.isBackgroundRunActive(taskId)) {
       return;
     }
 
@@ -400,11 +417,21 @@ export class NovelDirectorService {
       )
     );
     if (shouldContinueAutoExecution && (row.checkpointType === "front10_ready" || row.checkpointType === "chapter_batch_ready")) {
-      await this.runAutoExecutionFromReady({
-        taskId,
-        novelId,
-        request: directorInput,
-        existingPipelineJobId: seedPayload.autoExecution?.pipelineJobId ?? null,
+      const range = await this.resolveAutoExecutionRange(novelId);
+      await this.workflowService.markTaskRunning(taskId, {
+        stage: "chapter_execution",
+        itemKey: "chapter_execution",
+        itemLabel: `正在自动执行前 ${range.totalChapterCount} 章`,
+        progress: 0.93,
+      });
+      this.scheduleBackgroundRun(taskId, async () => {
+        await this.runAutoExecutionFromReady({
+          taskId,
+          novelId,
+          request: directorInput,
+          existingPipelineJobId: seedPayload.autoExecution?.pipelineJobId ?? null,
+          forceRecheckCompleted: row.checkpointType === "chapter_batch_ready",
+        });
       });
       return;
     }
@@ -580,6 +607,7 @@ export class NovelDirectorService {
       input.candidate,
       input.idea,
       input.estimatedChapterCount,
+      input,
     );
     const workflowTask = await this.workflowService.bootstrapTask({
       workflowTaskId: input.workflowTaskId,
@@ -620,6 +648,7 @@ export class NovelDirectorService {
         DIRECTOR_PROGRESS.novelCreate,
       );
       const createdNovel = await this.novelContextService.createNovel({
+        contentForm: input.contentForm ?? "novel",
         title,
         description,
         targetAudience: resolvedBookFraming.targetAudience,
@@ -637,7 +666,8 @@ export class NovelDirectorService {
         emotionIntensity: input.emotionIntensity,
         aiFreedom: input.aiFreedom,
         defaultChapterLength: input.defaultChapterLength,
-        estimatedChapterCount: input.estimatedChapterCount ?? bookSpec.targetChapterCount,
+        targetTotalWordCount: input.targetTotalWordCount,
+        estimatedChapterCount: input.estimatedChapterCount ?? null,
         projectStatus: input.projectStatus,
         storylineStatus: input.storylineStatus,
         outlineStatus: input.outlineStatus,

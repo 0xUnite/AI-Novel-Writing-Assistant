@@ -2,6 +2,7 @@ import type {
   BaseCharacter,
   AuditReport,
   Chapter,
+  ContinuityBlockedChapterSummary,
   ReplanRecommendation,
   ReplanResult,
   StoryPlan,
@@ -9,9 +10,11 @@ import type {
   Character,
   CharacterTimeline,
   NovelBible,
+  NovelProductionNextAction,
   PipelineJob,
   PlotBeat,
   QualityScore,
+  ReviewIssue,
   SupplementalCharacterCandidate,
   SupplementalCharacterGenerateInput,
   SupplementalCharacterGenerationResult,
@@ -286,6 +289,10 @@ export interface ChapterTabViewProps {
   isReplanningChapter: boolean;
   isRunningFullAudit: boolean;
   chapterQualityReport?: {
+    chapterOrder?: number | null;
+    chapterLabel?: string | null;
+    chapterStatus?: string | null;
+    generationState?: string | null;
     coherence: number;
     repetition: number;
     pacing: number;
@@ -293,6 +300,8 @@ export interface ChapterTabViewProps {
     engagement: number;
     overall: number;
     issues?: string | null;
+    isStale?: boolean;
+    isMissing?: boolean;
   };
   repairStreamContent: string;
   isRepairStreaming: boolean;
@@ -308,6 +317,7 @@ export interface ChapterTabViewProps {
 
 export interface PipelineTabViewProps {
   novelId: string;
+  novelTitle: string;
   worldInjectionSummary: string | null;
   hasCharacters: boolean;
   onGoToCharacterTab: () => void;
@@ -343,9 +353,62 @@ export interface PipelineTabViewProps {
   selectedChapterId: string;
   onSelectedChapterChange: (chapterId: string) => void;
   onReviewChapter: () => void;
+  onReviewAllQualityChapters: () => void;
+  onReviewFinalizedQualityChapters: () => void;
   isReviewing: boolean;
   onRepairChapter: () => void;
+  onRepairAllQualityChapters: () => void;
   isRepairing: boolean;
+  isQualityBatchRunning: boolean;
+  qualityBatchState?: {
+    jobId?: string | null;
+    mode: "review_all" | "repair_until_pass";
+    status?: string | null;
+    currentStage?: string | null;
+    currentChapterId?: string | null;
+    currentChapterLabel?: string | null;
+    completedCount: number;
+    totalCount: number;
+    qualifiedCount: number;
+    repairedCount: number;
+    retryCount?: number | null;
+    maxRetries?: number | null;
+    heartbeatAt?: string | null;
+    startedAt?: string | null;
+    updatedAt?: string | null;
+    message?: string | null;
+  } | null;
+  onCancelQualityBatch?: () => void;
+  isCancellingQualityBatch?: boolean;
+  onRunContinuityAuditBatches: () => void;
+  onRepairBlockedContinuityChapters: () => void;
+  onCancelContinuityBatch?: () => void;
+  isCancellingContinuityBatch?: boolean;
+  isContinuityBatchRunning: boolean;
+  continuityResumeOrder: number;
+  continuityLastPassedOrder?: number | null;
+  continuityBatchState?: {
+    jobId?: string | null;
+    mode: "audit_batches" | "repair_blocked" | "blocked" | "completed" | "ready";
+    status?: string | null;
+    currentStage?: string | null;
+    currentChapterId?: string | null;
+    currentChapterLabel?: string | null;
+    completedCount: number;
+    totalCount: number;
+    passedCount: number;
+    currentBatchStartOrder?: number | null;
+    currentBatchEndOrder?: number | null;
+    lastPassedOrder?: number | null;
+    blockedChapters: ContinuityBlockedChapterSummary[];
+    retryCount?: number | null;
+    maxRetries?: number | null;
+    heartbeatAt?: string | null;
+    startedAt?: string | null;
+    updatedAt?: string | null;
+    message?: string | null;
+  } | null;
+  productionNextAction?: NovelProductionNextAction | null;
   onGenerateHook: () => void;
   isGeneratingHook: boolean;
   reviewResult: ChapterReviewResult | null;
@@ -357,6 +420,10 @@ export interface PipelineTabViewProps {
   qualitySummary?: QualityScore;
   chapterReports: Array<{
     chapterId?: string | null;
+    chapterOrder?: number | null;
+    chapterLabel?: string | null;
+    chapterStatus?: string | null;
+    generationState?: string | null;
     coherence: number;
     repetition: number;
     pacing: number;
@@ -364,6 +431,8 @@ export interface PipelineTabViewProps {
     engagement: number;
     overall: number;
     issues?: string | null;
+    isStale?: boolean;
+    isMissing?: boolean;
   }>;
   bible?: NovelBible | null;
   plotBeats: PlotBeat[];
@@ -465,6 +534,11 @@ export interface NovelEditViewProps {
   id: string;
   activeTab: string;
   onActiveTabChange: (value: string) => void;
+  onExportNovel: () => void;
+  isExportingNovel: boolean;
+  onSanitizeTypography: () => void;
+  isSanitizingTypography: boolean;
+  onCreateContinuationProject?: () => void;
   basicTab: BasicTabProps;
   storyMacroTab: StoryMacroTabProps;
   outlineTab: OutlineTabViewProps;

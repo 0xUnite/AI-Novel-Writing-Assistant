@@ -1,7 +1,14 @@
 import type { LLMProvider } from "@ai-novel/shared/types/llm";
+import type { ChapterMeta } from "@ai-novel/shared/types/novel";
 import { briefSummary, extractFacts } from "../novel/novelP0Utils";
 import { runStructuredPrompt } from "../../prompting/core/promptRunner";
 import { stateSnapshotPrompt } from "../../prompting/prompts/state/state.prompts";
+import { buildProtectedCharacterIdentityBlock } from "../novel/worldbuildingWorldBible";
+import {
+  sanitizeMemoryList,
+  sanitizeMemoryText,
+  sanitizeStateText,
+} from "../novel/chapterMemorySanitizer";
 
 export interface StateServiceOptions {
   provider?: LLMProvider;
@@ -52,6 +59,13 @@ interface ForeshadowStateOutput {
 
 export interface SnapshotExtractionOutput {
   summary?: string;
+  chapter_meta?: Partial<{
+    event_weight: number;
+    high_stakes_dialogue: boolean;
+    scheme_beat: boolean;
+    kind_of_hook: ChapterMeta["kindOfHook"];
+  }>;
+  chapterMeta?: Partial<ChapterMeta>;
   characterStates?: CharacterStateOutput[];
   relationStates?: RelationStateOutput[];
   informationStates?: InformationStateOutput[];
@@ -71,9 +85,7 @@ export interface StateSnapshotExtractionInput {
 }
 
 export async function extractSnapshotWithAI(input: StateSnapshotExtractionInput): Promise<SnapshotExtractionOutput> {
-  const chapterFacts = input.factRows.length > 0
-    ? input.factRows.map((item) => `${item.category}: ${item.content}`).join("\n")
-    : extractFacts(input.content).map((item) => `${item.category}: ${item.content}`).join("\n");
+  const chapterFacts = buildFactsText(input);
   const timelineBlock = input.timelineRows
     .map((item) => {
       const character = input.characters.find((entry) => entry.id === item.characterId);
@@ -92,7 +104,8 @@ export async function extractSnapshotWithAI(input: StateSnapshotExtractionInput)
         chapterTitle: input.chapter.title,
         chapterGoal: input.chapter.expectation ?? "无",
         charactersText: input.characters.map((item) => `- ${item.id} | ${item.name} | ${item.role} | goal=${item.currentGoal ?? ""} | state=${item.currentState ?? ""}`).join("\n"),
-        summaryText: input.summaryRow?.summary ?? briefSummary(input.content),
+        protectedIdentityText: buildProtectedCharacterIdentityBlock(input.novelId),
+        summaryText: buildSummaryText(input.content, input.summaryRow?.summary),
         factsText: chapterFacts || "无",
         timelineText: timelineBlock || "无",
         previousSummary,
@@ -111,24 +124,64 @@ export async function extractSnapshotWithAI(input: StateSnapshotExtractionInput)
   }
 }
 
+function buildSummaryText(content: string, summary: string | null | undefined): string {
+  const storedSummary = summary?.trim() ?? "";
+  const contentSummary = briefSummary(content).trim();
+  if (storedSummary && contentSummary && storedSummary !== contentSummary) {
+    return `章节摘要记录：${storedSummary}\n正文头尾校验：${contentSummary}`;
+  }
+  return storedSummary || contentSummary;
+}
+
+function buildFactsText(input: Pick<StateSnapshotExtractionInput, "content" | "factRows">): string {
+  const rows = [
+    ...input.factRows.map((item) => ({ category: item.category, content: item.content })),
+    ...extractFacts(input.content),
+  ];
+  const lines: string[] = [];
+  const seen = new Set<string>();
+  for (const row of rows) {
+    const content = row.content.trim();
+    if (!content || seen.has(content)) {
+      continue;
+    }
+    seen.add(content);
+    lines.push(`${row.category}: ${content}`);
+    if (lines.length >= 16) {
+      break;
+    }
+  }
+  return lines.join("\n");
+}
+
 function buildFallbackSnapshot(input: Pick<
   StateSnapshotExtractionInput,
   "chapter" | "content" | "characters" | "summaryRow" | "factRows" | "timelineRows"
 >): SnapshotExtractionOutput {
-  const summary = input.summaryRow?.summary ?? briefSummary(input.content);
-  const facts = input.factRows.length > 0 ? input.factRows : extractFacts(input.content);
+  const summary = briefSummary(input.content) || input.summaryRow?.summary;
+  const factMap = new Map<string, { category: string; content: string }>();
+  for (const item of [...input.factRows, ...extractFacts(input.content)]) {
+    const content = item.content.trim();
+    if (content) {
+      factMap.set(content, { category: item.category, content });
+    }
+  }
+  const facts = [...factMap.values()];
   const characterStates = input.characters.map((character) => {
     const timeline = input.timelineRows.filter((item) => item.characterId === character.id).map((item) => item.content);
     const relevantFacts = facts.filter((item) => item.content.includes(character.name)).map((item) => item.content);
     return {
       characterId: character.id,
       currentGoal: character.currentGoal ?? undefined,
-      emotion: relevantFacts[0] ?? character.currentState ?? undefined,
-      stressLevel: relevantFacts.length > 0 ? 60 : 40,
-      secretExposure: "unknown",
-      knownFacts: relevantFacts.slice(0, 3),
-      misbeliefs: [],
-      summary: [timeline[0], relevantFacts[0], character.currentState].filter(Boolean).join("；") || `${character.name}在第${input.chapter.order}章继续推进主线。`,
+        emotion: sanitizeStateText(relevantFacts[0] ?? character.currentState ?? undefined) ?? undefined,
+        stressLevel: relevantFacts.length > 0 ? 60 : 40,
+        secretExposure: "unknown",
+        knownFacts: sanitizeMemoryList(relevantFacts, { maxItems: 3, maxLength: 72 }),
+        misbeliefs: [],
+        summary: sanitizeMemoryText(
+          [timeline[0], relevantFacts[0], character.currentState].filter(Boolean).join("；"),
+          { maxLength: 90, preferStateLabel: true },
+        ) || `${character.name}在第${input.chapter.order}章继续推进主线。`,
     };
   });
   const relationStates = input.characters.slice(0, 4).flatMap((source) => {
@@ -147,7 +200,7 @@ function buildFallbackSnapshot(input: Pick<
   });
   const informationStates = facts.slice(0, 6).map((item) => ({
     holderType: "reader",
-    fact: item.content,
+    fact: sanitizeMemoryText(item.content, { maxLength: 90 }) ?? item.content.slice(0, 90),
     status: "known",
     summary: item.category,
   }));
@@ -160,6 +213,12 @@ function buildFallbackSnapshot(input: Pick<
     : [];
   return {
     summary,
+    chapter_meta: {
+      event_weight: 3,
+      high_stakes_dialogue: relationStates.length > 0,
+      scheme_beat: false,
+      kind_of_hook: "suspense_question",
+    },
     characterStates,
     relationStates,
     informationStates,

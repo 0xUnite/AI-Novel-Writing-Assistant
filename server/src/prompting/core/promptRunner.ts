@@ -1,7 +1,7 @@
 import { HumanMessage, type BaseMessage, type BaseMessageChunk } from "@langchain/core/messages";
 import type { LLMProvider } from "@ai-novel/shared/types/llm";
 import { getJsonCapability } from "../../llm/capabilities";
-import { getLLM } from "../../llm/factory";
+import { getLLM, resolveLLMClientOptions } from "../../llm/factory";
 import {
   invokeStructuredLlmDetailed,
   parseStructuredLlmRawContentDetailed,
@@ -26,6 +26,37 @@ type PromptRunnerStructuredInvoker = typeof invokeStructuredLlmDetailed;
 
 let promptRunnerLLMFactory: PromptRunnerLLMFactory = getLLM;
 let promptRunnerStructuredInvoker: PromptRunnerStructuredInvoker = invokeStructuredLlmDetailed;
+
+async function resolvePromptExecutionOptions(
+  asset: PromptAsset<unknown, unknown, unknown>,
+  options: PromptExecutionOptions | undefined,
+  invocation: PromptInvocationMeta,
+): Promise<PromptExecutionOptions> {
+  if (promptRunnerLLMFactory !== getLLM) {
+    return {
+      provider: options?.provider,
+      model: options?.model,
+      temperature: options?.temperature,
+      maxTokens: options?.maxTokens,
+    };
+  }
+
+  const resolved = await resolveLLMClientOptions(options?.provider, {
+    fallbackProvider: "deepseek",
+    model: options?.model,
+    temperature: options?.temperature,
+    maxTokens: options?.maxTokens,
+    taskType: asset.taskType,
+    promptMeta: invocation,
+  });
+
+  return {
+    provider: resolved.provider,
+    model: resolved.model,
+    temperature: resolved.temperature,
+    maxTokens: resolved.maxTokens,
+  };
+}
 
 function buildRenderContext(asset: PromptAsset<unknown, unknown, unknown>, rawBlocks: Parameters<typeof selectContextBlocks>[0]): PromptRenderContext {
   const selection = selectContextBlocks(rawBlocks, asset.contextPolicy);
@@ -232,6 +263,10 @@ function captureStreamOutput(rawStream: AsyncIterable<BaseMessageChunk>): {
     resolveText = resolve;
     rejectText = reject;
   });
+  completedText.catch(() => {
+    // Stream consumers may attach `complete` after the stream fails; mark it handled now
+    // so a provider disconnect does not become a process-level unhandled rejection.
+  });
 
   const stream = {
     async *[Symbol.asyncIterator]() {
@@ -401,20 +436,25 @@ export async function runStructuredPrompt<I, O, R = O>(input: {
 
   const outputSchema = input.asset.outputSchema;
   const prepared = preparePromptExecution(input);
+  const resolvedOptions = await resolvePromptExecutionOptions(
+    input.asset as PromptAsset<unknown, unknown, unknown>,
+    input.options,
+    prepared.invocation,
+  );
   logPromptEvent({
     event: "started",
     asset: input.asset as PromptAsset<unknown, unknown, unknown>,
     context: prepared.context,
-    provider: input.options?.provider,
-    model: input.options?.model,
+    provider: resolvedOptions.provider,
+    model: resolvedOptions.model,
   });
   const startedAt = Date.now();
   const result = await promptRunnerStructuredInvoker<R>({
     label: `${input.asset.id}@${input.asset.version}`,
-    provider: input.options?.provider,
-    model: input.options?.model,
-    temperature: input.options?.temperature,
-    maxTokens: input.options?.maxTokens,
+    provider: resolvedOptions.provider,
+    model: resolvedOptions.model,
+    temperature: resolvedOptions.temperature,
+    maxTokens: resolvedOptions.maxTokens,
     taskType: input.asset.taskType,
     messages: prepared.messages,
     schema: outputSchema,
@@ -428,13 +468,13 @@ export async function runStructuredPrompt<I, O, R = O>(input: {
     baseMessages: prepared.messages,
     outputSchema,
     initialResult: result,
-    options: input.options,
+    options: resolvedOptions,
   });
   return buildPromptRunResult({
     output: resolved.output,
     context: prepared.context,
-    provider: input.options?.provider,
-    model: input.options?.model,
+    provider: resolvedOptions.provider,
+    model: resolvedOptions.model,
     latencyMs: Date.now() - startedAt,
     invocation: resolved.invocation,
   });
@@ -452,11 +492,15 @@ export async function runTextPrompt<I>(input: {
 
   const prepared = preparePromptExecution(input);
   const startedAt = Date.now();
-  const llm = await promptRunnerLLMFactory(input.options?.provider, {
-    fallbackProvider: "deepseek",
-    model: input.options?.model,
-    temperature: input.options?.temperature,
-    maxTokens: input.options?.maxTokens,
+  const resolvedOptions = await resolvePromptExecutionOptions(
+    input.asset as PromptAsset<unknown, unknown, unknown>,
+    input.options,
+    prepared.invocation,
+  );
+  const llm = await promptRunnerLLMFactory(resolvedOptions.provider, {
+    model: resolvedOptions.model,
+    temperature: resolvedOptions.temperature,
+    maxTokens: resolvedOptions.maxTokens,
     taskType: input.asset.taskType,
     promptMeta: prepared.invocation,
   });
@@ -469,8 +513,8 @@ export async function runTextPrompt<I>(input: {
       rawOutput: toText(result.content),
     }),
     context: prepared.context,
-    provider: input.options?.provider,
-    model: input.options?.model,
+    provider: resolvedOptions.provider,
+    model: resolvedOptions.model,
     latencyMs: Date.now() - startedAt,
     invocation: buildPromptInvocationMeta(
       input.asset as PromptAsset<unknown, unknown, unknown>,
@@ -495,11 +539,15 @@ export async function streamTextPrompt<I>(input: {
 
   const prepared = preparePromptExecution(input);
   const startedAt = Date.now();
-  const llm = await promptRunnerLLMFactory(input.options?.provider, {
-    fallbackProvider: "deepseek",
-    model: input.options?.model,
-    temperature: input.options?.temperature,
-    maxTokens: input.options?.maxTokens,
+  const resolvedOptions = await resolvePromptExecutionOptions(
+    input.asset as PromptAsset<unknown, unknown, unknown>,
+    input.options,
+    prepared.invocation,
+  );
+  const llm = await promptRunnerLLMFactory(resolvedOptions.provider, {
+    model: resolvedOptions.model,
+    temperature: resolvedOptions.temperature,
+    maxTokens: resolvedOptions.maxTokens,
     taskType: input.asset.taskType,
     promptMeta: prepared.invocation,
   });
@@ -516,8 +564,8 @@ export async function streamTextPrompt<I>(input: {
         rawOutput: content,
       }),
       context: prepared.context,
-      provider: input.options?.provider,
-      model: input.options?.model,
+      provider: resolvedOptions.provider,
+      model: resolvedOptions.model,
       latencyMs: Date.now() - startedAt,
       invocation: buildPromptInvocationMeta(
         input.asset as PromptAsset<unknown, unknown, unknown>,
@@ -546,57 +594,67 @@ export async function streamStructuredPrompt<I, O, R = O>(input: {
   const outputSchema = input.asset.outputSchema;
   const prepared = preparePromptExecution(input);
   const startedAt = Date.now();
-  const llm = await promptRunnerLLMFactory(input.options?.provider, {
-    fallbackProvider: "deepseek",
-    model: input.options?.model,
-    temperature: input.options?.temperature,
-    maxTokens: input.options?.maxTokens,
+  const resolvedOptions = await resolvePromptExecutionOptions(
+    input.asset as PromptAsset<unknown, unknown, unknown>,
+    input.options,
+    prepared.invocation,
+  );
+  const llm = await promptRunnerLLMFactory(resolvedOptions.provider, {
+    model: resolvedOptions.model,
+    temperature: resolvedOptions.temperature,
+    maxTokens: resolvedOptions.maxTokens,
     taskType: input.asset.taskType,
     promptMeta: prepared.invocation,
   });
   const invokeOptions: Record<string, unknown> = {};
   if (
-    getJsonCapability(input.options?.provider ?? "deepseek", input.options?.model).supportsJsonObject
-    && shouldUseJsonObjectResponseFormat(input.options?.provider ?? "deepseek", input.options?.model, outputSchema)
+    getJsonCapability(resolvedOptions.provider ?? "minimax", resolvedOptions.model).supportsJsonObject
+    && shouldUseJsonObjectResponseFormat(resolvedOptions.provider ?? "minimax", resolvedOptions.model, outputSchema)
   ) {
     invokeOptions.response_format = { type: "json_object" };
   }
   const rawStream = await llm.stream(prepared.messages, invokeOptions);
   const captured = captureStreamOutput(rawStream as AsyncIterable<BaseMessageChunk>);
+  const complete = captured.completedText.then(async (rawContent) => {
+    const parsed = await parseStructuredLlmRawContentDetailed({
+      rawContent,
+      schema: outputSchema,
+      provider: resolvedOptions.provider,
+      model: resolvedOptions.model,
+      temperature: resolvedOptions.temperature,
+      maxTokens: resolvedOptions.maxTokens,
+      taskType: input.asset.taskType,
+      label: `${input.asset.id}@${input.asset.version}`,
+      maxRepairAttempts: resolveStructuredRepairAttempts(input.asset as PromptAsset<unknown, unknown, unknown>),
+      promptMeta: prepared.invocation,
+    });
+    const resolved = await resolveStructuredOutput({
+      asset: input.asset,
+      promptInput: input.promptInput,
+      context: prepared.context,
+      baseMessages: prepared.messages,
+      outputSchema,
+      initialResult: parsed,
+      options: resolvedOptions,
+    });
+    return buildPromptRunResult({
+      output: resolved.output,
+      context: prepared.context,
+      provider: resolvedOptions.provider,
+      model: resolvedOptions.model,
+      latencyMs: Date.now() - startedAt,
+      invocation: resolved.invocation,
+    });
+  });
+  complete.catch(() => {
+    // Stream consumers may not await `complete` when the upstream stream fails early.
+    // Mark the rejection handled here so provider-side aborts do not escalate to
+    // process-level unhandledRejection and take down the whole server.
+  });
 
   return {
     stream: captured.stream,
-    complete: captured.completedText.then(async (rawContent) => {
-      const parsed = await parseStructuredLlmRawContentDetailed({
-        rawContent,
-        schema: outputSchema,
-        provider: input.options?.provider,
-        model: input.options?.model,
-        temperature: input.options?.temperature,
-        maxTokens: input.options?.maxTokens,
-        taskType: input.asset.taskType,
-        label: `${input.asset.id}@${input.asset.version}`,
-        maxRepairAttempts: resolveStructuredRepairAttempts(input.asset as PromptAsset<unknown, unknown, unknown>),
-        promptMeta: prepared.invocation,
-      });
-      const resolved = await resolveStructuredOutput({
-        asset: input.asset,
-        promptInput: input.promptInput,
-        context: prepared.context,
-        baseMessages: prepared.messages,
-        outputSchema,
-        initialResult: parsed,
-        options: input.options,
-      });
-      return buildPromptRunResult({
-        output: resolved.output,
-        context: prepared.context,
-        provider: input.options?.provider,
-        model: input.options?.model,
-        latencyMs: Date.now() - startedAt,
-        invocation: resolved.invocation,
-      });
-    }),
+    complete,
     context: prepared.context,
     invocation: prepared.invocation,
   };

@@ -1,11 +1,11 @@
 import type { ReactNode } from "react";
 import type { BookAnalysisSectionKey } from "@ai-novel/shared/types/bookAnalysis";
+import type { NovelContentForm } from "@ai-novel/shared/types/novel";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   AI_FREEDOM_OPTIONS,
   BASIC_INFO_FIELD_HINTS,
-  DEFAULT_ESTIMATED_CHAPTER_COUNT,
   EMOTION_OPTIONS,
   PACE_OPTIONS,
   POV_OPTIONS,
@@ -52,7 +52,7 @@ interface NovelBasicInfoFormProps {
   genreOptions: GenreOption[];
   storyModeOptions: StoryModeOption[];
   worldOptions: WorldOption[];
-  sourceNovelOptions: Array<{ id: string; title: string }>;
+  sourceNovelOptions: Array<{ id: string; title: string; contentForm?: NovelContentForm | null }>;
   sourceKnowledgeOptions: Array<{ id: string; title: string }>;
   sourceNovelBookAnalysisOptions: Array<{
     id: string;
@@ -108,23 +108,26 @@ export default function NovelBasicInfoForm(props: NovelBasicInfoFormProps) {
     : Boolean(basicForm.sourceKnowledgeDocumentId);
   const primaryStoryMode = storyModeOptions.find((item) => item.id === basicForm.primaryStoryModeId);
   const secondaryStoryMode = storyModeOptions.find((item) => item.id === basicForm.secondaryStoryModeId);
+  const isShortStory = basicForm.contentForm === "short_story";
 
   return (
     <div className="space-y-4">
       <div className="rounded-xl border border-primary/20 bg-primary/5 p-4">
         <div className="text-sm font-semibold text-foreground">填写建议</div>
         <div className="mt-1 text-sm leading-6 text-muted-foreground">
-          建议先想清楚这本书写给谁、靠什么吸引人、前 30 章要兑现什么，再补创作模式、世界边界和写法确认。这里的设置会直接影响后续主线规划、卷章推进和正文生成。
+          {isShortStory
+            ? "建议先想清楚这篇短故事写给谁、靠什么吸引人、用多少章完成闭环，再补创作模式、世界边界和写法确认。这里的设置会直接影响后续章节规划和正文生成。"
+            : "建议先想清楚这本书写给谁、靠什么吸引人、前 30 章要兑现什么，再补创作模式、世界边界和写法确认。这里的设置会直接影响后续主线规划、卷章推进和正文生成。"}
         </div>
         {projectQuickStart ? <div className="mt-3 flex justify-end">{projectQuickStart}</div> : null}
       </div>
 
       <SectionBlock
         title="作品定位"
-        description="先定义这是什么作品，以及它是从零开始还是基于既有内容继续创作。"
+        description={isShortStory ? "先定义这是什么短故事，以及它是从零开始还是基于既有内容继续创作。" : "先定义这是什么作品，以及它是从零开始还是基于既有内容继续创作。"}
       >
         <div className="space-y-2">
-          <FieldLabel htmlFor="basic-title">小说标题</FieldLabel>
+          <FieldLabel htmlFor="basic-title">{isShortStory ? "短故事标题" : "小说标题"}</FieldLabel>
           <Input
             id="basic-title"
             value={basicForm.title}
@@ -210,7 +213,7 @@ export default function NovelBasicInfoForm(props: NovelBasicInfoFormProps) {
 
           <div className="space-y-2">
             <FieldLabel htmlFor="basic-default-length" hint={BASIC_INFO_FIELD_HINTS.defaultChapterLength}>
-              默认章节字数
+              {isShortStory ? "单章目标字数" : "默认章节字数"}
             </FieldLabel>
             <Input
               id="basic-default-length"
@@ -218,29 +221,58 @@ export default function NovelBasicInfoForm(props: NovelBasicInfoFormProps) {
               min={500}
               max={10000}
               value={basicForm.defaultChapterLength}
-              onChange={(event) => onFormChange({ defaultChapterLength: Number(event.target.value || 0) || 2800 })}
+              onChange={(event) => onFormChange({ defaultChapterLength: Number(event.target.value || 0) || 2000 })}
             />
-            <div className="text-xs text-muted-foreground">推荐先设为 2500-3500，后续仍可按章节单独调整。</div>
+            <div className="text-xs text-muted-foreground">
+              {isShortStory ? "短故事推荐先设为 2000-3000，系统会围绕它收紧单章上下限。" : "推荐先设为 2000-3500，后续仍可按章节单独调整。"}
+            </div>
           </div>
+
+          {isShortStory ? (
+            <div className="space-y-2">
+              <FieldLabel htmlFor="basic-target-total-words" hint={BASIC_INFO_FIELD_HINTS.targetTotalWordCount}>
+                整篇目标字数
+              </FieldLabel>
+              <Input
+                id="basic-target-total-words"
+                type="number"
+                min={20000}
+                max={80000}
+                step={1000}
+                value={basicForm.targetTotalWordCount}
+                onChange={(event) => onFormChange({
+                  targetTotalWordCount: Math.max(
+                    20000,
+                    Math.min(80000, Number(event.target.value || 0) || 20000),
+                  ),
+                })}
+              />
+              <div className="text-xs text-muted-foreground">
+                短故事按 2 万到 8 万字收束；修改总字数或单章字数会自动反推章节数。
+              </div>
+            </div>
+          ) : null}
 
           <div className="space-y-2">
             <FieldLabel htmlFor="basic-estimated-chapters" hint={BASIC_INFO_FIELD_HINTS.estimatedChapterCount}>
-              预计章节数
+              {isShortStory ? "目标章节数" : "预计章节数"}
             </FieldLabel>
             <Input
               id="basic-estimated-chapters"
               type="number"
-              min={1}
+              min={0}
               max={500}
               value={basicForm.estimatedChapterCount}
               onChange={(event) => onFormChange({
                 estimatedChapterCount: Math.max(
-                  1,
-                  Math.min(500, Number(event.target.value || 0) || DEFAULT_ESTIMATED_CHAPTER_COUNT),
+                  isShortStory ? 1 : 0,
+                  Math.min(isShortStory ? 32 : 500, Number(event.target.value || 0) || 0),
                 ),
               })}
             />
-            <div className="text-xs text-muted-foreground">会作为大纲、拍点和流水线默认范围的参考，后续仍可调整。</div>
+            <div className="text-xs text-muted-foreground">
+              {isShortStory ? "短故事章节数会和整篇目标字数互相校准，建议保持 8-32 章以内。" : "填 0 表示开放长篇滚动规划；填具体数字则按当前结构预算控量，后续仍可调整。"}
+            </div>
           </div>
         </div>
 

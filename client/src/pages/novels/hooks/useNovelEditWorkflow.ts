@@ -50,7 +50,7 @@ export function useNovelEditWorkflow(novelId: string) {
   });
 
   useEffect(() => {
-    if (!novelId) {
+    if (!novelId || !workflowTaskId) {
       return;
     }
     bootstrapMutation.mutate();

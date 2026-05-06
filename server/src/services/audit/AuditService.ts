@@ -5,6 +5,7 @@ import { prisma } from "../../db/prisma";
 import { buildStoryModePromptBlock, normalizeStoryModeOutput } from "../storyMode/storyModeProfile";
 import { openConflictService } from "../state/OpenConflictService";
 import {
+  clamp,
   normalizeAuditType,
   normalizeScore,
   normalizeSeverity,
@@ -15,6 +16,12 @@ import { ragServices } from "../rag";
 import { runStructuredPrompt } from "../../prompting/core/promptRunner";
 import { auditChapterPrompt } from "../../prompting/prompts/audit/audit.prompts";
 import { buildChapterReviewContextBlocks } from "../../prompting/prompts/novel/chapterLayeredContext";
+import {
+  applyChapterTransitionPenalty,
+  detectChapterTransitionIssues,
+  mergeChapterTransitionIssuesIntoReports,
+} from "./chapterBridgeAudit";
+import { auditCharacterContinuity } from "./characterContinuityAudit";
 
 interface AuditOptions {
   provider?: LLMProvider;
@@ -51,6 +58,120 @@ const LEGACY_CATEGORY_MAP: Record<AuditType, ReviewIssue["category"]> = {
   plot: "pacing",
   mode_fit: "coherence",
 };
+
+function normalizeAuditOverallScore(value: unknown, fallback: number): number {
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    return clamp(fallback);
+  }
+  return clamp(value > 0 && value <= 10 ? value * 10 : value);
+}
+
+function average(values: number[]): number | null {
+  return values.length > 0 ? values.reduce((sum, value) => sum + value, 0) / values.length : null;
+}
+
+function scoreFromAuditReports(baseScore: QualityScore, reports: Array<{ auditType: AuditType; overallScore: number }>): QualityScore {
+  const reportScores = reports.map((report) => report.overallScore).filter((score) => Number.isFinite(score));
+  const continuityScores = reports
+    .filter((report) => report.auditType === "continuity" || report.auditType === "mode_fit")
+    .map((report) => report.overallScore);
+  const characterScores = reports
+    .filter((report) => report.auditType === "character")
+    .map((report) => report.overallScore);
+  const plotScores = reports
+    .filter((report) => report.auditType === "plot")
+    .map((report) => report.overallScore);
+  const reportAverage = average(reportScores);
+  const coherence = Math.max(baseScore.coherence, average(continuityScores) ?? 0);
+  const pacing = Math.max(baseScore.pacing, average(plotScores) ?? 0);
+  const voice = Math.max(baseScore.voice, average(characterScores) ?? 0);
+  const engagement = Math.max(baseScore.engagement, reportAverage ?? 0);
+  const overall = Math.max(baseScore.overall, reportAverage ?? 0);
+  return normalizeScore({
+    coherence,
+    repetition: baseScore.repetition,
+    pacing,
+    voice,
+    engagement,
+    overall,
+  });
+}
+
+function severityCap(issues: Array<{ severity: "low" | "medium" | "high" | "critical" }>): number | null {
+  if (issues.some((issue) => issue.severity === "critical")) {
+    return 60;
+  }
+  if (issues.some((issue) => issue.severity === "high")) {
+    return 68;
+  }
+  if (issues.some((issue) => issue.severity === "medium")) {
+    return 74;
+  }
+  if (issues.some((issue) => issue.severity === "low")) {
+    return 80;
+  }
+  return null;
+}
+
+function applyProfileContinuityPenalty(
+  score: QualityScore,
+  issues: Array<{ severity: "low" | "medium" | "high" | "critical" }>,
+): QualityScore {
+  const cap = severityCap(issues);
+  if (cap == null) {
+    return score;
+  }
+  return {
+    coherence: Math.min(score.coherence, cap),
+    repetition: score.repetition,
+    pacing: Math.min(score.pacing, cap === 60 ? 66 : cap === 68 ? 72 : 78),
+    voice: Math.min(score.voice, cap === 60 ? 64 : cap === 68 ? 70 : 78),
+    engagement: Math.min(score.engagement, cap === 60 ? 68 : cap === 68 ? 74 : 80),
+    overall: Math.min(score.overall, cap === 60 ? 64 : cap === 68 ? 70 : 76),
+  };
+}
+
+function mergeSupplementalIssuesIntoReports(
+  reports: Array<{
+    auditType: AuditType;
+    overallScore?: number;
+    summary?: string;
+    issues: Array<{
+      severity: "low" | "medium" | "high" | "critical";
+      code: string;
+      description: string;
+      evidence: string;
+      fixSuggestion: string;
+    }>;
+  }>,
+  targetAuditType: AuditType,
+  issues: Array<{
+    severity: "low" | "medium" | "high" | "critical";
+    code: string;
+    description: string;
+    evidence: string;
+    fixSuggestion: string;
+  }>,
+  summary: string,
+) {
+  if (issues.length === 0) {
+    return reports;
+  }
+  const cap = severityCap(issues);
+  return reports.map((report) => {
+    if (report.auditType !== targetAuditType) {
+      return report;
+    }
+    return {
+      ...report,
+      overallScore: cap != null
+        ? Math.min(typeof report.overallScore === "number" ? report.overallScore : cap, cap)
+        : report.overallScore,
+      summary: [report.summary?.trim(), summary].filter(Boolean).join(" "),
+      issues: [...issues, ...report.issues],
+    };
+  });
+}
 
 export class AuditService {
   async auditChapter(
@@ -99,13 +220,27 @@ export class AuditService {
         auditReports: reports,
       };
     }
+    const recentEndingSamples = await this.listRecentEndingSamples(novelId, chapter.order);
     const structured = await this.invokeAuditLLM(novelId, chapter.novel.title, chapter.title, content, requestedTypes, options);
-    const score = normalizeScore(structured.score ?? ruleScore(content));
-    const auditReportsInput = requestedTypes.map((type) => {
+    const profileAudit = auditCharacterContinuity({
+      novelId,
+      content,
+    });
+    const transitionIssues = detectChapterTransitionIssues(options.contextPackage, content, {
+      novelTitle: chapter.novel.title,
+      recentEndingSamples,
+    });
+    const transitionAdjustedScore = transitionIssues.length > 0
+      ? applyChapterTransitionPenalty(normalizeScore(structured.score ?? ruleScore(content)), transitionIssues)
+      : normalizeScore(structured.score ?? ruleScore(content));
+    const baseScore = profileAudit.issues.length > 0
+      ? applyProfileContinuityPenalty(transitionAdjustedScore, profileAudit.issues)
+      : transitionAdjustedScore;
+    const rawAuditReportsInput = requestedTypes.map((type) => {
       const matched = structured.auditReports?.find((item) => normalizeAuditType(item.auditType) === type);
       return {
         auditType: type,
-        overallScore: typeof matched?.overallScore === "number" ? matched.overallScore : score.overall,
+        overallScore: normalizeAuditOverallScore(matched?.overallScore, baseScore.overall),
         summary: matched?.summary?.trim() || `${type} 审计已生成。`,
         issues: (matched?.issues ?? []).map((issue, index) => ({
           severity: normalizeSeverity(issue.severity),
@@ -116,6 +251,22 @@ export class AuditService {
         })),
       };
     });
+    const profileTargetAuditType = requestedTypes.includes("character")
+      ? "character"
+      : requestedTypes.includes("continuity")
+        ? "continuity"
+        : requestedTypes[0];
+    const withTransitionIssues = mergeChapterTransitionIssuesIntoReports(rawAuditReportsInput, transitionIssues);
+    const auditReportsInput = mergeSupplementalIssuesIntoReports(
+      withTransitionIssues,
+      profileTargetAuditType,
+      profileAudit.issues,
+      profileAudit.summary,
+    );
+    const score = scoreFromAuditReports(baseScore, auditReportsInput.map((report) => ({
+      auditType: report.auditType,
+      overallScore: typeof report.overallScore === "number" ? report.overallScore : baseScore.overall,
+    })));
     const persistedReports = await this.persistAuditReports(novelId, chapterId, score, auditReportsInput);
     const chapterOrder = chapter.order;
     const sourceSnapshot = await prisma.storyStateSnapshot.findFirst({
@@ -129,12 +280,36 @@ export class AuditService {
       sourceSnapshotId: sourceSnapshot?.id ?? null,
       auditReports: persistedReports,
     });
+    const continuityReport = persistedReports.find((report) => report.auditType === "continuity");
+    if (continuityReport && continuityReport.issues.length === 0) {
+      await openConflictService.resolveStateDiffConflictsForChapter(novelId, chapterId);
+    }
     const issues = this.buildLegacyIssues(structured.issues ?? [], persistedReports);
     return {
       score,
       issues,
       auditReports: persistedReports,
     };
+  }
+
+  private async listRecentEndingSamples(novelId: string, chapterOrder: number) {
+    const chapters = await prisma.chapter.findMany({
+      where: {
+        novelId,
+        order: { lt: chapterOrder },
+        content: { not: null },
+      },
+      orderBy: { order: "desc" },
+      take: 5,
+      select: {
+        order: true,
+        content: true,
+      },
+    });
+    return chapters.map((item) => ({
+      chapterOrder: item.order,
+      content: item.content ?? "",
+    }));
   }
 
   async listChapterAuditReports(novelId: string, chapterId: string): Promise<AuditReport[]> {

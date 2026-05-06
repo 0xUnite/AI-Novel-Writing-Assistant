@@ -1,4 +1,5 @@
 import type {
+  ChapterMeta,
   VolumeBeatSheet,
   VolumeGenerationScope,
   VolumeGenerationScopeInput,
@@ -37,7 +38,17 @@ import {
   buildVolumeWorkspaceDocument,
 } from "./volumeWorkspaceDocument";
 import { normalizeVolumeDraftContextInput } from "./volumeDraftContext";
-import { inferRequiredChapterCountFromBeatSheet } from "./volumeBeatSheetChapterBudget";
+import {
+  parseBeatSheetChapterSpan,
+} from "./volumeBeatSheetChapterBudget";
+import {
+  allocateChapterBudgets,
+  deriveChapterBudget as deriveStructuralChapterBudget,
+  normalizeBeatSheetSpansToChapterBudget,
+  resolveTargetVolumeCount,
+  resolveVolumeChapterBudget,
+} from "./volumeStructureBudget";
+import { deriveChapterDetailPolicy } from "./volumeChapterDetailPolicy";
 import type {
   ChapterDetailMode,
   VolumeGenerateOptions,
@@ -62,18 +73,11 @@ function deriveChapterBudget(params: {
   options: VolumeGenerateOptions;
 }): number {
   const { novel, workspace, options } = params;
-  return Math.max(
-    options.estimatedChapterCount ?? 0,
-    novel.estimatedChapterCount ?? 0,
-    workspace.volumes.flatMap((volume) => volume.chapters).length,
-    12,
-  );
-}
-
-function suggestVolumeCount(chapterBudget: number): number {
-  if (chapterBudget <= 24) return 1;
-  if (chapterBudget <= 60) return 3;
-  return 4;
+  return deriveStructuralChapterBudget({
+    optionEstimatedChapterCount: options.estimatedChapterCount,
+    novelEstimatedChapterCount: novel.estimatedChapterCount,
+    existingChapterCount: workspace.volumes.flatMap((volume) => volume.chapters).length,
+  });
 }
 
 async function notifyVolumeGenerationPhase(input: {
@@ -91,41 +95,6 @@ async function notifyVolumeGenerationPhase(input: {
     phase: input.phase,
     label: input.label,
   });
-}
-
-function allocateChapterBudgets(params: {
-  volumeCount: number;
-  chapterBudget: number;
-  existingVolumes: VolumePlan[];
-}): number[] {
-  const { volumeCount, chapterBudget, existingVolumes } = params;
-  const safeVolumeCount = Math.max(volumeCount, 1);
-  const minimumPerVolume = 3;
-  const totalBudget = Math.max(chapterBudget, safeVolumeCount * minimumPerVolume);
-  const existingCounts = Array.from(
-    { length: safeVolumeCount },
-    (_, index) => Math.max(existingVolumes[index]?.chapters.length ?? 0, 0),
-  );
-  const hasUsefulWeights = existingCounts.some((count) => count >= minimumPerVolume);
-  const weights = hasUsefulWeights
-    ? existingCounts.map((count) => Math.max(count, 1))
-    : Array.from({ length: safeVolumeCount }, () => 1);
-  const totalWeight = weights.reduce((sum, weight) => sum + weight, 0);
-  const budgets = weights.map((weight) => Math.max(minimumPerVolume, Math.round((totalBudget * weight) / totalWeight)));
-  let delta = totalBudget - budgets.reduce((sum, budget) => sum + budget, 0);
-
-  while (delta !== 0) {
-    const direction = delta > 0 ? 1 : -1;
-    for (let index = 0; index < budgets.length && delta !== 0; index += 1) {
-      if (direction < 0 && budgets[index] <= minimumPerVolume) {
-        continue;
-      }
-      budgets[index] += direction;
-      delta -= direction;
-    }
-  }
-
-  return budgets;
 }
 
 function getTargetVolume(document: VolumePlanDocument, targetVolumeId?: string): VolumePlan {
@@ -289,14 +258,23 @@ function mergeBeatSheet(
   document: VolumePlanDocument,
   targetVolume: VolumePlan,
   beats: VolumeBeatSheet["beats"],
+  chapterBudgetContract: {
+    targetChapterStartOrder: number;
+    targetChapterCount: number;
+  },
 ): VolumePlanDocument {
+  const normalizedBeats = normalizeBeatSheetSpansToChapterBudget(
+    beats,
+    chapterBudgetContract.targetChapterStartOrder,
+    chapterBudgetContract.targetChapterCount,
+  );
   const nextBeatSheets = [
     ...document.beatSheets.filter((sheet) => sheet.volumeId !== targetVolume.id),
     {
       volumeId: targetVolume.id,
       volumeSortOrder: targetVolume.sortOrder,
       status: "generated" as const,
-      beats,
+      beats: normalizedBeats,
     },
   ].sort((left, right) => left.volumeSortOrder - right.volumeSortOrder);
 
@@ -315,7 +293,9 @@ function mergeBeatSheet(
 function mergeChapterList(
   document: VolumePlanDocument,
   targetVolumeId: string,
-  generatedChapters: Array<{ title: string; summary: string }>,
+  generatedChapters: Array<{ title: string; summary: string; chapterMeta?: ChapterMeta | null }>,
+  startChapterOrder: number,
+  defaultChapterLength?: number | null,
 ): VolumePlanDocument {
   const mergedVolumes = document.volumes.map((volume) => {
     if (volume.id !== targetVolumeId) {
@@ -325,19 +305,26 @@ function mergeChapterList(
       ...volume,
       chapters: generatedChapters.map((chapter, chapterIndex) => {
         const existingChapter = volume.chapters[chapterIndex];
+        const policy = deriveChapterDetailPolicy({
+          defaultChapterLength,
+          chapterMeta: chapter.chapterMeta ?? existingChapter?.chapterMeta ?? null,
+          title: chapter.title,
+          summary: chapter.summary,
+        });
         return {
           id: existingChapter?.id,
           volumeId: volume.id,
-          chapterOrder: existingChapter?.chapterOrder ?? chapterIndex + 1,
+          chapterOrder: startChapterOrder + chapterIndex,
           title: chapter.title,
           summary: chapter.summary,
           purpose: existingChapter?.purpose ?? null,
-          conflictLevel: existingChapter?.conflictLevel ?? null,
-          revealLevel: existingChapter?.revealLevel ?? null,
-          targetWordCount: existingChapter?.targetWordCount ?? null,
-          mustAvoid: existingChapter?.mustAvoid ?? null,
-          taskSheet: existingChapter?.taskSheet ?? null,
+          conflictLevel: existingChapter?.conflictLevel ?? policy.conflictLevel,
+          revealLevel: existingChapter?.revealLevel ?? policy.revealLevel,
+          targetWordCount: existingChapter?.targetWordCount ?? policy.targetWordCount,
+          mustAvoid: existingChapter?.mustAvoid ?? policy.mustAvoid,
+          taskSheet: existingChapter?.taskSheet ?? policy.taskSheet,
           payoffRefs: existingChapter?.payoffRefs ?? [],
+          chapterMeta: chapter.chapterMeta ?? existingChapter?.chapterMeta ?? null,
           createdAt: existingChapter?.createdAt ?? new Date(0).toISOString(),
           updatedAt: existingChapter?.updatedAt ?? new Date(0).toISOString(),
         };
@@ -448,13 +435,16 @@ async function loadGenerationContext(params: {
       where: { id: novelId },
       select: {
         title: true,
+        contentForm: true,
         description: true,
         targetAudience: true,
         bookSellingPoint: true,
         competingFeel: true,
         first30ChapterPromise: true,
         commercialTagsJson: true,
+        defaultChapterLength: true,
         estimatedChapterCount: true,
+        targetTotalWordCount: true,
         narrativePov: true,
         pacePreference: true,
         emotionIntensity: true,
@@ -517,6 +507,76 @@ async function loadGenerationContext(params: {
   };
 }
 
+function resolveBookTargetVolumeCount(params: {
+  novel?: VolumeGenerationNovel;
+  workspace: VolumeWorkspace;
+  chapterBudget: number;
+  options: VolumeGenerateOptions;
+}): number {
+  if (params.novel?.contentForm === "short_story") {
+    return 1;
+  }
+  return resolveTargetVolumeCount({
+    chapterBudget: params.chapterBudget,
+    existingVolumeCount: params.workspace.volumes.length,
+    respectExistingVolumeCount: params.options.respectExistingVolumeCount,
+    targetVolumeCount: params.options.targetVolumeCount,
+    guidance: params.options.guidance,
+  });
+}
+
+function normalizeStrategyPlanToVolumeCount(
+  strategyPlan: VolumeStrategyPlan,
+  targetVolumeCount: number,
+): VolumeStrategyPlan {
+  const hardPlannedVolumeCount = Math.max(
+    1,
+    Math.min(targetVolumeCount, Math.round(strategyPlan.hardPlannedVolumeCount || Math.min(3, targetVolumeCount))),
+  );
+  const lastVolume = strategyPlan.volumes[strategyPlan.volumes.length - 1];
+  const volumes = Array.from({ length: targetVolumeCount }, (_, index) => {
+    const existing = strategyPlan.volumes[index] ?? lastVolume;
+    return {
+      sortOrder: index + 1,
+      planningMode: index < hardPlannedVolumeCount ? "hard" as const : "soft" as const,
+      roleLabel: existing?.roleLabel?.trim() || `第${index + 1}卷阶段定位`,
+      coreReward: existing?.coreReward?.trim() || "承接书级卖点，完成本阶段读者回报。",
+      escalationFocus: existing?.escalationFocus?.trim() || "延续主线压力并形成阶段升级。",
+      uncertaintyLevel: existing?.uncertaintyLevel ?? (index < hardPlannedVolumeCount ? "low" as const : "medium" as const),
+    };
+  });
+
+  return {
+    ...strategyPlan,
+    recommendedVolumeCount: targetVolumeCount,
+    hardPlannedVolumeCount,
+    volumes,
+    uncertainties: strategyPlan.uncertainties.slice(0, targetVolumeCount),
+  };
+}
+
+function resolveDocumentVolumeBudget(params: {
+  document: VolumePlanDocument;
+  novel: VolumeGenerationNovel;
+  workspace: VolumeWorkspace;
+  options: VolumeGenerateOptions;
+  targetVolume: VolumePlan;
+}) {
+  const chapterBudget = deriveChapterBudget({
+    novel: params.novel,
+    workspace: {
+      ...params.workspace,
+      volumes: params.document.volumes,
+    },
+    options: params.options,
+  });
+  return resolveVolumeChapterBudget({
+    volumes: params.document.volumes,
+    targetVolume: params.targetVolume,
+    chapterBudget,
+  });
+}
+
 async function generateStrategy(params: {
   document: VolumePlanDocument;
   novel: VolumeGenerationNovel;
@@ -526,9 +586,12 @@ async function generateStrategy(params: {
 }): Promise<VolumePlanDocument> {
   const { document, novel, workspace, storyMacroPlan, options } = params;
   const chapterBudget = deriveChapterBudget({ novel, workspace, options });
-  const suggestedVolumeCount = workspace.volumes.length > 0 && options.respectExistingVolumeCount !== false
-    ? workspace.volumes.length
-    : suggestVolumeCount(chapterBudget);
+  const suggestedVolumeCount = resolveBookTargetVolumeCount({
+    novel,
+    workspace,
+    chapterBudget,
+    options,
+  });
   await notifyVolumeGenerationPhase({
     novelId: document.novelId,
     scope: "strategy",
@@ -558,7 +621,7 @@ async function generateStrategy(params: {
       temperature: options.temperature ?? 0.3,
     },
   });
-  return mergeStrategyPlan(document, generated.output);
+  return mergeStrategyPlan(document, normalizeStrategyPlanToVolumeCount(generated.output, suggestedVolumeCount));
 }
 
 async function generateStrategyCritique(params: {
@@ -611,12 +674,28 @@ async function generateSkeleton(params: {
   storyMacroPlan: Awaited<ReturnType<StoryMacroPlanService["getPlan"]>> | null;
   options: VolumeGenerateOptions;
 }): Promise<VolumePlanDocument> {
-  const { document, novel, workspace, storyMacroPlan, options } = params;
+  let { document } = params;
+  const { novel, workspace, storyMacroPlan, options } = params;
   if (!document.strategyPlan) {
     throw new Error("请先生成卷战略建议。");
   }
   const chapterBudget = deriveChapterBudget({ novel, workspace, options });
-  const targetVolumeCount = document.strategyPlan.recommendedVolumeCount;
+  const targetVolumeCount = resolveBookTargetVolumeCount({
+    novel,
+    workspace: {
+      ...workspace,
+      volumes: document.volumes,
+    },
+    chapterBudget,
+    options,
+  });
+  const strategyPlan = normalizeStrategyPlanToVolumeCount(document.strategyPlan, targetVolumeCount);
+  document = mergeStrategyPlan(document, strategyPlan);
+  const chapterBudgets = allocateChapterBudgets({
+    volumeCount: targetVolumeCount,
+    chapterBudget,
+    existingVolumes: document.volumes,
+  });
   await notifyVolumeGenerationPhase({
     novelId: document.novelId,
     scope: "skeleton",
@@ -628,19 +707,29 @@ async function generateSkeleton(params: {
     asset: createVolumeSkeletonPrompt(targetVolumeCount),
     promptInput: {
       novel,
-      workspace,
+      workspace: {
+        ...workspace,
+        ...document,
+      },
       storyMacroPlan,
-      strategyPlan: document.strategyPlan,
+      strategyPlan,
       guidance: options.guidance,
       chapterBudget,
+      targetVolumeCount,
+      chapterBudgets,
     },
     contextBlocks: buildVolumeSkeletonContextBlocks({
       novel,
-      workspace,
+      workspace: {
+        ...workspace,
+        ...document,
+      },
       storyMacroPlan,
-      strategyPlan: document.strategyPlan,
+      strategyPlan,
       guidance: options.guidance,
       chapterBudget,
+      targetVolumeCount,
+      chapterBudgets,
     }),
     options: {
       provider: options.provider,
@@ -660,6 +749,13 @@ async function generateBeatSheet(params: {
 }): Promise<VolumePlanDocument> {
   const { document, novel, workspace, storyMacroPlan, options } = params;
   const targetVolume = getTargetVolume(document, options.targetVolumeId);
+  const volumeBudget = resolveDocumentVolumeBudget({
+    document,
+    novel,
+    workspace,
+    options,
+    targetVolume,
+  });
   await notifyVolumeGenerationPhase({
     novelId: document.novelId,
     scope: "beat_sheet",
@@ -675,6 +771,8 @@ async function generateBeatSheet(params: {
       storyMacroPlan,
       strategyPlan: document.strategyPlan,
       targetVolume,
+      targetChapterCount: volumeBudget.targetChapterCount,
+      targetChapterStartOrder: volumeBudget.targetChapterStartOrder,
       guidance: options.guidance,
     },
     contextBlocks: buildVolumeBeatSheetContextBlocks({
@@ -683,6 +781,8 @@ async function generateBeatSheet(params: {
       storyMacroPlan,
       strategyPlan: document.strategyPlan,
       targetVolume,
+      targetChapterCount: volumeBudget.targetChapterCount,
+      targetChapterStartOrder: volumeBudget.targetChapterStartOrder,
       guidance: options.guidance,
     }),
     options: {
@@ -691,7 +791,7 @@ async function generateBeatSheet(params: {
       temperature: options.temperature ?? 0.35,
     },
   });
-  return mergeBeatSheet(document, targetVolume, generated.output.beats);
+  return mergeBeatSheet(document, targetVolume, generated.output.beats, volumeBudget);
 }
 
 async function generateRebalance(params: {
@@ -744,6 +844,130 @@ async function generateRebalance(params: {
   return mergeRebalance(document, anchorVolume.id, generated.output.decisions);
 }
 
+function findBeatForChapterOrder(
+  beats: VolumeBeatSheet["beats"],
+  chapterOrder: number,
+): VolumeBeatSheet["beats"][number] | null {
+  return beats.find((beat) => {
+    const span = parseBeatSheetChapterSpan(beat.chapterSpanHint);
+    return span ? chapterOrder >= span.start && chapterOrder <= span.end : false;
+  }) ?? null;
+}
+
+function getBeatSheetStartOrder(beatSheet: VolumeBeatSheet): number {
+  const starts = beatSheet.beats
+    .map((beat) => parseBeatSheetChapterSpan(beat.chapterSpanHint)?.start)
+    .filter((value): value is number => typeof value === "number");
+  return starts.length > 0 ? Math.min(...starts) : 1;
+}
+
+const WORKFLOW_CHAPTER_TITLE_LABELS = [
+  "开卷抓手",
+  "第一信号",
+  "中段转向",
+  "压力锁定",
+  "高压挤压",
+  "卷高潮",
+  "卷尾钩子",
+  "当前节奏",
+];
+const workflowChapterTitleLabelSource = WORKFLOW_CHAPTER_TITLE_LABELS.join("|");
+const workflowChapterTitleLabelPrefixPattern = new RegExp(
+  `^(?:承接)?[「“"']?(${workflowChapterTitleLabelSource})(?:[：:]\\s*|[」”"']?\\s+)(.+)$`,
+  "u",
+);
+const workflowChapterTitleLabelOnlyPattern = new RegExp(`^(${workflowChapterTitleLabelSource})(?:[：:\\s]|$)`, "u");
+const workflowChapterTextLabelPattern = new RegExp(`「(${workflowChapterTitleLabelSource})[：:]([^」]+)」节奏段`, "gu");
+
+function normalizeChapterListText(value: string | null | undefined): string {
+  return (value ?? "").replace(/\r\n?/g, "\n").replace(/\s+/g, " ").trim();
+}
+
+function stripWorkflowChapterTitleLabel(value: string | null | undefined): string {
+  const normalized = normalizeChapterListText(value);
+  const match = normalized.match(workflowChapterTitleLabelPrefixPattern);
+  if (!match) {
+    return normalized;
+  }
+  return normalizeChapterListText(match[2].replace(/[」”"'].*$/u, ""));
+}
+
+function normalizeGeneratedChapterTitle(title: string): string {
+  const normalized = stripWorkflowChapterTitleLabel(title);
+  return workflowChapterTitleLabelOnlyPattern.test(normalized) || /^当前节奏/u.test(normalized) ? "" : normalized;
+}
+
+function normalizeGeneratedChapterSummary(summary: string): string {
+  return normalizeChapterListText(summary)
+    .replace(workflowChapterTextLabelPattern, "「$2」推进")
+    .replace(new RegExp(`(?:${workflowChapterTitleLabelSource})[：:]`, "gu"), "");
+}
+
+function deriveFallbackChapterTitleBase(beat: VolumeBeatSheet["beats"][number] | null, chapterOrder: number): string {
+  const fromLabel = normalizeGeneratedChapterTitle(beat?.label ?? "");
+  if (fromLabel && !workflowChapterTitleLabelOnlyPattern.test(fromLabel)) {
+    return fromLabel.slice(0, 14);
+  }
+
+  const fromSummary = normalizeGeneratedChapterSummary(beat?.summary ?? "")
+    .split(/[，。！？；：、]/u)
+    .map((segment) => normalizeGeneratedChapterTitle(segment))
+    .find((segment) => segment.length >= 4 && segment.length <= 14);
+  return fromSummary || `第${chapterOrder}章关键推进`;
+}
+
+function normalizeGeneratedChapterList(params: {
+  chapters: Array<{ title: string; summary: string; chapterMeta?: ChapterMeta | null }>;
+  targetChapterCount: number;
+  targetBeatSheet: VolumeBeatSheet;
+}): Array<{ title: string; summary: string; chapterMeta: ChapterMeta | null }> {
+  const { chapters, targetChapterCount, targetBeatSheet } = params;
+  const startOrder = getBeatSheetStartOrder(targetBeatSheet);
+  const normalized = chapters
+    .map((chapter, index) => {
+      const chapterOrder = startOrder + index;
+      const beat = findBeatForChapterOrder(targetBeatSheet.beats, chapterOrder);
+      return {
+        title: normalizeGeneratedChapterTitle(chapter.title),
+        summary: normalizeGeneratedChapterSummary(chapter.summary),
+        chapterMeta: chapter.chapterMeta ?? (beat
+          ? {
+              eventWeight: Math.max(1, Math.min(5, beat.eventWeight ?? 3)),
+              highStakesDialogue: beat.highStakesDialogue ?? false,
+              schemeBeat: beat.schemeBeat ?? false,
+              kindOfHook: beat.kindOfHook ?? "suspense_question",
+            }
+          : null),
+      };
+    })
+    .filter((chapter) => chapter.title && chapter.summary)
+    .slice(0, targetChapterCount);
+  const fallbackFrames = ["起势", "加压", "转向", "反制", "兑现", "余波"];
+
+  while (normalized.length < targetChapterCount) {
+    const chapterOrder = startOrder + normalized.length;
+    const beat = findBeatForChapterOrder(targetBeatSheet.beats, chapterOrder);
+    const fallbackTitleBase = deriveFallbackChapterTitleBase(beat, chapterOrder);
+    const frame = fallbackFrames[normalized.length % fallbackFrames.length];
+    normalized.push({
+      title: `${fallbackTitleBase}${frame}`,
+      summary: beat
+        ? `补齐第 ${chapterOrder} 章的阶段推进，围绕「${fallbackTitleBase}」继续落实：${normalizeGeneratedChapterSummary(beat.summary)}`
+        : `补齐第 ${chapterOrder} 章的阶段推进，承接本卷主线并保持后续章节连续。`,
+      chapterMeta: beat
+        ? {
+            eventWeight: Math.max(1, Math.min(5, beat.eventWeight ?? 3)),
+            highStakesDialogue: beat.highStakesDialogue ?? false,
+            schemeBeat: beat.schemeBeat ?? false,
+            kindOfHook: beat.kindOfHook ?? "suspense_question",
+          }
+        : null,
+    });
+  }
+
+  return normalized;
+}
+
 async function generateChapterList(params: {
   document: VolumePlanDocument;
   novel: VolumeGenerationNovel;
@@ -757,18 +981,23 @@ async function generateChapterList(params: {
   if (!targetBeatSheet) {
     throw new Error("当前卷还没有节奏板，默认不能直接拆章节列表。");
   }
-  const chapterBudget = deriveChapterBudget({ novel, workspace, options });
-  const chapterBudgets = allocateChapterBudgets({
-    volumeCount: Math.max(document.volumes.length, 1),
-    chapterBudget,
-    existingVolumes: document.volumes,
-  });
   const targetIndex = document.volumes.findIndex((volume) => volume.id === targetVolume.id);
-  const beatSheetRequiredChapterCount = inferRequiredChapterCountFromBeatSheet(targetBeatSheet);
-  const existingOrBudgetChapterCount = targetVolume.chapters.length >= 3
-    ? targetVolume.chapters.length
-    : chapterBudgets[targetIndex] ?? Math.max(3, Math.round(chapterBudget / Math.max(document.volumes.length, 1)));
-  const targetChapterCount = Math.max(existingOrBudgetChapterCount, beatSheetRequiredChapterCount);
+  const volumeBudget = resolveDocumentVolumeBudget({
+    document,
+    novel,
+    workspace,
+    options,
+    targetVolume,
+  });
+  const targetChapterCount = volumeBudget.targetChapterCount;
+  const effectiveTargetBeatSheet: VolumeBeatSheet = {
+    ...targetBeatSheet,
+    beats: normalizeBeatSheetSpansToChapterBudget(
+      targetBeatSheet.beats,
+      volumeBudget.targetChapterStartOrder,
+      targetChapterCount,
+    ),
+  };
 
   await notifyVolumeGenerationPhase({
     novelId: document.novelId,
@@ -785,7 +1014,7 @@ async function generateChapterList(params: {
       storyMacroPlan,
       strategyPlan: document.strategyPlan,
       targetVolume,
-      targetBeatSheet,
+      targetBeatSheet: effectiveTargetBeatSheet,
       previousVolume: targetIndex > 0 ? document.volumes[targetIndex - 1] : undefined,
       nextVolume: targetIndex < document.volumes.length - 1 ? document.volumes[targetIndex + 1] : undefined,
       guidance: options.guidance,
@@ -797,7 +1026,7 @@ async function generateChapterList(params: {
       storyMacroPlan,
       strategyPlan: document.strategyPlan,
       targetVolume,
-      targetBeatSheet,
+      targetBeatSheet: effectiveTargetBeatSheet,
       previousVolume: targetIndex > 0 ? document.volumes[targetIndex - 1] : undefined,
       nextVolume: targetIndex < document.volumes.length - 1 ? document.volumes[targetIndex + 1] : undefined,
       guidance: options.guidance,
@@ -810,7 +1039,19 @@ async function generateChapterList(params: {
     },
   });
 
-  const mergedDocument = mergeChapterList(document, targetVolume.id, generated.output.chapters);
+  const generatedChapters = normalizeGeneratedChapterList({
+    chapters: generated.output.chapters,
+    targetChapterCount,
+    targetBeatSheet: effectiveTargetBeatSheet,
+  });
+  const beatAlignedDocument = mergeBeatSheet(document, targetVolume, effectiveTargetBeatSheet.beats, volumeBudget);
+  const mergedDocument = mergeChapterList(
+    beatAlignedDocument,
+    targetVolume.id,
+    generatedChapters,
+    volumeBudget.targetChapterStartOrder,
+    novel.defaultChapterLength,
+  );
   return generateRebalance({
     document: mergedDocument,
     novel,

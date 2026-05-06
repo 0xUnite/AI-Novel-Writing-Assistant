@@ -59,7 +59,7 @@ async function generateDirectorBookContract(input: {
   storyMacroPlan: StoryMacroPlan | null;
 }): Promise<BookContractDraft> {
   const { request, storyMacroPlan } = input;
-  const bookSpec = toBookSpec(request.candidate, request.idea, request.estimatedChapterCount);
+  const bookSpec = toBookSpec(request.candidate, request.idea, request.estimatedChapterCount, request);
   const storyInput = buildStoryInput(request, bookSpec);
   const requestedTemperature = request.temperature ?? 0.4;
   const temperature = Math.min(requestedTemperature, 0.4);
@@ -96,7 +96,7 @@ export async function runDirectorStoryMacroPhase(input: {
   callbacks: DirectorStoryMacroCallbacks;
 }): Promise<void> {
   const { taskId, novelId, request, dependencies, callbacks } = input;
-  const bookSpec = toBookSpec(request.candidate, request.idea, request.estimatedChapterCount);
+  const bookSpec = toBookSpec(request.candidate, request.idea, request.estimatedChapterCount, request);
   const storyInput = buildStoryInput(request, bookSpec);
   const storyMacroPlan = await runDirectorTrackedStep({
     taskId,

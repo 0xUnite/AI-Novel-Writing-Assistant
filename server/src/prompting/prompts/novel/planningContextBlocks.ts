@@ -30,6 +30,7 @@ function takeUnique(items: Array<string | null | undefined>, limit = items.lengt
 
 export function formatProjectContext(input: DirectorProjectContextInput): string {
   const lines = [
+    input.contentForm ? `content form: ${input.contentForm === "short_story" ? "short_story (2-8万字短中篇/短故事)" : "novel (长篇小说)"}` : "",
     input.title?.trim() ? `current title: ${input.title.trim()}` : "",
     input.description?.trim() ? `current description: ${input.description.trim()}` : "",
     input.targetAudience?.trim() ? `target audience: ${input.targetAudience.trim()}` : "",
@@ -49,6 +50,7 @@ export function formatProjectContext(input: DirectorProjectContextInput): string
     input.emotionIntensity ? `emotion intensity: ${input.emotionIntensity}` : "",
     input.aiFreedom ? `ai freedom: ${input.aiFreedom}` : "",
     typeof input.defaultChapterLength === "number" ? `default chapter length: ${input.defaultChapterLength}` : "",
+    typeof input.targetTotalWordCount === "number" ? `target total words: ${input.targetTotalWordCount}` : "",
     typeof input.estimatedChapterCount === "number" ? `estimated chapters: ${input.estimatedChapterCount}` : "",
   ].filter(Boolean);
   return lines.join("\n");

@@ -1,15 +1,21 @@
 import type { BookAnalysisSectionKey } from "@ai-novel/shared/types/bookAnalysis";
 import type { LLMProvider } from "@ai-novel/shared/types/llm";
-import type { QualityScore, ReviewIssue } from "@ai-novel/shared/types/novel";
+import type { NovelContentForm, QualityScore, ReviewIssue } from "@ai-novel/shared/types/novel";
 import { parseCommercialTagsJson } from "@ai-novel/shared/types/novelFraming";
 import { normalizeStoryModeOutput } from "../storyMode/storyModeProfile";
+import {
+  buildContinuitySummaryFromFacts,
+  sanitizeMemoryList,
+} from "./chapterMemorySanitizer";
 
 export interface PaginationInput {
   page: number;
   limit: number;
+  contentForm?: NovelContentForm;
 }
 
 export interface CreateNovelInput {
+  contentForm?: NovelContentForm;
   title: string;
   description?: string;
   targetAudience?: string;
@@ -29,7 +35,8 @@ export interface CreateNovelInput {
   emotionIntensity?: "low" | "medium" | "high";
   aiFreedom?: "low" | "medium" | "high";
   defaultChapterLength?: number;
-  estimatedChapterCount?: number;
+  estimatedChapterCount?: number | null;
+  targetTotalWordCount?: number | null;
   projectStatus?: "not_started" | "in_progress" | "completed" | "rework" | "blocked";
   storylineStatus?: "not_started" | "in_progress" | "completed" | "rework" | "blocked";
   outlineStatus?: "not_started" | "in_progress" | "completed" | "rework" | "blocked";
@@ -41,6 +48,7 @@ export interface CreateNovelInput {
 }
 
 export interface UpdateNovelInput {
+  contentForm?: NovelContentForm;
   title?: string;
   description?: string;
   targetAudience?: string | null;
@@ -58,6 +66,7 @@ export interface UpdateNovelInput {
   aiFreedom?: "low" | "medium" | "high" | null;
   defaultChapterLength?: number | null;
   estimatedChapterCount?: number | null;
+  targetTotalWordCount?: number | null;
   projectStatus?: "not_started" | "in_progress" | "completed" | "rework" | "blocked" | null;
   storylineStatus?: "not_started" | "in_progress" | "completed" | "rework" | "blocked" | null;
   outlineStatus?: "not_started" | "in_progress" | "completed" | "rework" | "blocked" | null;
@@ -141,6 +150,7 @@ export interface ChapterGenerateOptions extends LLMGenerateOptions {
 }
 
 export interface GenerateBeatOptions extends LLMGenerateOptions {
+  startOrder?: number;
   targetChapters?: number;
 }
 
@@ -155,6 +165,7 @@ export interface PipelineRunOptions extends LLMGenerateOptions {
   runMode?: "fast" | "polish";
   autoReview?: boolean;
   autoRepair?: boolean;
+  autoPrepareStoryAssets?: boolean;
   skipCompleted?: boolean;
   qualityThreshold?: number;
   repairMode?: "detect_only" | "light_repair" | "heavy_repair" | "continuity_only" | "character_only" | "ending_only";
@@ -165,7 +176,9 @@ export interface PipelinePayload extends LLMGenerateOptions {
   runMode?: "fast" | "polish";
   autoReview?: boolean;
   autoRepair?: boolean;
+  autoPrepareStoryAssets?: boolean;
   skipCompleted?: boolean;
+  queueBaselineAt?: string;
   qualityThreshold?: number;
   repairMode?: "detect_only" | "light_repair" | "heavy_repair" | "continuity_only" | "character_only" | "ending_only";
   failedDetails?: string[];
@@ -189,6 +202,7 @@ export interface ReviewOptions extends LLMGenerateOptions {
 export interface RepairOptions extends LLMGenerateOptions {
   reviewIssues?: ReviewIssue[];
   auditIssueIds?: string[];
+  repairMode?: "detect_only" | "light_repair" | "heavy_repair" | "continuity_only" | "character_only" | "ending_only";
 }
 
 export interface HookGenerateOptions extends LLMGenerateOptions {
@@ -355,7 +369,8 @@ export function toText(content: unknown): string {
 }
 
 function cleanJsonText(source: string): string {
-  return source.replace(/```json|```/gi, "").trim();
+  const withoutThink = source.replace(/<think>[\s\S]*?<\/think>/gi, "");
+  return withoutThink.replace(/```json|```/gi, "").trim();
 }
 
 export function extractJSONObject(source: string): string {
@@ -385,19 +400,47 @@ function clamp(score: number): number {
   return Math.max(0, Math.min(100, Math.round(score)));
 }
 
+function isTenPointQualityScale(value: Partial<QualityScore>): boolean {
+  const scoreValues = [
+    value.coherence,
+    value.pacing,
+    value.voice,
+    value.engagement,
+    value.overall,
+  ].filter((item): item is number => typeof item === "number" && Number.isFinite(item));
+  return scoreValues.length > 0
+    && scoreValues.every((item) => item >= 0 && item <= 10)
+    && scoreValues.some((item) => item > 0);
+}
+
+function normalizeQualityMetric(value: number | undefined, fallback: number, tenPointScale: boolean): number {
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    return clamp(fallback);
+  }
+  return clamp(tenPointScale ? value * 10 : value);
+}
+
+function normalizeRepetitionMetric(value: number | undefined, fallback: number, tenPointScale: boolean): number {
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    return clamp(fallback);
+  }
+  return clamp(tenPointScale ? 100 - value * 10 : value);
+}
+
 export function normalizeScore(value: Partial<QualityScore>): QualityScore {
-  const coherence = clamp(value.coherence ?? 0);
-  const repetition = clamp(value.repetition ?? 100);
-  const pacing = clamp(value.pacing ?? 0);
-  const voice = clamp(value.voice ?? 0);
-  const engagement = clamp(value.engagement ?? 0);
-  const overall = clamp(value.overall ?? (coherence + (100 - repetition) + pacing + voice + engagement) / 5);
+  const tenPointScale = isTenPointQualityScale(value);
+  const coherence = normalizeQualityMetric(value.coherence, 0, tenPointScale);
+  const repetition = normalizeRepetitionMetric(value.repetition, 100, tenPointScale);
+  const pacing = normalizeQualityMetric(value.pacing, 0, tenPointScale);
+  const voice = normalizeQualityMetric(value.voice, 0, tenPointScale);
+  const engagement = normalizeQualityMetric(value.engagement, 0, tenPointScale);
+  const overall = normalizeQualityMetric(value.overall, (coherence + (100 - repetition) + pacing + voice + engagement) / 5, tenPointScale);
   return { coherence, repetition, pacing, voice, engagement, overall };
 }
 
 export function ruleScore(content: string): QualityScore {
   const text = content.replace(/\s+/g, " ").trim();
-  const sentences = text.split(/[。！"?]/).map((item) => item.trim()).filter(Boolean);
+  const sentences = text.split(/[。！？!?"“”]/).map((item) => item.trim()).filter(Boolean);
   const unique = new Set(sentences);
   const repeatRatio = sentences.length > 0 ? 1 - unique.size / sentences.length : 0;
   const coherence = text.length >= 1800 ? 85 : text.length >= 1200 ? 75 : 60;
@@ -428,41 +471,12 @@ export function briefSummary(
     .map((item) => ({ ...item, content: item.content.trim() }))
     .filter((item) => item.content.length > 0);
 
-  const pickUnique = (items: string[], maxItems = 3): string[] => {
-    const result: string[] = [];
-    const seen = new Set<string>();
-    for (const item of items) {
-      if (seen.has(item)) {
-        continue;
-      }
-      seen.add(item);
-      result.push(item);
-      if (result.length >= maxItems) {
-        break;
-      }
-    }
-    return result;
-  };
-
-  const plotEvents = pickUnique(extractedFacts.filter((item) => item.category === "plot").map((item) => item.content), 2);
-  const characterStates = pickUnique(extractedFacts.filter((item) => item.category === "character").map((item) => item.content), 2);
-  const worldFacts = pickUnique(extractedFacts.filter((item) => item.category === "world").map((item) => item.content), 1);
-
-  const blocks: string[] = [];
-  if (plotEvents.length > 0) {
-    blocks.push(`Plot: ${plotEvents.join("")}`);
-  }
-  if (characterStates.length > 0) {
-    blocks.push(`Character: ${characterStates.join("")}`);
-  }
-  if (worldFacts.length > 0) {
-    blocks.push(`World: ${worldFacts.join("")}`);
-  }
-  if (blocks.length > 0) {
-    return blocks.join("\n");
+  const continuitySummary = buildContinuitySummaryFromFacts(extractedFacts);
+  if (continuitySummary) {
+    return continuitySummary;
   }
 
-  const sentences = text.split(/[。！"?]/).map((item) => item.trim()).filter(Boolean);
+  const sentences = text.split(/[。！？!?"“”]/).map((item) => item.trim()).filter(Boolean);
   if (sentences.length === 0) {
     return text.length <= 220 ? text : `${text.slice(0, 220)}...`;
   }
@@ -476,8 +490,17 @@ export function briefSummary(
 }
 
 export function extractFacts(content: string): Array<{ category: "plot" | "character" | "world"; content: string }> {
-  const lines = content.split(/[\n。！"?]/).map((item) => item.trim()).filter((item) => item.length >= 8).slice(0, 6);
-  return lines.map((line) => {
+  const lines = content
+    .split(/[\n。！？!?"“”]/)
+    .map((item) => item.trim())
+    .filter((item) => item.length >= 8);
+  const balancedLines = lines.length <= 6
+    ? lines
+    : Array.from(new Set([
+      lines[Math.floor(lines.length / 2)],
+      ...lines.slice(-5),
+    ].filter((item): item is string => Boolean(item)))).slice(0, 6);
+  return balancedLines.map((line) => {
     if (/世界|地理|宗门|王朝|大陆|规则/.test(line)) {
       return { category: "world" as const, content: line };
     }
@@ -492,11 +515,24 @@ export function extractCharacterEventLines(content: string, characterName: strin
   if (!characterName.trim()) {
     return [];
   }
-  return content
-    .split(/[\n。！"?]/)
+  const lines = content
+    .split(/[\n。！？!?"“”]/)
     .map((item) => item.trim())
     .filter((item) => item.length >= 8 && item.includes(characterName))
-    .slice(0, limit);
+    .reduce<string[]>((result, item) => {
+      if (!result.includes(item)) {
+        result.push(item);
+      }
+      return result;
+    }, []);
+  if (lines.length <= limit) {
+    return sanitizeMemoryList(lines, { maxItems: limit, maxLength: 64 });
+  }
+  const headCount = Math.max(1, Math.floor(limit / 3));
+  return sanitizeMemoryList(
+    [...lines.slice(0, headCount), ...lines.slice(-(limit - headCount))],
+    { maxItems: limit, maxLength: 64 },
+  );
 }
 
 export function normalizeBeatStatus(value: unknown): BeatStatus {

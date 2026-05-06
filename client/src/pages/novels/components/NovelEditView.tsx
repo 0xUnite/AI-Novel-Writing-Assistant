@@ -48,13 +48,34 @@ function hasChapterPlanContent(chapter: VolumeChapter): boolean {
 }
 
 export default function NovelEditView(props: NovelEditViewProps) {
-  const { id, activeTab, onActiveTabChange, basicTab, storyMacroTab, outlineTab, structuredTab, chapterTab, pipelineTab, characterTab, takeover, taskDrawer } = props;
+  const {
+    id,
+    activeTab,
+    onActiveTabChange,
+    onExportNovel,
+    isExportingNovel,
+    onSanitizeTypography,
+    isSanitizingTypography,
+    onCreateContinuationProject,
+    basicTab,
+    storyMacroTab,
+    outlineTab,
+    structuredTab,
+    chapterTab,
+    pipelineTab,
+    characterTab,
+    takeover,
+    taskDrawer,
+  } = props;
   const [isKnowledgeBindingOpen, setIsKnowledgeBindingOpen] = useState(false);
   const [isProjectOverviewOpen, setIsProjectOverviewOpen] = useState(false);
 
   const totalChapters = chapterTab.chapters.length;
   const generatedChapters = chapterTab.chapters.filter((item) => Boolean(item.content?.trim())).length;
-  const pendingRepairs = pipelineTab.chapterReports.filter((item) => item.overall < 75).length;
+  const pendingRepairs = pipelineTab.chapterReports.filter((item) => (
+    item.chapterStatus === "needs_repair"
+    || (!(item.isMissing || item.isStale) && item.overall < pipelineTab.pipelineForm.qualityThreshold)
+  )).length;
   const currentModel = pipelineTab.pipelineJob?.payload ? (() => {
     try {
       const parsed = JSON.parse(pipelineTab.pipelineJob.payload) as { model?: string };
@@ -67,16 +88,20 @@ export default function NovelEditView(props: NovelEditViewProps) {
   const tabOrder = ["basic", "story_macro", "character", "outline", "structured", "chapter", "pipeline", "history"];
   const activeStageIndex = Math.max(0, tabOrder.indexOf(activeTab));
   const basicReady = basicTab.basicForm.title.trim().length > 0;
-  const storyMacroReady = basicReady && storyMacroTab.constraintEngine !== null;
-  const characterReady = storyMacroReady && characterTab.characters.length > 0;
+  const projectWorkflowCompleted = basicTab.basicForm.projectStatus === "completed"
+    && totalChapters > 0
+    && generatedChapters > 0;
+  const storyMacroReady = projectWorkflowCompleted || (basicReady && storyMacroTab.constraintEngine !== null);
+  const characterReady = projectWorkflowCompleted || (storyMacroReady && characterTab.characters.length > 0);
   const outlineAssetReady = Boolean(outlineTab.strategyPlan)
     || outlineTab.volumes.some((volume) => hasVolumePlanContent(volume));
-  const outlineReady = characterReady && outlineAssetReady;
+  const outlineReady = projectWorkflowCompleted || (characterReady && outlineAssetReady);
   const structuredAssetReady = structuredTab.beatSheets.some((sheet) => sheet.beats.length > 0)
     || structuredTab.volumes.some((volume) => volume.chapters.some((chapter) => hasChapterPlanContent(chapter)));
-  const structuredReady = outlineReady && structuredAssetReady;
-  const chapterReady = structuredReady && generatedChapters > 0;
-  const pipelineReady = chapterReady && (pipelineTab.qualitySummary ? pipelineTab.qualitySummary.overall >= 75 : false);
+  const structuredReady = projectWorkflowCompleted || (outlineReady && structuredAssetReady);
+  const chapterReady = projectWorkflowCompleted || (structuredReady && generatedChapters > 0);
+  const pipelineReady = projectWorkflowCompleted
+    || (chapterReady && (pipelineTab.qualitySummary ? pipelineTab.qualitySummary.overall >= 75 : false));
   const stages = [
     {
       key: "basic",
@@ -116,8 +141,8 @@ export default function NovelEditView(props: NovelEditViewProps) {
     },
     {
       key: "pipeline",
-      label: "质量修复",
-      description: "批量执行生产链并跟踪质量风险。",
+      label: "出稿质检",
+      description: "批量出稿、单章修复与全书连贯守门集中处理。",
       ready: pipelineReady,
     },
     {
@@ -194,6 +219,17 @@ export default function NovelEditView(props: NovelEditViewProps) {
               <KnowledgeBindingPanel targetType="novel" targetId={id} title="参考知识" />
             </DialogContent>
           </Dialog>
+          <Button variant="outline" onClick={onExportNovel} disabled={isExportingNovel}>
+            {isExportingNovel ? "导出中..." : "导出"}
+          </Button>
+          {onCreateContinuationProject ? (
+            <Button variant="outline" onClick={onCreateContinuationProject}>
+              创建续写项目
+            </Button>
+          ) : null}
+          <Button variant="outline" onClick={onSanitizeTypography} disabled={isSanitizingTypography}>
+            {isSanitizingTypography ? "清洗中..." : "清洗旧章节标点"}
+          </Button>
           <Button
             variant={taskDrawer?.task?.status === "failed" ? "destructive" : "outline"}
             onClick={() => taskDrawer?.onOpenChange(true)}

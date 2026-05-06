@@ -36,7 +36,8 @@ function toText(content: unknown): string {
 }
 
 function cleanJsonText(source: string): string {
-  return source.replace(/```json|```/gi, "").trim();
+  const withoutThink = source.replace(/<think>[\s\S]*?<\/think>/gi, "");
+  return withoutThink.replace(/```json|```/gi, "").trim();
 }
 
 function extractJSONArray(source: string): string {
@@ -167,7 +168,7 @@ export class NovelDraftOptimizeService {
           selectedText,
         },
         options: {
-          provider: input.provider ?? "deepseek",
+          provider: input.provider,
           model: input.model,
           temperature: input.temperature ?? 0.4,
         },
@@ -190,7 +191,7 @@ export class NovelDraftOptimizeService {
         currentDraft,
       },
       options: {
-        provider: input.provider ?? "deepseek",
+        provider: input.provider,
         model: input.model,
         temperature: input.temperature ?? 0.4,
       },

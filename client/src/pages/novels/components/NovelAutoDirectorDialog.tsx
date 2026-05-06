@@ -82,10 +82,34 @@ const RUN_MODE_OPTIONS: Array<{
   },
 ];
 
+function getRunModeOptions(basicForm: NovelBasicFormState): typeof RUN_MODE_OPTIONS {
+  if (basicForm.contentForm !== "short_story") {
+    return RUN_MODE_OPTIONS;
+  }
+  return RUN_MODE_OPTIONS.map((option) => {
+    if (option.value === "auto_to_ready") {
+      return {
+        ...option,
+        label: "自动推进到可开写",
+        description: "AI 会持续推进，直到短故事结构、章节拆分和首批章节细化完成后再交接。",
+      };
+    }
+    if (option.value === "auto_to_execution") {
+      return {
+        ...option,
+        label: "继续自动执行短故事",
+        description: "AI 会按短故事目标章节数推进，自动写作、审校和修复这一批章节。",
+      };
+    }
+    return option;
+  });
+}
+
 function buildInitialIdea(basicForm: NovelBasicFormState): string {
+  const contentLabel = basicForm.contentForm === "short_story" ? "短故事" : "小说";
   const lines = [
     basicForm.description.trim(),
-    basicForm.title.trim() ? `我想写一本暂名为《${basicForm.title.trim()}》的小说。` : "",
+    basicForm.title.trim() ? `我想写一篇暂名为《${basicForm.title.trim()}》的${contentLabel}。` : "",
     basicForm.styleTone.trim() ? `文风希望偏 ${basicForm.styleTone.trim()}。` : "",
   ].filter(Boolean);
   return lines.join("\n");
@@ -102,6 +126,7 @@ function buildRequestPayload(
   return {
     idea: idea.trim(),
     workflowTaskId: workflowTaskId || undefined,
+    contentForm: basicForm.contentForm,
     title: basicForm.title.trim() || undefined,
     description: basicForm.description.trim() || undefined,
     targetAudience: basicForm.targetAudience.trim() || undefined,
@@ -119,7 +144,8 @@ function buildRequestPayload(
     emotionIntensity: basicForm.emotionIntensity,
     aiFreedom: basicForm.aiFreedom,
     defaultChapterLength: basicForm.defaultChapterLength,
-    estimatedChapterCount: basicForm.estimatedChapterCount,
+    estimatedChapterCount: basicForm.estimatedChapterCount > 0 ? basicForm.estimatedChapterCount : undefined,
+    targetTotalWordCount: basicForm.targetTotalWordCount > 0 ? basicForm.targetTotalWordCount : undefined,
     projectStatus: basicForm.projectStatus,
     storylineStatus: basicForm.storylineStatus,
     outlineStatus: basicForm.outlineStatus,
@@ -140,10 +166,13 @@ function buildRequestPayload(
 function summarizeCurrentContext(basicForm: NovelBasicFormState): string[] {
   const commercialTags = normalizeCommercialTags(basicForm.commercialTagsText);
   return [
+    `作品入口：${basicForm.contentForm === "short_story" ? "短故事" : "长篇小说"}`,
     basicForm.targetAudience.trim() ? `目标读者：${basicForm.targetAudience.trim()}` : "",
     basicForm.bookSellingPoint.trim() ? `书级卖点：${basicForm.bookSellingPoint.trim()}` : "",
     basicForm.competingFeel.trim() ? `对标气质：${basicForm.competingFeel.trim()}` : "",
-    basicForm.first30ChapterPromise.trim() ? `前30章承诺：${basicForm.first30ChapterPromise.trim()}` : "",
+    basicForm.first30ChapterPromise.trim()
+      ? `${basicForm.contentForm === "short_story" ? "完整故事承诺" : "前30章承诺"}：${basicForm.first30ChapterPromise.trim()}`
+      : "",
     commercialTags.length > 0 ? `商业标签：${commercialTags.join(" / ")}` : "",
     basicForm.genreId ? `已选题材基底：${basicForm.genreId}` : "",
     basicForm.worldId ? `已绑定世界观：${basicForm.worldId}` : "",
@@ -153,7 +182,10 @@ function summarizeCurrentContext(basicForm: NovelBasicFormState): string[] {
     `节奏：${basicForm.pacePreference}`,
     `情绪：${basicForm.emotionIntensity}`,
     basicForm.styleTone.trim() ? `文风：${basicForm.styleTone.trim()}` : "",
-    `预计章节：${basicForm.estimatedChapterCount}`,
+    basicForm.contentForm === "short_story" && basicForm.targetTotalWordCount > 0
+      ? `整篇目标字数：${basicForm.targetTotalWordCount}`
+      : "",
+    basicForm.estimatedChapterCount > 0 ? `预计章节：${basicForm.estimatedChapterCount}` : "预计章节：开放滚动规划",
   ].filter(Boolean);
 }
 
@@ -271,6 +303,7 @@ export default function NovelAutoDirectorDialog({
   });
 
   const currentContextLines = useMemo(() => summarizeCurrentContext(basicForm), [basicForm]);
+  const runModeOptions = useMemo(() => getRunModeOptions(basicForm), [basicForm]);
   const latestBatch = batches.at(-1) ?? null;
   const directorTask = useMemo(() => {
     const loadedTask = directorTaskQuery.data?.data ?? null;
@@ -478,8 +511,8 @@ export default function NovelAutoDirectorDialog({
       const novelId = data?.novel?.id;
       if (!novelId) {
         setDialogMode("execution_failed");
-        setExecutionError("确认方案失败，未返回小说项目。");
-        toast.error("确认方案失败，未返回小说项目。");
+        setExecutionError(`确认方案失败，未返回${basicForm.contentForm === "short_story" ? "短故事" : "小说"}项目。`);
+        toast.error(`确认方案失败，未返回${basicForm.contentForm === "short_story" ? "短故事" : "小说"}项目。`);
         return;
       }
       if (nextWorkflowTaskId) {
@@ -492,7 +525,7 @@ export default function NovelAutoDirectorDialog({
         data.directorSession?.runMode === "stage_review"
           ? `已创建《${data.novel.title}》，自动导演会在关键阶段停下等你审核。`
           : data.directorSession?.runMode === "auto_to_execution"
-            ? `已创建《${data.novel.title}》，自动导演会继续自动执行前 10 章。`
+            ? `已创建《${data.novel.title}》，自动导演会继续自动执行${basicForm.contentForm === "short_story" ? "短故事章节" : "前 10 章"}。`
             : `已创建《${data.novel.title}》，自动导演会继续在后台推进到可开写。`,
       );
       resetDialogState();
@@ -678,7 +711,7 @@ export default function NovelAutoDirectorDialog({
                 <div className="mt-3 rounded-md border bg-muted/20 p-3">
                   <div className="text-xs font-medium text-foreground">自动导演运行方式</div>
                   <div className="mt-3 grid gap-3 md:grid-cols-2">
-                    {RUN_MODE_OPTIONS.map((option) => {
+                    {runModeOptions.map((option) => {
                       const active = option.value === runMode;
                       return (
                         <button

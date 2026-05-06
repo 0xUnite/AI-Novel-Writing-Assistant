@@ -20,6 +20,10 @@ import {
   isLiveWorkflowTask,
   isWorkflowActionRequired,
 } from "@/lib/novelWorkflowTaskUi";
+import {
+  getNovelContentBasePath,
+  getNovelContentItemLabel,
+} from "@/lib/novelContentForm";
 import { toast } from "@/components/ui/toast";
 
 const HOME_NOVEL_FETCH_LIMIT = 100;
@@ -70,6 +74,47 @@ function getNovelLeadSummary(novel: HomeNovelItem): string {
     return `当前项目已绑定世界观「${novel.world.name}」，可以直接继续创作。`;
   }
   return "当前项目暂无简介，可以直接进入编辑页继续推进。";
+}
+
+function getHomeNovelContentForm(novel: HomeNovelItem) {
+  return novel.contentForm === "short_story" ? "short_story" : "novel";
+}
+
+function getHomeNovelEditPath(novel: HomeNovelItem): string {
+  return `${getNovelContentBasePath(getHomeNovelContentForm(novel))}/${novel.id}/edit`;
+}
+
+function getHomeNovelTaskStage(novel: HomeNovelItem): string | null {
+  const task = novel.latestAutoDirectorTask ?? null;
+  if (!task) {
+    return null;
+  }
+  if (task.checkpointType === "workflow_completed") {
+    return "pipeline";
+  }
+  if (task.checkpointType === "front10_ready" || task.checkpointType === "chapter_batch_ready") {
+    return "chapter";
+  }
+  return null;
+}
+
+function getHomeNovelOpenPath(novel: HomeNovelItem): string {
+  const task = novel.latestAutoDirectorTask ?? null;
+  const basePath = getHomeNovelEditPath(novel);
+  if (!task) {
+    return basePath;
+  }
+
+  const params = new URLSearchParams({ taskId: task.id });
+  const stage = getHomeNovelTaskStage(novel);
+  if (stage) {
+    params.set("stage", stage);
+  }
+  return `${basePath}?${params.toString()}`;
+}
+
+function getHomeNovelItemLabel(novel: HomeNovelItem): string {
+  return getNovelContentItemLabel(getHomeNovelContentForm(novel));
 }
 
 function MetricCard(props: {
@@ -172,8 +217,8 @@ export default function Home() {
     event.stopPropagation();
   };
 
-  const openNovelEditor = (novelId: string) => {
-    navigate(`/novels/${novelId}/edit`);
+  const openNovelEditor = (novel: HomeNovelItem) => {
+    navigate(getHomeNovelOpenPath(novel));
   };
 
   const renderNovelPrimaryAction = (
@@ -239,10 +284,10 @@ export default function Home() {
       return (
         <Button asChild size={size}>
           <Link
-            to={`/novels/${novel.id}/edit`}
+            to={getHomeNovelOpenPath(novel)}
             onClick={stopPropagation ? stopCardClick : undefined}
           >
-            进入章节执行
+            {task?.checkpointType === "workflow_completed" ? "打开出稿质检" : "进入章节执行"}
           </Link>
         </Button>
       );
@@ -264,10 +309,10 @@ export default function Home() {
     return (
       <Button asChild size={size}>
         <Link
-          to={`/novels/${novel.id}/edit`}
+          to={getHomeNovelEditPath(novel)}
           onClick={stopPropagation ? stopCardClick : undefined}
         >
-          编辑小说
+          编辑{getHomeNovelItemLabel(novel)}
         </Link>
       </Button>
     );
@@ -353,6 +398,7 @@ export default function Home() {
                       <Badge variant="outline">
                         {primaryNovel.writingMode === "continuation" ? "续写" : "原创"}
                       </Badge>
+                      <Badge variant="outline">{getHomeNovelItemLabel(primaryNovel)}</Badge>
                     </div>
                   </div>
                   <div className="max-w-3xl text-sm text-muted-foreground">
@@ -375,7 +421,7 @@ export default function Home() {
                     </Button>
                   ) : (
                     <Button asChild size="lg" variant="outline">
-                      <Link to={`/novels/${primaryNovel.id}/edit`}>打开项目</Link>
+                      <Link to={getHomeNovelOpenPath(primaryNovel)}>打开项目</Link>
                     </Button>
                   )}
                 </div>
@@ -384,11 +430,16 @@ export default function Home() {
           ) : (
             <div className="space-y-3">
               <div className="text-sm text-muted-foreground">
-                你还没有开始小说项目，首页会在你创建第一本书后自动显示最合适的继续入口。
+                你还没有开始创作项目，首页会在你创建第一本书或短故事后自动显示最合适的继续入口。
               </div>
-              <Button asChild>
-                <Link to="/novels/create">开始创建小说</Link>
-              </Button>
+              <div className="flex flex-wrap gap-2">
+                <Button asChild>
+                  <Link to="/novels/create">开始创建小说</Link>
+                </Button>
+                <Button asChild variant="outline">
+                  <Link to="/short-stories/create">开始创建短故事</Link>
+                </Button>
+              </div>
             </div>
           )}
         </CardContent>
@@ -402,6 +453,9 @@ export default function Home() {
         <CardContent className="flex flex-wrap gap-2">
           <Button asChild>
             <Link to="/novels/create">新建小说</Link>
+          </Button>
+          <Button asChild variant="outline">
+            <Link to="/short-stories/create">新建短故事</Link>
           </Button>
           <Button asChild variant="outline">
             <Link to="/book-analysis">新建拆书</Link>
@@ -437,7 +491,7 @@ export default function Home() {
             </div>
           ) : recentNovels.length === 0 ? (
             <div className="rounded-md border border-dashed p-4 text-sm text-muted-foreground">
-              暂无小说项目，先从“新建小说”开始。
+              暂无创作项目，先从“新建小说”或“新建短故事”开始。
             </div>
           ) : (
             <div className="grid gap-3 md:grid-cols-2">
@@ -451,13 +505,13 @@ export default function Home() {
                     role="link"
                     tabIndex={0}
                     className="cursor-pointer transition hover:border-primary/40 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-ring"
-                    onClick={() => openNovelEditor(novel.id)}
                     onKeyDown={(event) => {
                       if (event.key === "Enter" || event.key === " ") {
                         event.preventDefault();
-                        openNovelEditor(novel.id);
+                        openNovelEditor(novel);
                       }
                     }}
+                    onClick={() => openNovelEditor(novel)}
                   >
                     <CardHeader className="space-y-3">
                       <div className="flex items-start justify-between gap-2">
@@ -481,6 +535,7 @@ export default function Home() {
                           <Badge variant="outline">
                             {novel.writingMode === "continuation" ? "续写" : "原创"}
                           </Badge>
+                          <Badge variant="outline">{getHomeNovelItemLabel(novel)}</Badge>
                         </div>
                       </div>
                       <CardDescription className="line-clamp-3">
@@ -505,7 +560,7 @@ export default function Home() {
                           </Button>
                         ) : (
                           <Button asChild size="sm" variant="outline">
-                            <Link to={`/novels/${novel.id}/edit`} onClick={stopCardClick}>打开项目</Link>
+                            <Link to={getHomeNovelOpenPath(novel)} onClick={stopCardClick}>打开项目</Link>
                           </Button>
                         )}
                       </div>

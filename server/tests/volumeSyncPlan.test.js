@@ -189,4 +189,7 @@ test("buildTaskSheetFromVolumeChapter backfills stable chapter task sheets from 
   assert.match(taskSheet, /冲突等级：85/);
   assert.match(taskSheet, /目标字数：3600/);
   assert.match(taskSheet, /兑现关联：伏笔A、伏笔B/);
+  assert.match(taskSheet, /因果链执行卡/);
+  assert.match(taskSheet, /入场状态/);
+  assert.match(taskSheet, /状态变化/);
 });

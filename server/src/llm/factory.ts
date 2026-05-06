@@ -13,6 +13,7 @@ import {
   PROVIDERS,
   resolveProviderBaseUrl,
 } from "./providers";
+import { collectErrorMessages, isTransientLlmTransportError } from "./transientErrors";
 
 interface LLMOptions {
   model?: string;
@@ -45,6 +46,13 @@ export interface ResolvedLLMClientOptions {
 }
 
 const providerSecrets = new Map<LLMProvider, ProviderSecret>();
+const LLM_TIMEOUT_PATCHED = Symbol("LLM_TIMEOUT_PATCHED");
+const PLANNER_TIMEOUT_MS = 10 * 60 * 1000;
+const DEFAULT_TIMEOUT_MS = 10 * 60 * 1000;
+
+type PatchableChatOpenAI = ChatOpenAI & {
+  [LLM_TIMEOUT_PATCHED]?: boolean;
+};
 
 function isMissingTableError(error: unknown): boolean {
   return (
@@ -70,6 +78,103 @@ function normalizeProviderSecret(secret: ProviderSecret): ProviderSecret {
     baseURL: normalizeOptionalText(secret.baseURL),
     displayName: normalizeOptionalText(secret.displayName),
   };
+}
+
+function getLLMTimeoutMs(taskType?: TaskType): number {
+  if (taskType === "planner") {
+    return PLANNER_TIMEOUT_MS;
+  }
+  return DEFAULT_TIMEOUT_MS;
+}
+
+function isBodyTimeoutError(error: unknown): boolean {
+  return isTransientLlmTransportError(error);
+}
+
+function buildGracefulTimeoutError(
+  error: unknown,
+  input: ResolvedLLMClientOptions,
+  timeoutMs: number,
+): Error {
+  if (!isBodyTimeoutError(error)) {
+    return error instanceof Error ? error : new Error(String(error));
+  }
+  const timeoutMinutes = Math.max(1, Math.round(timeoutMs / 60000));
+  const promptName = input.promptMeta?.promptId ? `（${input.promptMeta.promptId}）` : "";
+  const detail = collectErrorMessages(error).join(" / ").slice(0, 160);
+  const detailSuffix = detail ? ` 原因：${detail}` : "";
+  const gracefulError = new Error(
+    `${input.providerName} 的模型响应超时或连接中断${promptName}。当前任务已等待约 ${timeoutMinutes} 分钟，后端已优雅中止本次调用，请稍后重试或缩短单次输出长度。${detailSuffix}`,
+  );
+  (gracefulError as Error & { cause?: unknown }).cause = error;
+  return gracefulError;
+}
+
+function wrapStreamWithTimeoutHandling<TChunk>(
+  stream: AsyncIterable<TChunk>,
+  input: ResolvedLLMClientOptions,
+  timeoutMs: number,
+): AsyncIterable<TChunk> {
+  return {
+    async *[Symbol.asyncIterator]() {
+      try {
+        for await (const chunk of stream) {
+          yield chunk;
+        }
+      } catch (error) {
+        throw buildGracefulTimeoutError(error, input, timeoutMs);
+      }
+    },
+  };
+}
+
+function attachTimeoutErrorHandling(
+  llm: ChatOpenAI,
+  input: ResolvedLLMClientOptions,
+  timeoutMs: number,
+): ChatOpenAI {
+  const patchable = llm as PatchableChatOpenAI;
+  if (patchable[LLM_TIMEOUT_PATCHED]) {
+    return llm;
+  }
+
+  const originalInvoke = llm.invoke.bind(llm);
+  const originalBatch = llm.batch.bind(llm);
+  const originalStream = llm.stream.bind(llm);
+
+  patchable.invoke = (async (...args: Parameters<ChatOpenAI["invoke"]>) => {
+    try {
+      return await originalInvoke(...args);
+    } catch (error) {
+      throw buildGracefulTimeoutError(error, input, timeoutMs);
+    }
+  }) as ChatOpenAI["invoke"];
+
+  patchable.batch = (async (...args: Parameters<ChatOpenAI["batch"]>) => {
+    try {
+      return await originalBatch(...args);
+    } catch (error) {
+      throw buildGracefulTimeoutError(error, input, timeoutMs);
+    }
+  }) as ChatOpenAI["batch"];
+
+  patchable.stream = (async (...args: Parameters<ChatOpenAI["stream"]>) => {
+    try {
+      const stream = await originalStream(...args);
+      return wrapStreamWithTimeoutHandling(stream, input, timeoutMs) as Awaited<ReturnType<ChatOpenAI["stream"]>>;
+    } catch (error) {
+      throw buildGracefulTimeoutError(error, input, timeoutMs);
+    }
+  }) as ChatOpenAI["stream"];
+
+  Object.defineProperty(patchable, LLM_TIMEOUT_PATCHED, {
+    value: true,
+    configurable: false,
+    enumerable: false,
+    writable: false,
+  });
+
+  return llm;
 }
 
 function toProviderSecret(item: {
@@ -146,7 +251,8 @@ export async function resolveLLMClientOptions(
   if (options.taskType) {
     const hasExplicitProvider = provider != null;
     const hasExplicitModel = options.model != null;
-    const shouldUseRouteProvider = !hasExplicitProvider && !hasExplicitModel;
+    const shouldUseRouteProvider = !hasExplicitProvider;
+    const shouldUseRouteModel = !hasExplicitModel;
     const route = await resolveModel(options.taskType, {
       ...(shouldUseRouteProvider ? {} : { provider: resolvedProvider }),
       ...(options.model != null ? { model: options.model } : {}),
@@ -156,7 +262,7 @@ export async function resolveLLMClientOptions(
     if (shouldUseRouteProvider) {
       resolvedProvider = route.provider;
     }
-    if (options.model == null && shouldUseRouteProvider) {
+    if (shouldUseRouteModel) {
       resolvedModel = normalizeOptionalText(route.model);
     }
     if (options.temperature == null) {
@@ -213,6 +319,7 @@ export async function resolveLLMClientOptions(
 
 export async function getLLM(provider?: LLMProvider, options: LLMOptions = {}): Promise<ChatOpenAI> {
   const resolved = await resolveLLMClientOptions(provider, options);
+  const timeoutMs = getLLMTimeoutMs(resolved.taskType);
 
   const llm = new ChatOpenAI({
     apiKey: resolved.apiKey ?? "ollama",
@@ -220,12 +327,13 @@ export async function getLLM(provider?: LLMProvider, options: LLMOptions = {}): 
     modelName: resolved.model,
     temperature: resolved.temperature,
     maxTokens: resolved.maxTokens,
+    timeout: timeoutMs,
     configuration: {
       baseURL: resolved.baseURL,
     },
   });
 
-  return attachLLMDebugLogging(llm, {
+  const loggedLLM = attachLLMDebugLogging(llm, {
     provider: resolved.provider,
     model: resolved.model,
     temperature: resolved.temperature,
@@ -234,4 +342,6 @@ export async function getLLM(provider?: LLMProvider, options: LLMOptions = {}): 
     baseURL: resolved.baseURL,
     promptMeta: resolved.promptMeta,
   });
+
+  return attachTimeoutErrorHandling(loggedLLM, resolved, timeoutMs);
 }

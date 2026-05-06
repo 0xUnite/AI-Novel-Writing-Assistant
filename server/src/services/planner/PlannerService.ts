@@ -641,6 +641,7 @@ export class PlannerService {
       reveals: output.reveals ?? [],
       riskNotes: output.riskNotes ?? [],
       hookTarget: output.hookTarget || chapter.hook?.trim() || null,
+      chapterMeta: output.chapterMeta ?? null,
       scenes: output.scenes ?? [],
       planRole: metadata.planRole,
       phaseLabel: metadata.phaseLabel,

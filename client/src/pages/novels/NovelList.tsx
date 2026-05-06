@@ -1,6 +1,6 @@
 import type { KeyboardEvent, MouseEvent } from "react";
 import { useMemo, useState } from "react";
-import type { ProjectProgressStatus } from "@ai-novel/shared/types/novel";
+import type { NovelContentForm, ProjectProgressStatus } from "@ai-novel/shared/types/novel";
 import { Link, useNavigate } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { continueNovelWorkflow } from "@/api/novelWorkflow";
@@ -10,6 +10,14 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
   LIVE_TASK_STATUSES,
   canContinueDirector,
   canContinueFront10AutoExecution,
@@ -18,6 +26,11 @@ import {
   getWorkflowBadge,
   getWorkflowDescription,
 } from "@/lib/novelWorkflowTaskUi";
+import { formatCurrentItemLabel } from "@/lib/formatCurrentItemLabel";
+import {
+  getNovelContentBasePath,
+  getNovelContentItemLabel,
+} from "@/lib/novelContentForm";
 import { toast } from "@/components/ui/toast";
 
 type StatusFilter = "all" | "draft" | "published";
@@ -50,25 +63,34 @@ function formatProgressStatus(status?: ProjectProgressStatus | null): string {
   return "未开始";
 }
 
-export default function NovelList() {
+interface NovelListProps {
+  contentForm?: NovelContentForm;
+}
+
+export default function NovelList({ contentForm = "novel" }: NovelListProps) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const isShortStory = contentForm === "short_story";
+  const basePath = getNovelContentBasePath(contentForm);
+  const itemLabel = getNovelContentItemLabel(contentForm);
   const [status, setStatus] = useState<StatusFilter>("all");
   const [writingMode, setWritingMode] = useState<WritingModeFilter>("all");
+  const [pendingDeleteNovel, setPendingDeleteNovel] = useState<{ id: string; title: string } | null>(null);
 
   const novelListQuery = useQuery({
-    queryKey: queryKeys.novels.list(1, 100),
-    queryFn: () => getNovelList({ page: 1, limit: 100 }),
+    queryKey: queryKeys.novels.list(1, 100, contentForm),
+    queryFn: () => getNovelList({ page: 1, limit: 100, contentForm }),
   });
 
   const deleteNovelMutation = useMutation({
     mutationFn: (id: string) => deleteNovel(id),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: queryKeys.novels.all });
-      toast.success("小说已删除。");
+      setPendingDeleteNovel(null);
+      toast.success(`${itemLabel}已删除。`);
     },
     onError: (error) => {
-      toast.error(error instanceof Error ? error.message : "删除小说失败。");
+      toast.error(error instanceof Error ? error.message : `删除${itemLabel}失败。`);
     },
   });
 
@@ -79,7 +101,7 @@ export default function NovelList() {
       toast.success("导出已开始。");
     },
     onError: (error) => {
-      toast.error(error instanceof Error ? error.message : "导出小说失败。");
+      toast.error(error instanceof Error ? error.message : `导出${itemLabel}失败。`);
     },
   });
 
@@ -106,7 +128,11 @@ export default function NovelList() {
     },
   });
 
-  const allNovels = novelListQuery.data?.data?.items ?? [];
+  const fetchedNovels = novelListQuery.data?.data?.items ?? [];
+  const allNovels = useMemo(
+    () => fetchedNovels.filter((item) => (item.contentForm ?? "novel") === contentForm),
+    [contentForm, fetchedNovels],
+  );
 
   const novels = useMemo(() => {
     return allNovels.filter((item) => {
@@ -121,11 +147,7 @@ export default function NovelList() {
   }, [allNovels, status, writingMode]);
 
   const handleDelete = (novelId: string, title: string) => {
-    const confirmed = window.confirm(`确认删除《${title}》吗？该操作会直接删除当前小说。`);
-    if (!confirmed) {
-      return;
-    }
-    deleteNovelMutation.mutate(novelId);
+    setPendingDeleteNovel({ id: novelId, title });
   };
 
   const stopCardClick = (event: MouseEvent<HTMLElement> | KeyboardEvent<HTMLElement>) => {
@@ -133,7 +155,7 @@ export default function NovelList() {
   };
 
   const openNovelEditor = (novelId: string) => {
-    navigate(`/novels/${novelId}/edit`);
+    navigate(`${basePath}/${novelId}/edit`);
   };
 
   return (
@@ -186,7 +208,7 @@ export default function NovelList() {
         </div>
 
         <Button asChild>
-          <Link to="/novels/create">创建新小说</Link>
+          <Link to={`${basePath}/create`}>{isShortStory ? "创建短故事" : "创建新小说"}</Link>
         </Button>
       </div>
 
@@ -213,7 +235,7 @@ export default function NovelList() {
       ) : novelListQuery.isError ? (
         <Card>
           <CardHeader>
-            <CardTitle>加载小说列表失败</CardTitle>
+            <CardTitle>加载{itemLabel}列表失败</CardTitle>
             <CardDescription>当前无法读取项目列表，可以重试一次。</CardDescription>
           </CardHeader>
           <CardContent>
@@ -223,11 +245,11 @@ export default function NovelList() {
       ) : novels.length === 0 ? (
         <Card>
           <CardHeader>
-            <CardTitle>{allNovels.length === 0 ? "暂无小说" : "暂无符合筛选条件的小说"}</CardTitle>
+            <CardTitle>{allNovels.length === 0 ? `暂无${itemLabel}` : `暂无符合筛选条件的${itemLabel}`}</CardTitle>
             <CardDescription>
               {allNovels.length === 0
-                ? "点击右上角“创建新小说”开始创作。"
-                : "可以调整上方筛选条件，或直接创建新的小说项目。"}
+                ? `点击右上角“${isShortStory ? "创建短故事" : "创建新小说"}”开始创作。`
+                : `可以调整上方筛选条件，或直接创建新的${itemLabel}项目。`}
             </CardDescription>
           </CardHeader>
         </Card>
@@ -237,6 +259,7 @@ export default function NovelList() {
             const workflowTask = novel.latestAutoDirectorTask ?? null;
             const workflowBadge = getWorkflowBadge(workflowTask);
             const workflowDescription = getWorkflowDescription(workflowTask);
+            const workflowCurrentItemLabel = formatCurrentItemLabel(workflowTask?.currentItemLabel);
             const isWorkflowPending = continueWorkflowMutation.isPending
               && continueWorkflowMutation.variables?.taskId === workflowTask?.id;
             const isDownloadPending = downloadNovelMutation.isPending
@@ -298,12 +321,12 @@ export default function NovelList() {
                         <div className="mt-2 text-sm text-muted-foreground">{workflowDescription}</div>
                       ) : null}
                       <div className="mt-2 text-xs text-muted-foreground">
-                        当前阶段：{workflowTask.currentStage ?? "自动导演"}{workflowTask.currentItemLabel ? ` · ${workflowTask.currentItemLabel}` : ""}
+                        当前阶段：{workflowTask.currentStage ?? "自动导演"}{workflowCurrentItemLabel ? ` · ${workflowCurrentItemLabel}` : ""}
                       </div>
                     </div>
                   ) : (
                     <div className="rounded-xl border border-dashed bg-muted/10 p-3 text-xs text-muted-foreground">
-                      当前未检测到自动导演任务，列表按小说基础资产展示。
+                      当前未检测到自动导演任务，列表按{itemLabel}基础资产展示。
                     </div>
                   )}
 
@@ -321,6 +344,11 @@ export default function NovelList() {
                   ) : null}
 
                   <div className="flex flex-wrap gap-2">
+                    <Button asChild size="sm" variant="outline">
+                      <Link to={`${basePath}/create?continueFromNovelId=${novel.id}`} onClick={stopCardClick}>
+                        {isShortStory ? "创建衍生篇" : "创建续作"}
+                      </Link>
+                    </Button>
                     {canContinueFront10AutoExecution(workflowTask) ? (
                       <Button
                         size="sm"
@@ -356,7 +384,7 @@ export default function NovelList() {
                       </Button>
                     ) : canEnterChapterExecution(workflowTask) ? (
                       <Button asChild size="sm">
-                        <Link to={`/novels/${novel.id}/edit`} onClick={stopCardClick}>进入章节执行</Link>
+                        <Link to={`${basePath}/${novel.id}/edit`} onClick={stopCardClick}>进入章节执行</Link>
                       </Button>
                     ) : workflowTask ? (
                       <Button asChild size="sm">
@@ -399,6 +427,46 @@ export default function NovelList() {
           })}
         </div>
       )}
+      <Dialog
+        open={Boolean(pendingDeleteNovel)}
+        onOpenChange={(open) => {
+          if (!open && !deleteNovelMutation.isPending) {
+            setPendingDeleteNovel(null);
+          }
+        }}
+      >
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>确认删除{itemLabel}</DialogTitle>
+            <DialogDescription>
+              {pendingDeleteNovel
+                ? `确认删除《${pendingDeleteNovel.title}》吗？该操作会直接删除当前${itemLabel}，且无法恢复。`
+                : "该操作不可恢复。"}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setPendingDeleteNovel(null)}
+              disabled={deleteNovelMutation.isPending}
+            >
+              取消
+            </Button>
+            <Button
+              variant="secondary"
+              onClick={() => {
+                if (!pendingDeleteNovel) {
+                  return;
+                }
+                deleteNovelMutation.mutate(pendingDeleteNovel.id);
+              }}
+              disabled={deleteNovelMutation.isPending || !pendingDeleteNovel}
+            >
+              {deleteNovelMutation.isPending ? "删除中..." : "确认删除"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

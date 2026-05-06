@@ -111,6 +111,7 @@ export default function WritingFormulaPage() {
   const novelOptions = (novelListQuery.data?.data?.items ?? []).map((novel) => ({
     id: novel.id,
     title: novel.title,
+    contentForm: novel.contentForm,
   }));
   const chapterOptions = (novelDetailQuery.data?.data?.chapters ?? []).map((chapter) => ({
     id: chapter.id,

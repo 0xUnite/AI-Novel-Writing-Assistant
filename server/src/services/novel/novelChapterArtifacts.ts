@@ -3,6 +3,11 @@ import { prisma } from "../../db/prisma";
 import { stateService } from "../state/StateService";
 import { briefSummary, extractCharacterEventLines, extractFacts } from "./novelCoreShared";
 import { queueRagUpsert } from "./novelCoreSupport";
+import { sanitizeGeneratedChapterContent } from "./chapterContentSanitizer";
+import {
+  buildCharacterStateDigest,
+  buildKeyEventDigest,
+} from "./chapterMemorySanitizer";
 
 export async function syncCharacterTimelineForChapter(novelId: string, chapterId: string, content: string) {
   const [chapter, characters] = await Promise.all([
@@ -73,33 +78,26 @@ export async function syncCharacterTimelineForChapter(novelId: string, chapterId
 }
 
 export async function syncChapterArtifacts(novelId: string, chapterId: string, content: string) {
-  const facts = extractFacts(content);
-  const summary = briefSummary(content, facts);
+  const sanitizedContent = sanitizeGeneratedChapterContent(content);
+  const facts = extractFacts(sanitizedContent);
+  const summary = briefSummary(sanitizedContent, facts);
 
   await prisma.$transaction(async (tx) => {
-    await tx.chapterSummary.upsert({
-      where: { chapterId },
-      update: {
-        summary,
-        keyEvents: facts.map((item) => item.content).slice(0, 3).join(""),
-        characterStates: facts
-          .filter((item) => item.category === "character")
-          .map((item) => item.content)
-          .slice(0, 3)
-          .join(""),
-      },
-      create: {
-        novelId,
-        chapterId,
-        summary,
-        keyEvents: facts.map((item) => item.content).slice(0, 3).join(""),
-        characterStates: facts
-          .filter((item) => item.category === "character")
-          .map((item) => item.content)
-          .slice(0, 3)
-          .join(""),
-      },
-    });
+      await tx.chapterSummary.upsert({
+        where: { chapterId },
+        update: {
+          summary,
+          keyEvents: buildKeyEventDigest(facts) || null,
+          characterStates: buildCharacterStateDigest(facts) || null,
+        },
+        create: {
+          novelId,
+          chapterId,
+          summary,
+          keyEvents: buildKeyEventDigest(facts) || null,
+          characterStates: buildCharacterStateDigest(facts) || null,
+        },
+      });
 
     await tx.consistencyFact.deleteMany({ where: { novelId, chapterId } });
     if (facts.length > 0) {
@@ -115,8 +113,8 @@ export async function syncChapterArtifacts(novelId: string, chapterId: string, c
     }
   });
 
-  await syncCharacterTimelineForChapter(novelId, chapterId, content);
-  await stateService.syncChapterState(novelId, chapterId, content).catch(() => null);
+  await syncCharacterTimelineForChapter(novelId, chapterId, sanitizedContent);
+  void stateService.syncChapterState(novelId, chapterId, sanitizedContent).catch(() => null);
 
   queueRagUpsert("chapter", chapterId);
   queueRagUpsert("chapter_summary", chapterId);

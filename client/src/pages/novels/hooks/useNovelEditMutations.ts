@@ -231,6 +231,7 @@ export function useNovelEditMutations({
         runMode: override?.runMode ?? pipelineForm.runMode,
         autoReview: override?.autoReview ?? pipelineForm.autoReview,
         autoRepair: override?.autoRepair ?? pipelineForm.autoRepair,
+        autoPrepareStoryAssets: true,
         skipCompleted: override?.skipCompleted ?? pipelineForm.skipCompleted,
         qualityThreshold: override?.qualityThreshold ?? pipelineForm.qualityThreshold,
         repairMode: override?.repairMode ?? pipelineForm.repairMode,
@@ -250,17 +251,26 @@ export function useNovelEditMutations({
         status: "running",
       });
       await queryClient.invalidateQueries({ queryKey: queryKeys.novels.pipelineJob(id, response.data?.id ?? "none") });
+      await queryClient.invalidateQueries({ queryKey: queryKeys.novels.detail(id) });
+      await queryClient.invalidateQueries({ queryKey: queryKeys.novels.qualityReport(id) });
+      await queryClient.invalidateQueries({ queryKey: ["tasks"] });
     },
   });
 
   const reviewMutation = useMutation({
-    mutationFn: () =>
-      reviewNovelChapter(id, selectedChapterId, {
+    mutationFn: (chapterIdOverride?: string) => {
+      const chapterId = chapterIdOverride ?? selectedChapterId;
+      if (!chapterId) {
+        throw new Error("请先选择章节。");
+      }
+      return reviewNovelChapter(id, chapterId, {
         provider: llm.provider,
         model: llm.model,
         temperature: 0.1,
-      }),
-    onSuccess: async (response) => {
+      });
+    },
+    onSuccess: async (response, chapterIdOverride) => {
+      const chapterId = chapterIdOverride ?? selectedChapterId;
       setReviewResult(response.data ?? null);
       setPipelineMessage("Chapter reviewed.");
       await syncNovelWorkflowStageSilently({
@@ -269,6 +279,10 @@ export function useNovelEditMutations({
         itemLabel: "章节审校已完成",
         status: "waiting_approval",
       });
+      await invalidateNovelDetail();
+      if (chapterId) {
+        await queryClient.invalidateQueries({ queryKey: queryKeys.novels.chapterAuditReports(id, chapterId) });
+      }
       await queryClient.invalidateQueries({ queryKey: queryKeys.novels.qualityReport(id) });
     },
   });

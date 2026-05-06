@@ -424,6 +424,17 @@ export function normalizeIntentPayload(raw: unknown, input: PlannerInput): Recor
   } else {
     delete normalized.shouldAskFollowup;
   }
+
+  const rawContentForm = payload.contentForm;
+  const goalText = String(normalized.goal ?? input.goal ?? "");
+  if (rawContentForm === "short_story" || /短故事|短篇|中短篇/u.test(goalText)) {
+    normalized.contentForm = "short_story";
+  } else if (rawContentForm === "novel") {
+    normalized.contentForm = "novel";
+  } else {
+    delete normalized.contentForm;
+  }
+
   const rawTargetChapterCount = payload.targetChapterCount;
   if (typeof rawTargetChapterCount === "string" && /^\d+$/.test(rawTargetChapterCount.trim())) {
     normalized.targetChapterCount = Number(rawTargetChapterCount.trim());
@@ -442,6 +453,15 @@ export function normalizeIntentPayload(raw: unknown, input: PlannerInput): Recor
     normalized.defaultChapterLength = Math.max(500, Math.min(10000, Math.floor(rawDefaultChapterLength)));
   } else {
     delete normalized.defaultChapterLength;
+  }
+
+  const rawTargetTotalWordCount = payload.targetTotalWordCount;
+  if (typeof rawTargetTotalWordCount === "string" && /^\d+$/.test(rawTargetTotalWordCount.trim())) {
+    normalized.targetTotalWordCount = Math.max(0, Math.min(2_000_000, Number(rawTargetTotalWordCount.trim())));
+  } else if (typeof rawTargetTotalWordCount === "number" && Number.isFinite(rawTargetTotalWordCount)) {
+    normalized.targetTotalWordCount = Math.max(0, Math.min(2_000_000, Math.floor(rawTargetTotalWordCount)));
+  } else {
+    delete normalized.targetTotalWordCount;
   }
 
   if (

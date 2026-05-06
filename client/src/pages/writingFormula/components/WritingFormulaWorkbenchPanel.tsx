@@ -1,6 +1,8 @@
 import type { StyleBinding, StyleDetectionReport } from "@ai-novel/shared/types/styleEngine";
+import type { NovelContentForm } from "@ai-novel/shared/types/novel";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { decorateNovelTitleWithContentForm } from "@/lib/novelContentForm";
 
 interface BindingFormState {
   targetType: StyleBinding["targetType"];
@@ -22,7 +24,7 @@ interface WritingFormulaWorkbenchPanelProps {
   selectedProfileId: string;
   bindingForm: BindingFormState;
   bindings: StyleBinding[];
-  novelOptions: Array<{ id: string; title: string }>;
+  novelOptions: Array<{ id: string; title: string; contentForm?: NovelContentForm | null }>;
   chapterOptions: Array<{ id: string; order: number; title: string }>;
   createBindingPending: boolean;
   onBindingFormChange: (patch: Partial<BindingFormState>) => void;
@@ -92,7 +94,11 @@ export default function WritingFormulaWorkbenchPanel(props: WritingFormulaWorkbe
               value={bindingForm.novelId}
               onChange={(event) => onBindingFormChange({ novelId: event.target.value, chapterId: "" })}
             >
-              {novelOptions.map((novel) => <option key={novel.id} value={novel.id}>{novel.title}</option>)}
+              {novelOptions.map((novel) => (
+                <option key={novel.id} value={novel.id}>
+                  {decorateNovelTitleWithContentForm(novel)}
+                </option>
+              ))}
             </select>
             {bindingForm.targetType === "chapter" ? (
               <select

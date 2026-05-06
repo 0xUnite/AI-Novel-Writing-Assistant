@@ -1,4 +1,5 @@
 import type {
+  ChapterHookKind,
   VolumeBeat,
   VolumeBeatSheet,
   VolumeCritiqueIssue,
@@ -46,6 +47,40 @@ function normalizeInteger(value: unknown, fallback: number): number {
     const parsed = Number.parseInt(value.trim(), 10);
     if (Number.isFinite(parsed)) {
       return parsed;
+    }
+  }
+  return fallback;
+}
+
+function normalizeBoolean(value: unknown, fallback = false): boolean {
+  if (typeof value === "boolean") {
+    return value;
+  }
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return value > 0;
+  }
+  if (typeof value === "string") {
+    const normalized = value.trim().toLowerCase();
+    if (["true", "yes", "1", "是", "需要", "高"].includes(normalized)) {
+      return true;
+    }
+    if (["false", "no", "0", "否", "不需要", "低"].includes(normalized)) {
+      return false;
+    }
+  }
+  return fallback;
+}
+
+function normalizeHookKind(value: unknown, fallback: ChapterHookKind = "suspense_question"): ChapterHookKind {
+  if (typeof value === "string") {
+    const normalized = value.trim().toLowerCase().replace(/[\s-]+/g, "_");
+    if (
+      normalized === "information_reversal"
+      || normalized === "decision_reversal"
+      || normalized === "threat_approaches"
+      || normalized === "suspense_question"
+    ) {
+      return normalized;
     }
   }
   return fallback;
@@ -208,6 +243,10 @@ function normalizeBeat(raw: unknown): VolumeBeat | null {
     summary,
     chapterSpanHint,
     mustDeliver,
+    eventWeight: Math.max(1, Math.min(5, normalizeInteger(raw.eventWeight ?? raw.event_weight, 3))),
+    highStakesDialogue: normalizeBoolean(raw.highStakesDialogue ?? raw.high_stakes_dialogue, false),
+    schemeBeat: normalizeBoolean(raw.schemeBeat ?? raw.scheme_beat, false),
+    kindOfHook: normalizeHookKind(raw.kindOfHook ?? raw.kind_of_hook),
   };
 }
 

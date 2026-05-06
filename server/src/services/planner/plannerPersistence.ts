@@ -19,6 +19,12 @@ interface PersistPlanInput {
   sourceIssueIds: string[];
   replannedFromPlanId: string | null;
   hookTarget: string | null;
+  chapterMeta?: {
+    eventWeight: number;
+    highStakesDialogue: boolean;
+    schemeBeat: boolean;
+    kindOfHook: string;
+  } | null;
   scenes: Array<{
     title?: string;
     objective?: string;
@@ -57,6 +63,14 @@ export async function persistStoryPlan(input: PersistPlanInput) {
     replannedFromPlanId: input.replannedFromPlanId,
     planRole: input.planRole,
     phaseLabel: input.phaseLabel,
+    chapter_meta: input.chapterMeta
+      ? {
+          event_weight: input.chapterMeta.eventWeight,
+          high_stakes_dialogue: input.chapterMeta.highStakesDialogue,
+          scheme_beat: input.chapterMeta.schemeBeat,
+          kind_of_hook: input.chapterMeta.kindOfHook,
+        }
+      : undefined,
   });
 
   const planId = await prisma.$transaction(async (tx) => {

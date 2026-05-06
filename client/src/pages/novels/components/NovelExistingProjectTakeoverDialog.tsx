@@ -56,16 +56,22 @@ function summarizeCurrentContext(basicForm: NovelBasicFormState): string[] {
     basicForm.targetAudience.trim() ? `目标读者：${basicForm.targetAudience.trim()}` : "",
     basicForm.bookSellingPoint.trim() ? `书级卖点：${basicForm.bookSellingPoint.trim()}` : "",
     basicForm.competingFeel.trim() ? `对标气质：${basicForm.competingFeel.trim()}` : "",
-    basicForm.first30ChapterPromise.trim() ? `前30章承诺：${basicForm.first30ChapterPromise.trim()}` : "",
+    basicForm.first30ChapterPromise.trim()
+      ? `${basicForm.contentForm === "short_story" ? "完整故事承诺" : "前30章承诺"}：${basicForm.first30ChapterPromise.trim()}`
+      : "",
     commercialTags.length > 0 ? `商业标签：${commercialTags.join(" / ")}` : "",
     basicForm.genreId ? `题材基底：${basicForm.genreId}` : "",
     basicForm.worldId ? `世界观：${basicForm.worldId}` : "",
+    basicForm.contentForm === "short_story" && basicForm.targetTotalWordCount > 0
+      ? `整篇目标字数：${basicForm.targetTotalWordCount}`
+      : "",
     `预计章节：${basicForm.estimatedChapterCount}`,
   ].filter(Boolean);
 }
 
 function buildEditRoute(input: {
   novelId: string;
+  contentForm: NovelBasicFormState["contentForm"];
   workflowTaskId: string;
   stage?: string | null;
   chapterId?: string | null;
@@ -82,7 +88,8 @@ function buildEditRoute(input: {
   if (input.volumeId) {
     search.set("volumeId", input.volumeId);
   }
-  return `/novels/${input.novelId}/edit?${search.toString()}`;
+  const basePath = input.contentForm === "short_story" ? "/short-stories" : "/novels";
+  return `${basePath}/${input.novelId}/edit?${search.toString()}`;
 }
 
 export default function NovelExistingProjectTakeoverDialog({
@@ -153,6 +160,7 @@ export default function NovelExistingProjectTakeoverDialog({
       );
       navigate(buildEditRoute({
         novelId,
+        contentForm: basicForm.contentForm,
         workflowTaskId: data.workflowTaskId,
         stage: data.resumeTarget?.stage ?? "story_macro",
         chapterId: data.resumeTarget?.chapterId ?? null,

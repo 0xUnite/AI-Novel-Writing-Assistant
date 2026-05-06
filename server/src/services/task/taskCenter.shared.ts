@@ -70,7 +70,7 @@ export const NOVEL_WORKFLOW_STAGE_STEPS = [
   { key: "volume_strategy", label: "卷战略 / 卷骨架" },
   { key: "structured_outline", label: "节奏 / 拆章" },
   { key: "chapter_execution", label: "章节执行" },
-  { key: "quality_repair", label: "质量修复" },
+  { key: "quality_repair", label: "出稿质检" },
 ] as const;
 
 export function normalizeKeyword(value: string | undefined): string | undefined {

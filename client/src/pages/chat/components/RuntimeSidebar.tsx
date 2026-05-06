@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import type { AgentStep } from "@ai-novel/shared/types/agent";
+import type { NovelContentForm } from "@ai-novel/shared/types/novel";
 import KnowledgeDocumentPicker from "@/components/knowledge/KnowledgeDocumentPicker";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { decorateNovelTitleWithContentForm } from "@/lib/novelContentForm";
 
 type ChatMode = "standard" | "agent";
 type ContextMode = "global" | "novel";
@@ -22,6 +24,7 @@ type ApprovalHistoryItem = {
 type NovelOption = {
   id: string;
   title: string;
+  contentForm?: NovelContentForm | null;
 };
 type TraceItem = {
   key: string;
@@ -205,10 +208,10 @@ export default function RuntimeSidebar({
                       value={novelId}
                       onChange={(event) => onNovelChange(event.target.value)}
                     >
-                      <option value="">请选择小说</option>
+                    <option value="">请选择作品</option>
                       {novels.map((novel) => (
                         <option key={novel.id} value={novel.id}>
-                          {novel.title}
+                          {decorateNovelTitleWithContentForm(novel)}
                         </option>
                       ))}
                     </select>

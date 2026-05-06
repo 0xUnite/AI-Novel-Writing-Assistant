@@ -1,4 +1,5 @@
 import type {
+  ChapterMeta,
   VolumeChapterPlan,
   VolumePlan,
   VolumePlanDocument,
@@ -18,6 +19,7 @@ import {
   buildDerivedStructuredOutlineFromVolumes,
   normalizeVolumeDraftInput,
 } from "./volumePlanUtils";
+import { deriveChapterDetailPolicy } from "./volumeChapterDetailPolicy";
 import {
   createBookVolumeSkeletonSchema,
   createChapterBoundarySchema,
@@ -143,9 +145,11 @@ function mergeVolumeChapterListIntoWorkspace(params: {
   generatedChapters: Array<{
     title: string;
     summary: string;
+    chapterMeta?: ChapterMeta | null;
   }>;
+  defaultChapterLength?: number | null;
 }): VolumePlan[] {
-  const { novelId, workspace, targetVolumeId, generatedChapters } = params;
+  const { novelId, workspace, targetVolumeId, generatedChapters, defaultChapterLength } = params;
   const targetIndex = workspace.volumes.findIndex((volume) => volume.id === targetVolumeId);
   if (targetIndex < 0) {
     throw new Error("目标卷不存在，无法生成章节列表。");
@@ -158,6 +162,12 @@ function mergeVolumeChapterListIntoWorkspace(params: {
       ...volume,
       chapters: generatedChapters.map((chapter, chapterIndex) => {
         const existingChapter = volume.chapters[chapterIndex];
+        const policy = deriveChapterDetailPolicy({
+          defaultChapterLength,
+          chapterMeta: chapter.chapterMeta ?? existingChapter?.chapterMeta ?? null,
+          title: chapter.title,
+          summary: chapter.summary,
+        });
         return {
           id: existingChapter?.id,
           volumeId: volume.id,
@@ -165,12 +175,13 @@ function mergeVolumeChapterListIntoWorkspace(params: {
           title: chapter.title,
           summary: chapter.summary,
           purpose: existingChapter?.purpose ?? null,
-          conflictLevel: existingChapter?.conflictLevel ?? null,
-          revealLevel: existingChapter?.revealLevel ?? null,
-          targetWordCount: existingChapter?.targetWordCount ?? null,
-          mustAvoid: existingChapter?.mustAvoid ?? null,
-          taskSheet: existingChapter?.taskSheet ?? null,
+          conflictLevel: existingChapter?.conflictLevel ?? policy.conflictLevel,
+          revealLevel: existingChapter?.revealLevel ?? policy.revealLevel,
+          targetWordCount: existingChapter?.targetWordCount ?? policy.targetWordCount,
+          mustAvoid: existingChapter?.mustAvoid ?? policy.mustAvoid,
+          taskSheet: existingChapter?.taskSheet ?? policy.taskSheet,
           payoffRefs: existingChapter?.payoffRefs ?? [],
+          chapterMeta: chapter.chapterMeta ?? existingChapter?.chapterMeta ?? null,
         };
       }),
     };
@@ -316,6 +327,7 @@ async function generateVolumeChapterList(params: {
     workspace,
     targetVolumeId,
     generatedChapters: generated.output.chapters,
+    defaultChapterLength: novel.defaultChapterLength,
   });
 }
 
@@ -435,6 +447,7 @@ export async function generateVolumePlanDocument(params: {
         competingFeel: true,
         first30ChapterPromise: true,
         commercialTagsJson: true,
+        defaultChapterLength: true,
         estimatedChapterCount: true,
         narrativePov: true,
         pacePreference: true,
@@ -531,4 +544,3 @@ export async function generateVolumePlanDocument(params: {
     activeVersionId: workspace.activeVersionId,
   };
 }
-

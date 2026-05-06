@@ -48,6 +48,16 @@ test("buildDirectorAutoExecutionPipelineOptions uses front10-safe defaults", () 
   assert.equal(options.repairMode, "light_repair");
 });
 
+test("buildDirectorAutoExecutionPipelineOptions can force a completed-chapter recheck", () => {
+  const options = buildDirectorAutoExecutionPipelineOptions({
+    startOrder: 1,
+    endOrder: 10,
+    skipCompleted: false,
+  });
+
+  assert.equal(options.skipCompleted, false);
+});
+
 test("resolveDirectorAutoExecutionWorkflowState maps review and repair into quality repair stage", () => {
   const range = {
     startOrder: 1,

@@ -1,0 +1,592 @@
+[     166ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=4da9aa86:20102
+[  180673ms] [LOG] [vite] server connection lost. Polling for restart... @ http://localhost:5173/@vite/client:864
+[  182282ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[  183284ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[  186066ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=4da9aa86:20102
+[  202951ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=4da9aa86:20102
+[ 8728860ms] [LOG] [vite] server connection lost. Polling for restart... @ http://localhost:5173/@vite/client:864
+[ 8734784ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=4da9aa86:20102
+[17693426ms] [LOG] [vite] server connection lost. Polling for restart... @ http://localhost:5173/@vite/client:864
+[17695266ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmo4g0x8w0003938okwij1zvx/review-batch-jobs?limit=10:0
+[17696270ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmo4g0x8w0003938okwij1zvx/review-batch-jobs?limit=10:0
+[17698913ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=4da9aa86:20102
+[17759119ms] [LOG] [vite] server connection lost. Polling for restart... @ http://localhost:5173/@vite/client:864
+[17764313ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=4da9aa86:20102
+[18915480ms] [LOG] [vite] server connection lost. Polling for restart... @ http://localhost:5173/@vite/client:864
+[18916692ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmo4g0x8w0003938okwij1zvx/continuity-progress?threshold=75:0
+[18917079ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmo4g0x8w0003938okwij1zvx/review-batch-jobs?limit=10:0
+[18917694ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmo4g0x8w0003938okwij1zvx/continuity-progress?threshold=75:0
+[18918081ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmo4g0x8w0003938okwij1zvx/review-batch-jobs?limit=10:0
+[18920851ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=4da9aa86:20102
+[23063478ms] [LOG] [vite] server connection lost. Polling for restart... @ http://localhost:5173/@vite/client:864
+[23064671ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[23065673ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[23066122ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmo4g0x8w0003938okwij1zvx/continuity-progress?threshold=75:0
+[23069037ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=4da9aa86:20102
+[25476105ms] [LOG] [vite] server connection lost. Polling for restart... @ http://localhost:5173/@vite/client:864
+[25478100ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[25478502ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmo4g0x8w0003938okwij1zvx/review-batch-jobs?limit=10:0
+[25481655ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=4da9aa86:20102
+[27883134ms] [LOG] [vite] server connection lost. Polling for restart... @ http://localhost:5173/@vite/client:864
+[27884954ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmo4g0x8w0003938okwij1zvx/review-batch-jobs?limit=10:0
+[27885548ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[27885959ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmo4g0x8w0003938okwij1zvx/review-batch-jobs?limit=10:0
+[27889658ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=4da9aa86:20102
+[65509265ms] [LOG] [vite] server connection lost. Polling for restart... @ http://localhost:5173/@vite/client:864
+[65510040ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[65512359ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[65512967ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmo4g0x8w0003938okwij1zvx/review-batch-jobs?limit=10:0
+[65513989ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmo4g0x8w0003938okwij1zvx/review-batch-jobs?limit=10:0
+[65519219ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=4da9aa86:20102
+[66282654ms] [LOG] [vite] server connection lost. Polling for restart... @ http://localhost:5173/@vite/client:864
+[66283905ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmo4g0x8w0003938okwij1zvx/review-batch-jobs?limit=10:0
+[66284201ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[66284912ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmo4g0x8w0003938okwij1zvx/review-batch-jobs?limit=10:0
+[66285205ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[66288423ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=4da9aa86:20102
+[66945933ms] [LOG] [vite] server connection lost. Polling for restart... @ http://localhost:5173/@vite/client:864
+[66947191ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[66947555ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmo4g0x8w0003938okwij1zvx/continuity-progress?threshold=75:0
+[66948200ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[66948457ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmo4g0x8w0003938okwij1zvx/review-batch-jobs?limit=10:0
+[66948557ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmo4g0x8w0003938okwij1zvx/continuity-progress?threshold=75:0
+[66949469ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmo4g0x8w0003938okwij1zvx/review-batch-jobs?limit=10:0
+[66955776ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=4da9aa86:20102
+[69302132ms] [LOG] [vite] server connection lost. Polling for restart... @ http://localhost:5173/@vite/client:864
+[69303311ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmo4g0x8w0003938okwij1zvx/review-batch-jobs?limit=10:0
+[69305049ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmo4g0x8w0003938okwij1zvx/continuity-progress?threshold=75:0
+[69305054ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmo4g0x8w0003938okwij1zvx/review-batch-jobs?limit=10:0
+[69308235ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=4da9aa86:20102
+[145067968ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[145068045ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmo4g0x8w0003938okwij1zvx/continuity-progress?threshold=75:0
+[145068971ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[145069049ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmo4g0x8w0003938okwij1zvx/continuity-progress?threshold=75:0
+[164843238ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmo4g0x8w0003938okwij1zvx/review-batch-jobs?limit=10:0
+[164844242ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmo4g0x8w0003938okwij1zvx/review-batch-jobs?limit=10:0
+[164844444ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmo4g0x8w0003938okwij1zvx/continuity-progress?threshold=75:0
+[164845214ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[164845447ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmo4g0x8w0003938okwij1zvx/continuity-progress?threshold=75:0
+[166235540ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[166235706ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmo4g0x8w0003938okwij1zvx/continuity-progress?threshold=75:0
+[166235918ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmo4g0x8w0003938okwij1zvx/review-batch-jobs?limit=10:0
+[166236544ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[166236710ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmo4g0x8w0003938okwij1zvx/continuity-progress?threshold=75:0
+[166236922ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmo4g0x8w0003938okwij1zvx/review-batch-jobs?limit=10:0
+[186083250ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmo4g0x8w0003938okwij1zvx/continuity-progress?threshold=75:0
+[186084045ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[186084254ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmo4g0x8w0003938okwij1zvx/continuity-progress?threshold=75:0
+[186085048ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[186085715ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmo4g0x8w0003938okwij1zvx/review-batch-jobs?limit=10:0
+[236026483ms] [ERROR] React has detected a change in the order of Hooks called by %s. This will lead to bugs and errors if not fixed. For more information, read the Rules of Hooks: https://react.dev/link/rules-of-hooks
+
+   Previous render            Next render
+   ------------------------------------------------------
+%s   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ NovelEdit 1. useContext                 useContext
+2. useContext                 useContext
+3. useContext                 useContext
+4. useContext                 useContext
+5. useContext                 useContext
+6. useContext                 useContext
+7. useContext                 useContext
+8. useContext                 useContext
+9. useRef                     useRef
+10. useContext                useContext
+11. useLayoutEffect           useLayoutEffect
+12. useCallback               useCallback
+13. useCallback               useCallback
+14. useCallback               useCallback
+15. useSyncExternalStore      useSyncExternalStore
+16. useDebugValue             useDebugValue
+17. useContext                useContext
+18. useRef                    useRef
+19. useRef                    useRef
+20. useContext                useContext
+21. useContext                useContext
+22. useMemo                   useMemo
+23. useContext                useContext
+24. useContext                useContext
+25. useContext                useContext
+26. useContext                useContext
+27. useContext                useContext
+28. useContext                useContext
+29. useContext                useContext
+30. useRef                    useRef
+31. useContext                useContext
+32. useLayoutEffect           useLayoutEffect
+33. useCallback               useCallback
+34. useCallback               useCallback
+35. useContext                useContext
+36. useState                  useState
+37. useEffect                 useEffect
+38. useCallback               useCallback
+39. useSyncExternalStore      useSyncExternalStore
+40. useCallback               useCallback
+41. useEffect                 useEffect
+42. useMemo                   useMemo
+43. useMemo                   useMemo
+44. useState                  useState
+45. useState                  useState
+46. useState                  useState
+47. useState                  useState
+48. useState                  useState
+49. useState                  useState
+50. useState                  useState
+51. useState                  useState
+52. useState                  useState
+53. useState                  useState
+54. useState                  useState
+55. useState                  useState
+56. useState                  useState
+57. useState                  useState
+58. useState                  useState
+59. useState                  useState
+60. useState                  useState
+61. useState                  useState
+62. useState                  useState
+63. useState                  useState
+64. useState                  useState
+65. useState                  useState
+66. useState                  useState
+67. useState                  useState
+68. useState                  useState
+69. useState                  useState
+70. useState                  useState
+71. useState                  useState
+72. useState                  useState
+73. useState                  useState
+74. useState                  useState
+75. useState                  useState
+76. useState                  useState
+77. useState                  useState
+78. useContext                useContext
+79. useContext                useContext
+80. useContext                useContext
+81. useEffect                 useEffect
+82. useState                  useState
+83. useCallback               useCallback
+84. useSyncExternalStore      useSyncExternalStore
+85. useEffect                 useEffect
+86. useContext                useContext
+87. useContext                useContext
+88. useContext                useContext
+89. useEffect                 useEffect
+90. useState                  useState
+91. useCallback               useCallback
+92. useSyncExternalStore      useSyncExternalStore
+93. useEffect                 useEffect
+94. useContext                useContext
+95. useContext                useContext
+96. useContext                useContext
+97. useEffect                 useEffect
+98. useState                  useState
+99. useCallback               useCallback
+100. useSyncExternalStore     useSyncExternalStore
+101. useEffect                useEffect
+102. useContext               useContext
+103. useContext               useContext
+104. useContext               useContext
+105. useEffect                useEffect
+106. useState                 useState
+107. useCallback              useCallback
+108. useSyncExternalStore     useSyncExternalStore
+109. useEffect                useEffect
+110. useContext               useContext
+111. useContext               useContext
+112. useContext               useContext
+113. useEffect                useEffect
+114. useState                 useState
+115. useCallback              useCallback
+116. useSyncExternalStore     useSyncExternalStore
+117. useEffect                useEffect
+118. useContext               useContext
+119. useContext               useContext
+120. useContext               useContext
+121. useEffect                useEffect
+122. useState                 useState
+123. useCallback              useCallback
+124. useSyncExternalStore     useSyncExternalStore
+125. useEffect                useEffect
+126. useContext               useContext
+127. useContext               useContext
+128. useContext               useContext
+129. useEffect                useEffect
+130. useState                 useState
+131. useCallback              useCallback
+132. useSyncExternalStore     useSyncExternalStore
+133. useEffect                useEffect
+134. useContext               useContext
+135. useContext               useContext
+136. useContext               useContext
+137. useEffect                useEffect
+138. useState                 useState
+139. useCallback              useCallback
+140. useSyncExternalStore     useSyncExternalStore
+141. useEffect                useEffect
+142. useContext               useContext
+143. useContext               useContext
+144. useContext               useContext
+145. useEffect                useEffect
+146. useState                 useState
+147. useCallback              useCallback
+148. useSyncExternalStore     useSyncExternalStore
+149. useEffect                useEffect
+150. useContext               useContext
+151. useContext               useContext
+152. useContext               useContext
+153. useEffect                useEffect
+154. useState                 useState
+155. useCallback              useCallback
+156. useSyncExternalStore     useSyncExternalStore
+157. useEffect                useEffect
+158. useContext               useContext
+159. useContext               useContext
+160. useContext               useContext
+161. useEffect                useEffect
+162. useState                 useState
+163. useCallback              useCallback
+164. useSyncExternalStore     useSyncExternalStore
+165. useEffect                useEffect
+166. useContext               useContext
+167. useContext               useContext
+168. useContext               useContext
+169. useEffect                useEffect
+170. useState                 useState
+171. useCallback              useCallback
+172. useSyncExternalStore     useSyncExternalStore
+173. useEffect                useEffect
+174. useContext               useContext
+175. useContext               useContext
+176. useContext               useContext
+177. useEffect                useEffect
+178. useState                 useState
+179. useCallback              useCallback
+180. useSyncExternalStore     useSyncExternalStore
+181. useEffect                useEffect
+182. useContext               useContext
+183. useContext               useContext
+184. useContext               useContext
+185. useEffect                useEffect
+186. useState                 useState
+187. useCallback              useCallback
+188. useSyncExternalStore     useSyncExternalStore
+189. useEffect                useEffect
+190. useMemo                  useMemo
+191. useMemo                  useMemo
+192. useMemo                  useMemo
+193. useContext               useContext
+194. useState                 useState
+195. useState                 useState
+196. useState                 useState
+197. useState                 useState
+198. useState                 useState
+199. useState                 useState
+200. useState                 useState
+201. useState                 useState
+202. useContext               useContext
+203. useContext               useContext
+204. useContext               useContext
+205. useEffect                useEffect
+206. useState                 useState
+207. useCallback              useCallback
+208. useSyncExternalStore     useSyncExternalStore
+209. useEffect                useEffect
+210. useEffect                useEffect
+211. useContext               useContext
+212. useState                 useState
+213. useEffect                useEffect
+214. useCallback              useCallback
+215. useSyncExternalStore     useSyncExternalStore
+216. useCallback              useCallback
+217. useContext               useContext
+218. useState                 useState
+219. useEffect                useEffect
+220. useCallback              useCallback
+221. useSyncExternalStore     useSyncExternalStore
+222. useCallback              useCallback
+223. useContext               useContext
+224. useState                 useState
+225. useEffect                useEffect
+226. useCallback              useCallback
+227. useSyncExternalStore     useSyncExternalStore
+228. useCallback              useCallback
+229. useContext               useContext
+230. useState                 useState
+231. useEffect                useEffect
+232. useCallback              useCallback
+233. useSyncExternalStore     useSyncExternalStore
+234. useCallback              useCallback
+235. useContext               useContext
+236. useState                 useState
+237. useEffect                useEffect
+238. useCallback              useCallback
+239. useSyncExternalStore     useSyncExternalStore
+240. useCallback              useCallback
+241. useState                 useState
+242. useContext               useContext
+243. useContext               useContext
+244. useContext               useContext
+245. useEffect                useEffect
+246. useState                 useState
+247. useCallback              useCallback
+248. useSyncExternalStore     useSyncExternalStore
+249. useEffect                useEffect
+250. useContext               useContext
+251. useState                 useState
+252. useEffect                useEffect
+253. useCallback              useCallback
+254. useSyncExternalStore     useSyncExternalStore
+255. useCallback              useCallback
+256. useContext               useContext
+257. useState                 useState
+258. useEffect                useEffect
+259. useCallback              useCallback
+260. useSyncExternalStore     useSyncExternalStore
+261. useCallback              useCallback
+262. useContext               useContext
+263. useContext               useContext
+264. useContext               useContext
+265. useEffect                useEffect
+266. useState                 useState
+267. useCallback              useCallback
+268. useSyncExternalStore     useSyncExternalStore
+269. useEffect                useEffect
+270. useContext               useContext
+271. useState                 useState
+272. useEffect                useEffect
+273. useCallback              useCallback
+274. useSyncExternalStore     useSyncExternalStore
+275. useCallback              useCallback
+276. useContext               useContext
+277. useState                 useState
+278. useEffect                useEffect
+279. useCallback              useCallback
+280. useSyncExternalStore     useSyncExternalStore
+281. useCallback              useCallback
+282. useEffect                useEffect
+283. useMemo                  useMemo
+284. useMemo                  useMemo
+285. useMemo                  useMemo
+286. useMemo                  useMemo
+287. useMemo                  useMemo
+288. useMemo                  useMemo
+289. useContext               useContext
+290. useMemo                  useMemo
+291. useMemo                  useMemo
+292. useMemo                  useMemo
+293. useMemo                  useMemo
+294. useState                 useState
+295. useState                 useState
+296. useState                 useState
+297. useContext               useContext
+298. useState                 useState
+299. useEffect                useEffect
+300. useCallback              useCallback
+301. useSyncExternalStore     useSyncExternalStore
+302. useCallback              useCallback
+303. useMemo                  useMemo
+304. useMemo                  useMemo
+305. useMemo                  useMemo
+306. useMemo                  useMemo
+307. useMemo                  useMemo
+308. useMemo                  useMemo
+309. useContext               useContext
+310. useState                 useState
+311. useEffect                useEffect
+312. useCallback              useCallback
+313. useSyncExternalStore     useSyncExternalStore
+314. useCallback              useCallback
+315. useContext               useContext
+316. useState                 useState
+317. useEffect                useEffect
+318. useCallback              useCallback
+319. useSyncExternalStore     useSyncExternalStore
+320. useCallback              useCallback
+321. useMemo                  useMemo
+322. useMemo                  useMemo
+323. useContext               useContext
+324. useState                 useState
+325. useEffect                useEffect
+326. useCallback              useCallback
+327. useSyncExternalStore     useSyncExternalStore
+328. useCallback              useCallback
+329. useContext               useContext
+330. useState                 useState
+331. useEffect                useEffect
+332. useCallback              useCallback
+333. useSyncExternalStore     useSyncExternalStore
+334. useCallback              useCallback
+335. useContext               useContext
+336. useState                 useState
+337. useEffect                useEffect
+338. useCallback              useCallback
+339. useSyncExternalStore     useSyncExternalStore
+340. useCallback              useCallback
+341. useEffect                useEffect
+342. useMemo                  useMemo
+343. useMemo                  useMemo
+344. useRef                   useRef
+345. useEffect                useEffect
+346. useEffect                useEffect
+347. useEffect                useEffect
+348. useEffect                useEffect
+349. useEffect                useEffect
+350. useEffect                useEffect
+351. useEffect                useEffect
+352. useEffect                useEffect
+353. useEffect                useEffect
+354. useMemo                  useMemo
+355. useMemo                  useMemo
+356. useMemo                  useMemo
+357. useState                 useState
+358. useState                 useState
+359. useState                 useState
+360. useState                 useState
+361. useState                 useState
+362. useState                 useState
+363. useState                 useState
+364. useState                 useState
+365. useState                 useState
+366. useRef                   useRef
+367. useCallback              useCallback
+368. useCallback              useCallback
+369. useCallback              useCallback
+370. useEffect                useEffect
+371. useState                 useState
+372. useState                 useState
+373. useState                 useState
+374. useState                 useState
+375. useState                 useState
+376. useState                 useState
+377. useState                 useState
+378. useState                 useState
+379. useState                 useState
+380. useRef                   useRef
+381. useCallback              useCallback
+382. useCallback              useCallback
+383. useCallback              useCallback
+384. useEffect                useEffect
+385. useState                 useState
+386. useState                 useState
+387. useState                 useState
+388. useState                 useState
+389. useState                 useState
+390. useState                 useState
+391. useState                 useState
+392. useState                 useState
+393. useState                 useState
+394. useRef                   useRef
+395. useCallback              useCallback
+396. useCallback              useCallback
+397. useCallback              useCallback
+398. useEffect                useEffect
+399. useState                 useState
+400. useState                 useState
+401. useState                 useState
+402. useState                 useState
+403. useState                 useState
+404. useState                 useState
+405. useState                 useState
+406. useState                 useState
+407. useState                 useState
+408. useRef                   useRef
+409. useCallback              useCallback
+410. useCallback              useCallback
+411. useCallback              useCallback
+412. useEffect                useEffect
+413. useContext               useContext
+414. useState                 useState
+415. useEffect                useEffect
+416. useCallback              useCallback
+417. useSyncExternalStore     useSyncExternalStore
+418. useCallback              useCallback
+419. useContext               useContext
+420. useState                 useState
+421. useEffect                useEffect
+422. useCallback              useCallback
+423. useSyncExternalStore     useSyncExternalStore
+424. useCallback              useCallback
+425. useContext               useContext
+426. useState                 useState
+427. useEffect                useEffect
+428. useCallback              useCallback
+429. useSyncExternalStore     useSyncExternalStore
+430. useCallback              useCallback
+431. useContext               useContext
+432. useState                 useState
+433. useEffect                useEffect
+434. useCallback              useCallback
+435. useSyncExternalStore     useSyncExternalStore
+436. useCallback              useCallback
+437. useContext               useContext
+438. useState                 useState
+439. useEffect                useEffect
+440. useCallback              useCallback
+441. useSyncExternalStore     useSyncExternalStore
+442. useCallback              useCallback
+443. useContext               useContext
+444. useState                 useState
+445. useEffect                useEffect
+446. useCallback              useCallback
+447. useSyncExternalStore     useSyncExternalStore
+448. useCallback              useCallback
+449. useContext               useContext
+450. useState                 useState
+451. useEffect                useEffect
+452. useCallback              useCallback
+453. useSyncExternalStore     useSyncExternalStore
+454. useCallback              useCallback
+455. useContext               useContext
+456. useState                 useState
+457. useEffect                useEffect
+458. useCallback              useCallback
+459. useSyncExternalStore     useSyncExternalStore
+460. useCallback              useCallback
+461. useContext               useContext
+462. useState                 useState
+463. useEffect                useEffect
+464. useCallback              useCallback
+465. useSyncExternalStore     useSyncExternalStore
+466. useCallback              useCallback
+467. useContext               useContext
+468. useState                 useState
+469. useEffect                useEffect
+470. useCallback              useCallback
+471. useSyncExternalStore     useSyncExternalStore
+472. useCallback              useCallback
+473. useContext               useContext
+474. useContext               useContext
+475. useContext               useContext
+476. useEffect                useEffect
+477. useState                 useState
+478. useCallback              useCallback
+479. useSyncExternalStore     useSyncExternalStore
+480. useEffect                useEffect
+481. useContext               useContext
+482. useContext               useContext
+483. useContext               useContext
+484. useEffect                useEffect
+485. useState                 useState
+486. useCallback              useCallback
+487. useSyncExternalStore     useSyncExternalStore
+488. useEffect                useEffect
+489. useMemo                  useMemo
+490. useMemo                  useMemo
+491. useContext               useEffect
+ @ http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=4da9aa86:5593
+[236026637ms] Error: Should have a queue. You are likely calling Hooks conditionally, which is not allowed. (https://react.dev/link/invalid-hook-call)
+    at updateReducerImpl (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=4da9aa86:5892:17)
+    at updateReducer (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=4da9aa86:5887:16)
+    at Object.useState (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=4da9aa86:18996:20)
+    at exports.useState (http://localhost:5173/node_modules/.vite/deps/chunk-VRUSY5EV.js?v=4da9aa86:959:36)
+    at useMutation (http://localhost:5173/node_modules/.vite/deps/@tanstack_react-query.js?v=4da9aa86:3567:30)
+    at useNovelQualityBatchMutations (http://localhost:5173/src/pages/novels/hooks/useNovelQualityBatchMutations.ts?t=1776830455408:102:38)
+    at NovelEdit (http://localhost:5173/src/pages/novels/NovelEdit.tsx?t=1776830455408:1139:7)
+    at Object.react_stack_bottom_frame (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=4da9aa86:18509:20)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=4da9aa86:5654:24)
+    at updateFunctionComponent (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=4da9aa86:7475:21)
+[236026601ms] [WARNING] %s
+
+%s
+ An error occurred in the <NovelEdit> component. Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://react.dev/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=4da9aa86:6965

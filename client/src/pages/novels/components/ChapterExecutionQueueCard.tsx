@@ -2,11 +2,14 @@ import type { Chapter } from "@ai-novel/shared/types/novel";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { toast } from "@/components/ui/toast";
+import { buildChapterHeading, getChapterPlainBody } from "../chapterExport.utils";
 import {
   chapterStatusLabel,
   chapterSuggestedActionLabel,
   generationStateLabel,
   parseRiskFlags,
+  resolveEffectiveChapterStatus,
   shouldShowGenerationStateBadge,
   type QueueFilterKey,
   type QueueFilterOption,
@@ -34,6 +37,28 @@ export default function ChapterExecutionQueueCard(props: ChapterExecutionQueueCa
     onQueueFilterChange,
     onSelectChapter,
   } = props;
+
+  const handleCopyChapter = async (chapter: Chapter) => {
+    if (!(chapter.content ?? "").trim()) {
+      toast.error("这一章还没有可复制的正文。");
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(getChapterPlainBody(chapter));
+      toast.success(`第${chapter.order}章正文已复制。`);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "复制正文失败。");
+    }
+  };
+
+  const handleCopyChapterTitle = async (chapter: Chapter) => {
+    try {
+      await navigator.clipboard.writeText(buildChapterHeading(chapter));
+      toast.success(`第${chapter.order}章章节名已复制。`);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "复制章节名失败。");
+    }
+  };
 
   return (
     <Card className="self-start overflow-hidden border-border/70 lg:sticky lg:top-4">
@@ -76,67 +101,94 @@ export default function ChapterExecutionQueueCard(props: ChapterExecutionQueueCa
               const isSelected = selectedChapterId === chapter.id;
               const isStreamingTarget = streamingChapterId === chapter.id;
               const isRepairTarget = repairStreamingChapterId === chapter.id;
+              const canCopy = Boolean(chapter.content?.trim());
+              const effectiveStatus = resolveEffectiveChapterStatus(chapter);
 
               return (
-                <button
+                <div
                   key={chapter.id}
-                  type="button"
-                  onClick={() => onSelectChapter(chapter.id)}
-                  className={`w-full rounded-2xl border p-4 text-left transition ${
+                  className={`rounded-2xl border transition ${
                     isSelected
                       ? "border-primary bg-primary/5 shadow-sm"
                       : "border-border/70 bg-background hover:border-primary/30 hover:bg-muted/35"
                   }`}
                 >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0 space-y-2">
-                      <div className="text-sm font-semibold leading-6 text-foreground">
-                        第{chapter.order}章 {chapter.title || "未命名章节"}
+                  <button
+                    type="button"
+                    onClick={() => onSelectChapter(chapter.id)}
+                    className="w-full p-4 text-left"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0 space-y-2">
+                        <div className="text-sm font-semibold leading-6 text-foreground">
+                          {buildChapterHeading(chapter)}
+                        </div>
+                        <div className="line-clamp-2 text-xs leading-6 text-muted-foreground">
+                          {chapter.expectation || chapter.taskSheet || chapter.sceneCards || "这一章还没有明确目标，适合先补章节计划。"}
+                        </div>
                       </div>
-                      <div className="line-clamp-2 text-xs leading-6 text-muted-foreground">
-                        {chapter.expectation || chapter.taskSheet || chapter.sceneCards || "这一章还没有明确目标，适合先补章节计划。"}
+                      <Badge
+                        variant={isSelected ? "default" : "outline"}
+                        className="min-w-[60px] shrink-0 justify-center rounded-full px-2 py-1 text-[11px]"
+                      >
+                        {chapterStatusLabel(effectiveStatus)}
+                      </Badge>
+                    </div>
+                    <div className="mt-3 flex flex-wrap gap-1.5">
+                      {isStreamingTarget ? (
+                        <Badge className="rounded-full px-2 py-1 text-[11px]">写作中</Badge>
+                      ) : null}
+                      {isRepairTarget ? (
+                        <Badge variant="secondary" className="rounded-full px-2 py-1 text-[11px]">
+                          修复中
+                        </Badge>
+                      ) : null}
+                      {shouldShowGenerationStateBadge(chapter.generationState) ? (
+                        <Badge variant="outline" className="rounded-full px-2 py-1 text-[11px]">
+                          {generationStateLabel(chapter.generationState)}
+                        </Badge>
+                      ) : null}
+                      {chapterRisks.slice(0, 2).map((risk) => (
+                        <Badge key={`${chapter.id}-${risk}`} variant="secondary" className="rounded-full px-2 py-1 text-[11px]">
+                          {risk}
+                        </Badge>
+                      ))}
+                    </div>
+
+                    <div className="mt-3 grid grid-cols-2 gap-2 rounded-xl bg-muted/25 p-3 text-[11px] text-muted-foreground">
+                      <div>
+                        <div>下一步</div>
+                        <div className="mt-1 font-medium text-foreground">{chapterSuggestedActionLabel(chapter)}</div>
+                      </div>
+                      <div>
+                        <div>当前字数</div>
+                        <div className="mt-1 font-medium text-foreground">{chapter.content?.length ?? 0}</div>
                       </div>
                     </div>
-                    <Badge
-                      variant={isSelected ? "default" : "outline"}
-                      className="min-w-[60px] shrink-0 justify-center rounded-full px-2 py-1 text-[11px]"
-                    >
-                      {chapterStatusLabel(chapter.chapterStatus)}
-                    </Badge>
-                  </div>
-
-                  <div className="mt-3 flex flex-wrap gap-1.5">
-                    {isStreamingTarget ? (
-                      <Badge className="rounded-full px-2 py-1 text-[11px]">写作中</Badge>
-                    ) : null}
-                    {isRepairTarget ? (
-                      <Badge variant="secondary" className="rounded-full px-2 py-1 text-[11px]">
-                        修复中
-                      </Badge>
-                    ) : null}
-                    {shouldShowGenerationStateBadge(chapter.generationState) ? (
-                      <Badge variant="outline" className="rounded-full px-2 py-1 text-[11px]">
-                        {generationStateLabel(chapter.generationState)}
-                      </Badge>
-                    ) : null}
-                    {chapterRisks.slice(0, 2).map((risk) => (
-                      <Badge key={`${chapter.id}-${risk}`} variant="secondary" className="rounded-full px-2 py-1 text-[11px]">
-                        {risk}
-                      </Badge>
-                    ))}
-                  </div>
-
-                  <div className="mt-3 grid grid-cols-2 gap-2 rounded-xl bg-muted/25 p-3 text-[11px] text-muted-foreground">
-                    <div>
-                      <div>下一步</div>
-                      <div className="mt-1 font-medium text-foreground">{chapterSuggestedActionLabel(chapter)}</div>
+                  </button>
+                  <div className="flex items-center justify-between gap-3 border-t border-border/60 px-4 py-3">
+                    <div className="text-[11px] text-muted-foreground">
+                      {canCopy ? "审核后可直接逐章复制正文。" : "生成正文后，这里就能直接复制。"}
                     </div>
-                    <div>
-                      <div>当前字数</div>
-                      <div className="mt-1 font-medium text-foreground">{chapter.content?.length ?? 0}</div>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => void handleCopyChapterTitle(chapter)}
+                      >
+                        复制章节名
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        disabled={!canCopy}
+                        onClick={() => void handleCopyChapter(chapter)}
+                      >
+                        复制正文
+                      </Button>
                     </div>
                   </div>
-                </button>
+                </div>
               );
             })
           )}

@@ -6,6 +6,7 @@ import type {
   BookAnalysisSectionKey,
   BookAnalysisStatus,
 } from "@ai-novel/shared/types/bookAnalysis";
+import type { NovelContentForm } from "@ai-novel/shared/types/novel";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   archiveBookAnalysis,
@@ -29,8 +30,8 @@ import type { LLMConfigState, SectionDraft } from "../bookAnalysis.types";
 import { buildSectionDraft, createDownload, syncDrafts } from "../bookAnalysis.utils";
 import type { BookAnalysisWorkspace, ExportFormat, NovelOption } from "./bookAnalysisWorkspace.types";
 
-function buildNovelOptions(items: Array<{ id: string; title: string }>): NovelOption[] {
-  return items.map((item) => ({ id: item.id, title: item.title }));
+function buildNovelOptions(items: Array<{ id: string; title: string; contentForm?: NovelContentForm | null }>): NovelOption[] {
+  return items.map((item) => ({ id: item.id, title: item.title, contentForm: item.contentForm ?? "novel" }));
 }
 
 export function useBookAnalysisWorkspace(): BookAnalysisWorkspace {

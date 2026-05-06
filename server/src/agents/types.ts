@@ -97,6 +97,7 @@ export interface StructuredIntent {
   assistantResponse?: AgentAssistantResponse;
   shouldAskFollowup?: boolean;
   missingInfo?: string[];
+  contentForm?: "novel" | "short_story";
   novelTitle?: string;
   worldName?: string;
   description?: string;
@@ -110,6 +111,7 @@ export interface StructuredIntent {
   emotionIntensity?: "low" | "medium" | "high";
   aiFreedom?: "low" | "medium" | "high";
   defaultChapterLength?: number;
+  targetTotalWordCount?: number;
   chapterSelectors: {
     chapterId?: string;
     orders?: number[];

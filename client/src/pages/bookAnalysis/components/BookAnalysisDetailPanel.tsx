@@ -1,10 +1,12 @@
 import type { BookAnalysisDetail, BookAnalysisPublishResult, BookAnalysisSection } from "@ai-novel/shared/types/bookAnalysis";
+import type { NovelContentForm } from "@ai-novel/shared/types/novel";
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { AggregatedEvidenceItem, SectionDraft } from "../bookAnalysis.types";
 import { formatDate, formatStage, formatStatus } from "../bookAnalysis.utils";
+import { decorateNovelTitleWithContentForm } from "@/lib/novelContentForm";
 import BookAnalysisSectionCard from "./BookAnalysisSectionCard";
 
 type ExportFormat = "markdown" | "json";
@@ -12,6 +14,7 @@ type ExportFormat = "markdown" | "json";
 interface NovelOption {
   id: string;
   title: string;
+  contentForm?: NovelContentForm | null;
 }
 
 interface PendingState {
@@ -147,17 +150,17 @@ export default function BookAnalysisDetailPanel(props: BookAnalysisDetailPanelPr
             </div>
           ) : null}
           <div className="rounded-md border p-3 text-sm">
-            <div className="mb-2 font-medium">发布到小说知识库</div>
+            <div className="mb-2 font-medium">发布到作品知识库</div>
             <div className="flex flex-wrap items-center gap-2">
               <select
                 className="h-9 min-w-[220px] rounded-md border bg-background px-2 text-sm"
                 value={selectedNovelId}
                 onChange={(event) => onSelectedNovelChange(event.target.value)}
               >
-                <option value="">选择目标小说</option>
+                <option value="">选择目标作品</option>
                 {novelOptions.map((novel) => (
                   <option key={novel.id} value={novel.id}>
-                    {novel.title}
+                    {decorateNovelTitleWithContentForm(novel)}
                   </option>
                 ))}
               </select>

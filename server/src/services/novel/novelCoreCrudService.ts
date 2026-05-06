@@ -5,8 +5,12 @@ import { AppError } from "../../middleware/errorHandler";
 import { mapNovelAutoDirectorTaskSummary } from "../task/novelWorkflowTaskSummary";
 import { getArchivedTaskIdSet } from "../task/taskArchive";
 import { NovelContinuationService } from "./NovelContinuationService";
+import { sanitizeGeneratedChapterContent } from "./chapterContentSanitizer";
+import { buildContentEditProgress, hasChapterContentText, reconcileChapterProgress } from "./chapterProgressState";
+import { ensureChapterTitle } from "./chapterTitle";
 import { STORY_WORLD_SLICE_SCHEMA_VERSION } from "./storyWorldSlice/storyWorldSlicePersistence";
 import { syncChapterArtifacts } from "./novelChapterArtifacts";
+import { normalizeNovelPlanningScale } from "./novelPlanningScale";
 import {
   ChapterInput,
   CreateNovelInput,
@@ -29,9 +33,11 @@ export class NovelCoreCrudService {
     }
   }
 
-  async listNovels({ page, limit }: PaginationInput) {
+  async listNovels({ page, limit, contentForm }: PaginationInput) {
+    const where = contentForm ? { contentForm } : {};
     const [items, total] = await Promise.all([
       prisma.novel.findMany({
+        where,
         skip: (page - 1) * limit,
         take: limit,
         orderBy: { updatedAt: "desc" },
@@ -45,7 +51,7 @@ export class NovelCoreCrudService {
           _count: { select: { chapters: true, characters: true, plotBeats: true } },
         },
       }),
-      prisma.novel.count(),
+      prisma.novel.count({ where }),
     ]);
 
     const latestAutoDirectorTaskByNovelId = await this.listLatestVisibleAutoDirectorTasksByNovelIds(
@@ -120,6 +126,7 @@ export class NovelCoreCrudService {
     );
     const commercialTagsJson = serializeCommercialTagsJson(input.commercialTags);
     this.validateStoryModeSelection(input.primaryStoryModeId, input.secondaryStoryModeId);
+    const planningScale = normalizeNovelPlanningScale(input);
 
     await this.novelContinuationService.validateWritingModeConfig({
       writingMode,
@@ -130,6 +137,7 @@ export class NovelCoreCrudService {
 
     const created = await prisma.novel.create({
       data: {
+        contentForm: planningScale.contentForm,
         title: input.title,
         description: input.description,
         targetAudience: normalizeOptionalTextForCreate(input.targetAudience),
@@ -148,8 +156,9 @@ export class NovelCoreCrudService {
         styleTone: input.styleTone,
         emotionIntensity: input.emotionIntensity,
         aiFreedom: input.aiFreedom,
-        defaultChapterLength: input.defaultChapterLength,
-        estimatedChapterCount: input.estimatedChapterCount,
+        defaultChapterLength: planningScale.defaultChapterLength,
+        estimatedChapterCount: planningScale.estimatedChapterCount,
+        targetTotalWordCount: planningScale.targetTotalWordCount,
         projectStatus: input.projectStatus,
         storylineStatus: input.storylineStatus,
         outlineStatus: input.outlineStatus,
@@ -174,6 +183,7 @@ export class NovelCoreCrudService {
   }
 
   async getNovelById(id: string) {
+    await this.reconcileNovelChapterProgress(id);
     const row = await prisma.novel.findUnique({
       where: { id },
       include: {
@@ -207,6 +217,10 @@ export class NovelCoreCrudService {
         continuationBookAnalysisSections: true,
         primaryStoryModeId: true,
         secondaryStoryModeId: true,
+        contentForm: true,
+        defaultChapterLength: true,
+        estimatedChapterCount: true,
+        targetTotalWordCount: true,
       },
     });
     if (!existing) {
@@ -246,6 +260,10 @@ export class NovelCoreCrudService {
 
     const {
       continuationBookAnalysisSections: _ignoreSectionPatch,
+      contentForm: _ignoreContentForm,
+      defaultChapterLength: _ignoreDefaultChapterLength,
+      estimatedChapterCount: _ignoreEstimatedChapterCount,
+      targetTotalWordCount: _ignoreTargetTotalWordCount,
       targetAudience: _ignoreTargetAudience,
       bookSellingPoint: _ignoreBookSellingPoint,
       competingFeel: _ignoreCompetingFeel,
@@ -260,11 +278,16 @@ export class NovelCoreCrudService {
       : undefined;
     const nextWorldId = input.worldId !== undefined ? input.worldId : existing.worldId;
     const shouldResetWorldSlice = nextWorldId !== existing.worldId;
+    const planningScale = normalizeNovelPlanningScale(input, existing);
 
     const updated = await prisma.novel.update({
       where: { id },
       data: {
         ...restInput,
+        contentForm: planningScale.contentForm,
+        defaultChapterLength: planningScale.defaultChapterLength,
+        estimatedChapterCount: planningScale.estimatedChapterCount,
+        targetTotalWordCount: planningScale.targetTotalWordCount,
         sourceNovelId: nextWritingMode === "continuation" ? nextSourceNovelId : null,
         sourceKnowledgeDocumentId: nextWritingMode === "continuation" ? nextSourceKnowledgeDocumentId : null,
         continuationBookAnalysisId: normalizedNextContinuationBookAnalysisId,
@@ -309,6 +332,7 @@ export class NovelCoreCrudService {
   }
 
   async listChapters(novelId: string) {
+    await this.reconcileNovelChapterProgress(novelId);
     return prisma.chapter.findMany({
       where: { novelId },
       orderBy: { order: "asc" },
@@ -316,15 +340,125 @@ export class NovelCoreCrudService {
     });
   }
 
+  async sanitizeNovelTypography(novelId: string) {
+    const novel = await prisma.novel.findUnique({
+      where: { id: novelId },
+      select: {
+        id: true,
+        outline: true,
+        structuredOutline: true,
+        chapters: {
+          orderBy: { order: "asc" },
+          select: {
+            id: true,
+            title: true,
+            order: true,
+            content: true,
+          },
+        },
+      },
+    });
+    if (!novel) {
+      throw new Error("小说不存在");
+    }
+
+    const contentChapters = novel.chapters.filter((chapter) => typeof chapter.content === "string" && chapter.content.trim().length > 0);
+    const changes = contentChapters
+      .map((chapter) => {
+        const originalContent = chapter.content ?? "";
+        const sanitizedContent = sanitizeGeneratedChapterContent(originalContent);
+        return {
+          id: chapter.id,
+          title: chapter.title,
+          order: chapter.order,
+          originalContent,
+          sanitizedContent,
+        };
+      })
+      .filter((chapter) => chapter.sanitizedContent !== chapter.originalContent);
+
+    if (changes.length === 0) {
+      return {
+        totalChapterCount: novel.chapters.length,
+        contentChapterCount: contentChapters.length,
+        changedCount: 0,
+        unchangedCount: contentChapters.length,
+        snapshotId: null,
+        snapshotLabel: null,
+        changedChapters: [],
+      };
+    }
+
+    const snapshotLabel = `before-typography-sanitize-${Date.now()}`;
+    const snapshot = await prisma.novelSnapshot.create({
+      data: {
+        novelId,
+        triggerType: "manual",
+        label: snapshotLabel,
+        snapshotData: JSON.stringify({
+          outline: novel.outline,
+          structuredOutline: novel.structuredOutline,
+          chapters: novel.chapters.map((chapter) => ({
+            id: chapter.id,
+            title: chapter.title,
+            order: chapter.order,
+            content: chapter.content,
+          })),
+        }),
+      },
+    });
+
+    for (const chapter of changes) {
+      await prisma.chapter.update({
+        where: { id: chapter.id },
+        data: {
+          content: chapter.sanitizedContent,
+        },
+      });
+      queueRagUpsert("chapter", chapter.id);
+    }
+    queueRagUpsert("novel", novelId);
+
+    return {
+      totalChapterCount: novel.chapters.length,
+      contentChapterCount: contentChapters.length,
+      changedCount: changes.length,
+      unchangedCount: contentChapters.length - changes.length,
+      snapshotId: snapshot.id,
+      snapshotLabel,
+      changedChapters: changes.map((chapter) => ({
+        id: chapter.id,
+        title: chapter.title,
+        order: chapter.order,
+      })),
+    };
+  }
+
   async createChapter(novelId: string, input: ChapterInput) {
+    const sanitizedContent = sanitizeGeneratedChapterContent(input.content ?? "");
+    const chapterTitle = ensureChapterTitle({
+      order: input.order,
+      title: input.title,
+      content: sanitizedContent,
+      expectation: input.expectation,
+    });
+    const draftProgress = hasChapterContentText(sanitizedContent)
+      ? buildContentEditProgress({
+        content: sanitizedContent,
+        chapterStatus: input.chapterStatus ?? null,
+      })
+      : {
+        generationState: "planned" as const,
+        chapterStatus: input.chapterStatus ?? "unplanned",
+      };
     const chapter = await prisma.chapter.create({
       data: {
         novelId,
-        title: input.title,
+        title: chapterTitle,
         order: input.order,
-        content: input.content ?? "",
+        content: sanitizedContent,
         expectation: input.expectation,
-        chapterStatus: input.chapterStatus,
+        chapterStatus: draftProgress.chapterStatus,
         targetWordCount: input.targetWordCount ?? null,
         conflictLevel: input.conflictLevel ?? null,
         revealLevel: input.revealLevel ?? null,
@@ -337,31 +471,50 @@ export class NovelCoreCrudService {
         characterScore: input.characterScore ?? null,
         pacingScore: input.pacingScore ?? null,
         riskFlags: input.riskFlags ?? null,
-        generationState: "planned",
+        generationState: draftProgress.generationState,
       },
     });
 
     if (chapter.content) {
-      await syncChapterArtifacts(novelId, chapter.id, chapter.content);
+      await syncChapterArtifacts(novelId, chapter.id, sanitizedContent);
     }
     queueRagUpsert("chapter", chapter.id);
     return chapter;
   }
 
   async updateChapter(novelId: string, chapterId: string, input: Partial<ChapterInput>) {
-    const exists = await prisma.chapter.findFirst({ where: { id: chapterId, novelId }, select: { id: true } });
+    const exists = await prisma.chapter.findFirst({
+      where: { id: chapterId, novelId },
+      select: { id: true, title: true, order: true, content: true, generationState: true, chapterStatus: true },
+    });
     if (!exists) {
       throw new Error("章节不存在");
     }
+    const sanitizedContent = typeof input.content === "string"
+      ? sanitizeGeneratedChapterContent(input.content)
+      : undefined;
+    const nextOrder = input.order ?? exists.order;
+    const nextTitle = ensureChapterTitle({
+      order: nextOrder,
+      title: input.title ?? exists.title,
+      content: sanitizedContent ?? exists.content,
+      expectation: input.expectation,
+    });
 
+    const progressFromContentEdit = typeof sanitizedContent === "string"
+      ? buildContentEditProgress({
+        content: sanitizedContent,
+        chapterStatus: input.chapterStatus ?? null,
+      })
+      : null;
     const chapter = await prisma.chapter.update({
       where: { id: chapterId },
       data: {
-        title: input.title,
+        title: nextTitle,
         order: input.order,
-        content: input.content,
+        content: sanitizedContent,
         expectation: input.expectation,
-        chapterStatus: input.chapterStatus,
+        chapterStatus: progressFromContentEdit?.chapterStatus ?? input.chapterStatus,
         targetWordCount: input.targetWordCount,
         conflictLevel: input.conflictLevel,
         revealLevel: input.revealLevel,
@@ -374,14 +527,56 @@ export class NovelCoreCrudService {
         characterScore: input.characterScore,
         pacingScore: input.pacingScore,
         riskFlags: input.riskFlags,
+        generationState: progressFromContentEdit?.generationState,
       },
     });
 
-    if (typeof input.content === "string") {
-      await syncChapterArtifacts(novelId, chapterId, input.content);
+    if (typeof sanitizedContent === "string") {
+      await syncChapterArtifacts(novelId, chapterId, sanitizedContent);
     }
     queueRagUpsert("chapter", chapterId);
     return chapter;
+  }
+
+  private async reconcileNovelChapterProgress(novelId: string): Promise<void> {
+    const rows = await prisma.chapter.findMany({
+      where: { novelId },
+      select: {
+        id: true,
+        content: true,
+        generationState: true,
+        chapterStatus: true,
+      },
+    });
+    const updates = rows
+      .map((row) => ({
+        id: row.id,
+        next: reconcileChapterProgress({
+          content: row.content,
+          generationState: row.generationState,
+          chapterStatus: row.chapterStatus,
+        }),
+        current: {
+          generationState: row.generationState,
+          chapterStatus: row.chapterStatus ?? "unplanned",
+        },
+      }))
+      .filter((item) => (
+        item.current.generationState !== item.next.generationState
+        || item.current.chapterStatus !== item.next.chapterStatus
+      ));
+    if (updates.length === 0) {
+      return;
+    }
+    await prisma.$transaction(
+      updates.map((item) => prisma.chapter.update({
+        where: { id: item.id },
+        data: {
+          generationState: item.next.generationState,
+          chapterStatus: item.next.chapterStatus,
+        },
+      })),
+    );
   }
 
   async deleteChapter(novelId: string, chapterId: string) {

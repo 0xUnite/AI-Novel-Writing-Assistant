@@ -53,7 +53,8 @@ const INSPIRATION_MAX_EXCERPT_CHARS = 260;
 const INSPIRATION_MAX_DIGEST_CHARS = 18_000;
 
 function cleanJsonText(source: string): string {
-  return source.replace(/```json|```/gi, "").trim();
+  const withoutThink = source.replace(/<think>[\s\S]*?<\/think>/gi, "");
+  return withoutThink.replace(/```json|```/gi, "").trim();
 }
 
 function extractJSONObject(source: string): string {

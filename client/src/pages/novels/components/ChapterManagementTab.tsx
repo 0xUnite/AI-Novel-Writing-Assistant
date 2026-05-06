@@ -92,6 +92,14 @@ export default function ChapterManagementTab(props: ChapterTabViewProps) {
     () => chapters.filter((chapter) => chapterMatchesQueueFilter(chapter, queueFilter)),
     [chapters, queueFilter],
   );
+  const nextChapter = useMemo(() => {
+    if (!selectedChapter) {
+      return undefined;
+    }
+    return chapters
+      .filter((chapter) => chapter.order > selectedChapter.order)
+      .sort((a, b) => a.order - b.order)[0];
+  }, [chapters, selectedChapter]);
 
   const queueFilters = useMemo(
     () => ([
@@ -157,8 +165,10 @@ export default function ChapterManagementTab(props: ChapterTabViewProps) {
             <ChapterExecutionResultPanel
               novelId={novelId}
               selectedChapter={selectedChapter}
+              nextChapter={nextChapter}
               assetTab={assetTab}
               onAssetTabChange={setAssetTab}
+              onSelectChapter={onSelectChapter}
               chapterPlan={chapterPlan}
               latestStateSnapshot={latestStateSnapshot}
               chapterAuditReports={chapterAuditReports}

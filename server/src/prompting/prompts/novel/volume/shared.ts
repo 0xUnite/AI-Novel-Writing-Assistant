@@ -33,6 +33,8 @@ export interface VolumeSkeletonPromptInput {
   strategyPlan: VolumeStrategyPlan;
   guidance?: string;
   chapterBudget: number;
+  targetVolumeCount?: number;
+  chapterBudgets?: number[];
 }
 
 export interface VolumeBeatSheetPromptInput {
@@ -41,6 +43,8 @@ export interface VolumeBeatSheetPromptInput {
   storyMacroPlan: StoryMacroPlan | null;
   strategyPlan: VolumeStrategyPlan | null;
   targetVolume: VolumePlan;
+  targetChapterCount: number;
+  targetChapterStartOrder: number;
   guidance?: string;
 }
 
@@ -115,6 +119,8 @@ export function buildCommonNovelContext(novel: VolumeGenerationNovel): string {
     `target audience: ${compactText(novel.targetAudience)}`,
     `selling point: ${compactText(novel.bookSellingPoint)}`,
     `first 30 chapter promise: ${compactText(novel.first30ChapterPromise)}`,
+    `default chapter length: ${novel.defaultChapterLength ?? "unset"}`,
+    `estimated chapter budget: ${novel.estimatedChapterCount ?? "rolling/unset"}`,
     `narrative pov: ${compactText(novel.narrativePov, "unset")}`,
     `pace preference: ${compactText(novel.pacePreference, "unset")}`,
     `emotion intensity: ${compactText(novel.emotionIntensity, "unset")}`,
@@ -252,6 +258,7 @@ export function buildBeatSheetContext(beatSheet: VolumeBeatSheet | null | undefi
       `summary: ${beat.summary}`,
       `chapter span hint: ${beat.chapterSpanHint}`,
       `must deliver: ${beat.mustDeliver.join(" | ")}`,
+      `chapter_meta hints: event_weight=${beat.eventWeight ?? 3} | high_stakes_dialogue=${beat.highStakesDialogue ?? false} | scheme_beat=${beat.schemeBeat ?? false} | kind_of_hook=${beat.kindOfHook ?? "suspense_question"}`,
     ].join("\n"))
     .join("\n\n");
 }

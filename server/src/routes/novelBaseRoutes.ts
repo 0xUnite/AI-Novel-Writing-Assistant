@@ -9,6 +9,7 @@ import { NovelService } from "../services/novel/NovelService";
 const paginationSchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
   limit: z.coerce.number().int().min(1).max(NOVEL_LIST_PAGE_LIMIT_MAX).default(NOVEL_LIST_PAGE_LIMIT_DEFAULT),
+  contentForm: z.enum(["novel", "short_story"]).optional(),
 });
 
 const bookAnalysisSectionKeySchema = z.enum([
@@ -27,6 +28,7 @@ const idParamsSchema = z.object({
 });
 
 const createNovelSchema = z.object({
+  contentForm: z.enum(["novel", "short_story"]).optional(),
   title: z.string().trim().min(1, "标题不能为空。"),
   description: z.string().trim().optional(),
   targetAudience: z.string().trim().optional(),
@@ -50,7 +52,8 @@ const createNovelSchema = z.object({
   emotionIntensity: z.enum(["low", "medium", "high"]).optional(),
   aiFreedom: z.enum(["low", "medium", "high"]).optional(),
   defaultChapterLength: z.number().int().min(500).max(10000).optional(),
-  estimatedChapterCount: z.number().int().min(1).max(500).optional(),
+  estimatedChapterCount: z.number().int().min(0).max(500).optional(),
+  targetTotalWordCount: z.number().int().min(0).max(2_000_000).optional(),
   projectStatus: z.enum(["not_started", "in_progress", "completed", "rework", "blocked"]).optional(),
   storylineStatus: z.enum(["not_started", "in_progress", "completed", "rework", "blocked"]).optional(),
   outlineStatus: z.enum(["not_started", "in_progress", "completed", "rework", "blocked"]).optional(),
@@ -58,6 +61,7 @@ const createNovelSchema = z.object({
 });
 
 const updateNovelSchema = z.object({
+  contentForm: z.enum(["novel", "short_story"]).optional(),
   title: z.string().trim().min(1).optional(),
   description: z.string().trim().optional(),
   targetAudience: z.string().trim().nullable().optional(),
@@ -84,7 +88,8 @@ const updateNovelSchema = z.object({
   emotionIntensity: z.enum(["low", "medium", "high"]).nullable().optional(),
   aiFreedom: z.enum(["low", "medium", "high"]).nullable().optional(),
   defaultChapterLength: z.number().int().min(500).max(10000).nullable().optional(),
-  estimatedChapterCount: z.number().int().min(1).max(500).nullable().optional(),
+  estimatedChapterCount: z.number().int().min(0).max(500).nullable().optional(),
+  targetTotalWordCount: z.number().int().min(0).max(2_000_000).nullable().optional(),
   projectStatus: z.enum(["not_started", "in_progress", "completed", "rework", "blocked"]).nullable().optional(),
   storylineStatus: z.enum(["not_started", "in_progress", "completed", "rework", "blocked"]).nullable().optional(),
   outlineStatus: z.enum(["not_started", "in_progress", "completed", "rework", "blocked"]).nullable().optional(),
@@ -107,7 +112,11 @@ export function registerNovelBaseRoutes(input: RegisterNovelBaseRoutesInput): vo
   router.get("/", validate({ query: paginationSchema }), async (req, res, next) => {
     try {
       const query = paginationSchema.parse(req.query);
-      const data = await novelService.listNovels({ page: query.page, limit: query.limit });
+      const data = await novelService.listNovels({
+        page: query.page,
+        limit: query.limit,
+        contentForm: query.contentForm,
+      });
       const response: ApiResponse<typeof data> = {
         success: true,
         data,
@@ -204,6 +213,20 @@ export function registerNovelBaseRoutes(input: RegisterNovelBaseRoutesInput): vo
       }
     },
   );
+
+  router.post("/:id/sanitize-typography", validate({ params: idParamsSchema }), async (req, res, next) => {
+    try {
+      const { id } = req.params as z.infer<typeof idParamsSchema>;
+      const data = await novelService.sanitizeNovelTypography(id);
+      res.status(200).json({
+        success: true,
+        data,
+        message: data.changedCount > 0 ? "已完成旧章节标点清洗。" : "当前小说没有需要清洗的旧章节。",
+      } satisfies ApiResponse<typeof data>);
+    } catch (error) {
+      next(error);
+    }
+  });
 
   router.delete("/:id", validate({ params: idParamsSchema }), async (req, res, next) => {
     try {

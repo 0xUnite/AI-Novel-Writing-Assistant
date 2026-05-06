@@ -66,10 +66,14 @@ export function registerNovelProductionRoutes(input: RegisterNovelProductionRout
       try {
         const { id } = req.params as z.infer<typeof idParamsSchema>;
         const data = await novelService.startPipelineJob(id, req.body as any);
+        const reusedExisting = "reusedExisting" in data && data.reusedExisting === true;
+        const message = reusedExisting
+          ? "已有进行中的批量任务，已切回当前任务继续执行。"
+          : "Pipeline job created.";
         res.status(202).json({
           success: true,
           data,
-          message: "Pipeline job created.",
+          message,
         } satisfies ApiResponse<typeof data>);
       } catch (error) {
         if (forwardBusinessError(error, next)) {

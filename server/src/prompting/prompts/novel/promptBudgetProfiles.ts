@@ -16,7 +16,7 @@ export const NOVEL_PROMPT_BUDGETS = {
   volumeRebalance: 1600,
   chapterWriter: 1800,
   chapterReview: 2600,
-  chapterRepair: 1600,
+  chapterRepair: 3200,
   chapterSummary: 1000,
 } as const;
 
@@ -25,6 +25,7 @@ export const RUNTIME_PROMPT_BUDGET_PROFILES: PromptBudgetProfile[] = [
     promptId: "novel.chapter.writer",
     maxTokensBudget: NOVEL_PROMPT_BUDGETS.chapterWriter,
     preferredGroups: [
+      "chapter_quality_constraints",
       "chapter_mission",
       "volume_window",
       "participant_subset",
@@ -44,6 +45,7 @@ export const RUNTIME_PROMPT_BUDGET_PROFILES: PromptBudgetProfile[] = [
     promptId: "audit.chapter.full",
     maxTokensBudget: NOVEL_PROMPT_BUDGETS.chapterReview,
     preferredGroups: [
+      "chapter_quality_constraints",
       "chapter_mission",
       "structure_obligations",
       "world_rules",
@@ -60,6 +62,7 @@ export const RUNTIME_PROMPT_BUDGET_PROFILES: PromptBudgetProfile[] = [
     maxTokensBudget: NOVEL_PROMPT_BUDGETS.chapterRepair,
     preferredGroups: [
       "repair_issues",
+      "chapter_quality_constraints",
       "chapter_mission",
       "repair_boundaries",
       "world_rules",

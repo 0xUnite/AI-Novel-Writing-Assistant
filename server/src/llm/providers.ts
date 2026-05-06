@@ -28,6 +28,23 @@ export const PROVIDERS: Record<BuiltinLLMProvider, ProviderConfig> = {
     envModelKey: "DEEPSEEK_MODEL",
     maxTokens: 8192,
   },
+  minimax: {
+    name: "MiniMax",
+    baseURL: "https://api.minimaxi.com/v1",
+    defaultModel: "MiniMax-M2.7",
+    models: [
+      "MiniMax-M2.7",
+      "MiniMax-M2.7-highspeed",
+      "MiniMax-M2.5",
+      "MiniMax-M2.5-highspeed",
+      "MiniMax-M2.1",
+      "MiniMax-M2.1-highspeed",
+      "MiniMax-M2",
+    ],
+    envKey: "MINIMAX_API_KEY",
+    envBaseURLKey: "MINIMAX_BASE_URL",
+    envModelKey: "MINIMAX_MODEL",
+  },
   siliconflow: {
     name: "SiliconFlow",
     baseURL: "https://api.siliconflow.cn/v1",

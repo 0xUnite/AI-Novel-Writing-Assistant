@@ -4,6 +4,12 @@ import { novelEventBus } from "../../../events";
 import { ragServices } from "../../rag";
 import { stateService } from "../../state/StateService";
 import { briefSummary, extractFacts } from "../novelP0Utils";
+import { sanitizeGeneratedChapterContent } from "../chapterContentSanitizer";
+import { buildDraftChapterProgress } from "../chapterProgressState";
+import {
+  buildCharacterStateDigest,
+  buildKeyEventDigest,
+} from "../chapterMemorySanitizer";
 
 export class ChapterArtifactSyncService {
   async saveDraftAndArtifacts(
@@ -12,14 +18,17 @@ export class ChapterArtifactSyncService {
     content: string,
     generationState: "drafted" | "repaired",
   ): Promise<void> {
+    const sanitizedContent = sanitizeGeneratedChapterContent(content);
+    const progress = buildDraftChapterProgress(generationState);
     await prisma.chapter.update({
       where: { id: chapterId },
       data: {
-        content,
-        generationState,
+        content: sanitizedContent,
+        generationState: progress.generationState,
+        chapterStatus: progress.chapterStatus,
       },
     });
-    await this.syncChapterArtifacts(novelId, chapterId, content);
+    await this.syncChapterArtifacts(novelId, chapterId, sanitizedContent);
   }
 
   private async syncChapterArtifacts(novelId: string, chapterId: string, content: string): Promise<void> {
@@ -31,15 +40,15 @@ export class ChapterArtifactSyncService {
         where: { chapterId },
         update: {
           summary,
-          keyEvents: facts.map((item) => item.content).slice(0, 3).join(""),
-          characterStates: facts.filter((item) => item.category === "character").map((item) => item.content).slice(0, 3).join(""),
+          keyEvents: buildKeyEventDigest(facts) || null,
+          characterStates: buildCharacterStateDigest(facts) || null,
         },
         create: {
           novelId,
           chapterId,
           summary,
-          keyEvents: facts.map((item) => item.content).slice(0, 3).join(""),
-          characterStates: facts.filter((item) => item.category === "character").map((item) => item.content).slice(0, 3).join(""),
+          keyEvents: buildKeyEventDigest(facts) || null,
+          characterStates: buildCharacterStateDigest(facts) || null,
         },
       });
 
@@ -58,7 +67,7 @@ export class ChapterArtifactSyncService {
     });
 
     await this.syncCharacterTimelineForChapter(novelId, chapterId, content);
-    await stateService.syncChapterState(novelId, chapterId, content).catch(() => null);
+    void stateService.syncChapterState(novelId, chapterId, content).catch(() => null);
     this.queueRagUpsert("chapter", chapterId);
     this.queueRagUpsert("chapter_summary", chapterId);
     this.queueRagUpsert("novel", novelId);
@@ -110,11 +119,13 @@ export class ChapterArtifactSyncService {
     }> = [];
 
     for (const character of characters) {
-      const lines = content
+      const characterLines = content
         .split(/[\n。！？!?]/)
         .map((item) => item.trim())
-        .filter((item) => item.length >= 8 && item.includes(character.name))
-        .slice(0, 3);
+        .filter((item) => item.length >= 8 && item.includes(character.name));
+      const lines = characterLines.length <= 3
+        ? characterLines
+        : Array.from(new Set([...characterLines.slice(0, 1), ...characterLines.slice(-2)]));
       for (const line of lines) {
         events.push({
           novelId,

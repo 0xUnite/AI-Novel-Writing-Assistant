@@ -19,6 +19,7 @@ import type { ChapterRuntimeRequestInput } from "./chapterRuntimeSchema";
 import {
   buildBibleText,
   buildCharactersContextText,
+  buildChapterBridgeContext,
   buildDecisionsBlock,
   buildFactText,
   buildOpenConflictBlock,
@@ -41,12 +42,52 @@ import {
   buildVolumeWindowContext,
   getRuntimePromptBudgetProfiles,
 } from "../../../prompting/prompts/novel/chapterLayeredContext";
+import { parseChapterMetaFromJson } from "../chapterMeta";
 
 const OPENING_COMPARE_LIMIT = 3;
 const OPENING_SLICE_LENGTH = 220;
+const OPEN_AUDIT_ISSUE_SKEW_TOLERANCE_MS = 10_000;
 
 function extractOpening(content: string, maxLength = OPENING_SLICE_LENGTH): string {
   return content.replace(/\s+/g, " ").trim().slice(0, maxLength);
+}
+
+function buildRagFactsForWriter(ragText: string): string[] {
+  const normalized = ragText.trim();
+  if (!normalized) {
+    return [];
+  }
+  return normalized
+    .split(/\n\n(?=\[RAG-\d+\])/g)
+    .map((item) => item.replace(/\s+/g, " ").trim())
+    .filter(Boolean)
+    .slice(0, 4);
+}
+
+function filterRelevantOpenAuditIssues<
+  T extends {
+    auditType: string;
+    report: {
+      createdAt: Date;
+    };
+  },
+>(chapterUpdatedAt: Date, issues: T[]): T[] {
+  const latestReportCreatedAtByAuditType = new Map<string, number>();
+  for (const issue of issues) {
+    const createdAtMs = issue.report.createdAt.getTime();
+    const previous = latestReportCreatedAtByAuditType.get(issue.auditType) ?? 0;
+    if (createdAtMs > previous) {
+      latestReportCreatedAtByAuditType.set(issue.auditType, createdAtMs);
+    }
+  }
+
+  return issues.filter((issue) => {
+    const createdAtMs = issue.report.createdAt.getTime();
+    if (createdAtMs < chapterUpdatedAt.getTime() - OPEN_AUDIT_ISSUE_SKEW_TOLERANCE_MS) {
+      return false;
+    }
+    return createdAtMs === latestReportCreatedAtByAuditType.get(issue.auditType);
+  });
 }
 
 function buildWorldContextFromNovel(
@@ -92,6 +133,7 @@ function mapPlan(plan: Awaited<ReturnType<typeof plannerService.getChapterPlan>>
     sourceIssueIds: parseJsonStringArray(plan.sourceIssueIdsJson),
     replannedFromPlanId: plan.replannedFromPlanId ?? null,
     hookTarget: plan.hookTarget ?? null,
+    chapterMeta: parseChapterMetaFromJson(plan.rawPlanJson),
     rawPlanJson: plan.rawPlanJson ?? null,
     scenes: plan.scenes.map((scene: (typeof plan.scenes)[number]) => ({
       id: scene.id,
@@ -118,6 +160,7 @@ function mapStateSnapshot(
     novelId: snapshot.novelId,
     sourceChapterId: snapshot.sourceChapterId ?? null,
     summary: snapshot.summary ?? null,
+    chapterMeta: parseChapterMetaFromJson(snapshot.rawStateJson),
     rawStateJson: snapshot.rawStateJson ?? null,
     characterStates: snapshot.characterStates.map((item) => ({
       characterId: item.characterId,
@@ -236,7 +279,7 @@ export class GenerationContextAssembler {
     request: ChapterRuntimeRequestInput,
   ): Promise<{
     novel: { id: string; title: string };
-    chapter: { id: string; title: string; order: number; content: string | null; expectation: string | null; targetWordCount: number | null };
+    chapter: { id: string; title: string; order: number; content: string | null; expectation: string | null; targetWordCount: number | null; taskSheet: string | null };
     contextPackage: GenerationContextPackage;
   }> {
     const [novel, chapter] = await Promise.all([
@@ -293,6 +336,8 @@ export class GenerationContextAssembler {
           content: true,
           expectation: true,
           targetWordCount: true,
+          taskSheet: true,
+          updatedAt: true,
         },
       }),
     ]);
@@ -347,7 +392,7 @@ export class GenerationContextAssembler {
         },
         orderBy: { order: "desc" },
         take: 1,
-        select: { order: true, title: true, content: true },
+        select: { id: true, order: true, title: true, content: true },
       }),
       prisma.creativeDecision.findMany({
         where: {
@@ -364,6 +409,13 @@ export class GenerationContextAssembler {
             is: {
               novelId,
               chapterId,
+            },
+          },
+        },
+        include: {
+          report: {
+            select: {
+              createdAt: true,
             },
           },
         },
@@ -385,6 +437,11 @@ export class GenerationContextAssembler {
     ]);
 
     const previousChaptersSummary = buildPreviousChaptersSummary(request.previousChaptersSummary, summaries);
+    const previousChapterSummary = summaries.find((item) => item.chapter.order === chapter.order - 1)?.summary ?? null;
+    const chapterBridge = buildChapterBridgeContext({
+      previousChapter: recentChapters[0] ?? null,
+      previousSummary: previousChapterSummary,
+    });
     const mappedOpenConflicts = openConflicts.map((item) => mapOpenConflict(item));
     const storyMacroPlan = novel.storyMacroPlan ? mapRowToPlan(novel.storyMacroPlan) : null;
     const volumeWindow = buildVolumeWindowContext(findVolumeWindowSeed(
@@ -434,7 +491,7 @@ export class GenerationContextAssembler {
       createdAt: item.createdAt.toISOString(),
       updatedAt: item.updatedAt.toISOString(),
     }));
-    const mappedOpenAuditIssues = openAuditIssues.map((item) => ({
+    const mappedOpenAuditIssues = filterRelevantOpenAuditIssues(chapter.updatedAt, openAuditIssues).map((item) => ({
       id: item.id,
       reportId: item.reportId,
       auditType: item.auditType as GenerationContextPackage["openAuditIssues"][number]["auditType"],
@@ -489,6 +546,8 @@ export class GenerationContextAssembler {
     const ragQuery = getRagQueryForChapter(chapter.order, novel.title, novel.structuredOutline ?? null);
     let ragText = "";
     try {
+      // Hybrid RAG prepends curated docs/worldbuilding bible chunks before
+      // looser DB/vector hits, so canonical world rules outrank incidental context.
       ragText = await ragServices.hybridRetrievalService.buildContextBlock(ragQuery, {
         novelId,
         currentChapterOrder: chapter.order,
@@ -505,6 +564,7 @@ export class GenerationContextAssembler {
       secondary: novel.secondaryStoryMode ? normalizeStoryModeOutput(novel.secondaryStoryMode) : null,
     });
     const openingHint = await this.buildOpeningConstraintHint(novelId, chapter.order);
+    const chapterTargetWordCount = chapter.targetWordCount ?? novel.defaultChapterLength ?? null;
     const baseContextPackage: GenerationContextPackage = {
       chapter: {
         id: chapter.id,
@@ -512,7 +572,8 @@ export class GenerationContextAssembler {
         order: chapter.order,
         content: chapter.content ?? null,
         expectation: chapter.expectation ?? null,
-        targetWordCount: chapter.targetWordCount ?? null,
+        targetWordCount: chapterTargetWordCount,
+        taskSheet: chapter.taskSheet ?? null,
         supportingContextText: "",
       },
       plan: mappedPlan,
@@ -530,6 +591,7 @@ export class GenerationContextAssembler {
       bookContract,
       macroConstraints,
       volumeWindow,
+      chapterBridge,
       chapterMission: null,
       chapterWriteContext: null,
       chapterReviewContext: null,
@@ -542,6 +604,13 @@ export class GenerationContextAssembler {
       volumeWindow,
       contextPackage: baseContextPackage,
     });
+    chapterWriteContext.ragFacts = buildRagFactsForWriter(ragText);
+    if (stateContextBlock.trim()) {
+      chapterWriteContext.localStateSummary = [
+        chapterWriteContext.localStateSummary,
+        stateContextBlock,
+      ].filter(Boolean).join("\n\n");
+    }
     const chapterReviewContext = buildChapterReviewContext(chapterWriteContext, baseContextPackage);
     const chapterRepairContext = buildChapterRepairContextFromPackage({
       ...baseContextPackage,
@@ -557,7 +626,8 @@ export class GenerationContextAssembler {
         order: chapter.order,
         content: chapter.content ?? null,
         expectation: chapter.expectation ?? null,
-        targetWordCount: chapter.targetWordCount ?? null,
+        targetWordCount: chapterTargetWordCount,
+        taskSheet: chapter.taskSheet ?? null,
         supportingContextText: buildSupportingContextText({
           worldBlock,
           storyModeBlock,
@@ -591,6 +661,7 @@ export class GenerationContextAssembler {
       bookContract,
       macroConstraints,
       volumeWindow,
+      chapterBridge,
       chapterMission: chapterWriteContext.chapterMission,
       chapterWriteContext,
       chapterReviewContext,
@@ -606,7 +677,8 @@ export class GenerationContextAssembler {
         order: chapter.order,
         content: chapter.content ?? null,
         expectation: chapter.expectation ?? null,
-        targetWordCount: chapter.targetWordCount ?? null,
+        targetWordCount: chapterTargetWordCount,
+        taskSheet: chapter.taskSheet ?? null,
       },
       contextPackage,
     };

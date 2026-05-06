@@ -23,8 +23,10 @@ import { NovelCoreCrudService } from "./novelCoreCrudService";
 import { NovelCoreGenerationService } from "./novelCoreGenerationService";
 import { NovelCorePipelineService } from "./novelCorePipelineService";
 import { NovelCoreReviewService } from "./novelCoreReviewService";
+import { NovelCoreReviewBatchService } from "./novelCoreReviewBatchService";
 import { NovelCoreSnapshotService } from "./novelCoreSnapshotService";
 import { NovelCoreStorylineService } from "./novelCoreStorylineService";
+import { NovelProductionNextActionService } from "./NovelProductionNextActionService";
 
 export class NovelCoreService {
   private readonly crudService = new NovelCoreCrudService();
@@ -32,6 +34,8 @@ export class NovelCoreService {
   private readonly characterService = new NovelCoreCharacterService();
   private readonly generationService = new NovelCoreGenerationService();
   private readonly reviewService = new NovelCoreReviewService();
+  private readonly reviewBatchService = new NovelCoreReviewBatchService();
+  private readonly nextActionService = new NovelProductionNextActionService();
   private readonly pipelineService = new NovelCorePipelineService();
   private readonly snapshotService = new NovelCoreSnapshotService();
 
@@ -81,6 +85,10 @@ export class NovelCoreService {
 
   async listChapters(novelId: string) {
     return this.crudService.listChapters(novelId);
+  }
+
+  async sanitizeNovelTypography(novelId: string) {
+    return this.crudService.sanitizeNovelTypography(novelId);
   }
 
   async createChapter(novelId: string, input: ChapterInput) {
@@ -243,6 +251,87 @@ export class NovelCoreService {
 
   async listChapterAuditReports(novelId: string, chapterId: string) {
     return this.reviewService.listChapterAuditReports(novelId, chapterId);
+  }
+
+  async getContinuityAuditProgress(novelId: string, threshold?: number) {
+    return this.reviewService.getContinuityAuditProgress(novelId, threshold);
+  }
+
+  async listReviewBatchJobs(
+    novelId: string,
+    input?: {
+      jobTypes?: Array<"quality_review_all" | "quality_repair_until_pass" | "continuity_audit" | "continuity_repair_blocked">;
+      limit?: number;
+    },
+  ) {
+    return this.reviewBatchService.listReviewBatchJobs(novelId, input);
+  }
+
+  async getReviewBatchJob(novelId: string, jobId: string) {
+    return this.reviewBatchService.getReviewBatchJob(novelId, jobId);
+  }
+
+  async startQualityReviewJob(
+    novelId: string,
+    options: {
+      provider?: import("@ai-novel/shared/types/llm").LLMProvider;
+      model?: string;
+      temperature?: number;
+      threshold?: number;
+      maxRepairAttempts?: number;
+      includeFinalizedRecheck?: boolean;
+    } = {},
+  ) {
+    return this.reviewBatchService.startQualityReviewJob(novelId, options);
+  }
+
+  async startQualityRepairJob(
+    novelId: string,
+    options: {
+      provider?: import("@ai-novel/shared/types/llm").LLMProvider;
+      model?: string;
+      temperature?: number;
+      threshold?: number;
+      maxRepairAttempts?: number;
+    } = {},
+  ) {
+    return this.reviewBatchService.startQualityRepairJob(novelId, options);
+  }
+
+  async startContinuityAuditJob(
+    novelId: string,
+    options: {
+      provider?: import("@ai-novel/shared/types/llm").LLMProvider;
+      model?: string;
+      temperature?: number;
+      threshold?: number;
+      maxRepairAttempts?: number;
+      autoRepairBlocked?: boolean;
+    } = {},
+  ) {
+    return this.reviewBatchService.startContinuityAuditJob(novelId, options);
+  }
+
+  async startContinuityRepairJob(
+    novelId: string,
+    options: {
+      provider?: import("@ai-novel/shared/types/llm").LLMProvider;
+      model?: string;
+      temperature?: number;
+      threshold?: number;
+      maxRepairAttempts?: number;
+      autoRepairBlocked?: boolean;
+    } = {},
+  ) {
+    return this.reviewBatchService.startContinuityRepairJob(novelId, options);
+  }
+
+  async getProductionNextAction(novelId: string, threshold = 75) {
+    return this.nextActionService.getNextAction(novelId, threshold);
+  }
+
+  async cancelReviewBatchJob(jobId: string) {
+    return this.reviewBatchService.cancelReviewBatchJob(jobId);
   }
 
   async resolveAuditIssues(novelId: string, issueIds: string[]) {

@@ -2,6 +2,14 @@ import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import WorldInjectionHint from "./WorldInjectionHint";
 import type { OutlineTabViewProps } from "./NovelEditView.types";
 
@@ -100,6 +108,7 @@ export default function OutlineTab(props: OutlineTabViewProps) {
   const nextOutlineAction = getNextOutlineAction(readiness);
   const outlineStageReady = completedReadinessCount === readinessSteps.length;
   const [selectedVolumeId, setSelectedVolumeId] = useState(volumes[0]?.id ?? "");
+  const [pendingGenerationAction, setPendingGenerationAction] = useState<"strategy" | "skeleton" | null>(null);
 
   useEffect(() => {
     if (!volumes.some((volume) => volume.id === selectedVolumeId)) {
@@ -111,70 +120,114 @@ export default function OutlineTab(props: OutlineTabViewProps) {
   const selectedStrategyVolume = selectedVolume
     ? strategyPlan?.volumes.find((item) => item.sortOrder === selectedVolume.sortOrder) ?? null
     : null;
+  const generationDialogConfig = pendingGenerationAction === "strategy"
+    ? {
+        title: "确认生成卷战略建议",
+        description: "系统会基于当前工作区生成推荐卷数、硬规划卷数、软规划卷数和各卷定位。",
+        details: [
+          "这一步只会生成卷战略建议，不会直接生成卷骨架，也不会拆章节。",
+          hasUnsavedVolumeDraft ? "会直接参考当前页面里尚未保存的卷草稿内容。" : "会基于当前已保存的工作区状态生成建议。",
+        ],
+        warning: hasCharacters ? null : "当前小说还没有角色。继续生成也可以，但后续一致性和卷定位准确度会明显下降。",
+        confirmLabel: isGeneratingStrategy ? "生成中..." : "开始生成卷战略",
+        isPending: isGeneratingStrategy,
+        onConfirm: () => {
+          setPendingGenerationAction(null);
+          onGenerateStrategy();
+        },
+      }
+    : pendingGenerationAction === "skeleton"
+      ? {
+          title: "确认生成全书卷骨架",
+          description: "系统会基于当前卷战略建议生成或重生成全书卷骨架。",
+          details: [
+            "这一步会重建卷骨架，并清空已有节奏板和相邻卷再平衡建议。",
+            "不会直接删除章节正文内容。",
+            hasUnsavedVolumeDraft ? "会直接参考当前页面里的卷草稿内容继续推进。" : "会基于当前卷工作区状态继续推进。",
+          ],
+          warning: hasCharacters ? null : "当前小说还没有角色。继续生成也可以，但卷骨架的人物驱动和冲突链会更弱。",
+          confirmLabel: isGeneratingSkeleton ? "生成中..." : "开始生成卷骨架",
+          isPending: isGeneratingSkeleton,
+          onConfirm: () => {
+            setPendingGenerationAction(null);
+            onGenerateSkeleton();
+          },
+        }
+      : null;
 
   return (
-    <Card>
-      <CardHeader className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-        <div className="space-y-1">
-          <CardTitle>卷战略 / 卷骨架</CardTitle>
-          <div className="text-sm text-muted-foreground">先让系统帮你决定卷数和硬/软规划，再确认可继续拆节奏板的卷骨架。</div>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <Button variant="outline" onClick={onGenerateStrategy} disabled={isGeneratingStrategy}>
-            {isGeneratingStrategy ? "生成中..." : "生成卷战略建议"}
-          </Button>
-          <Button variant="outline" onClick={onCritiqueStrategy} disabled={isCritiquingStrategy || !strategyPlan}>
-            {isCritiquingStrategy ? "审查中..." : "AI审查卷战略"}
-          </Button>
-          <Button onClick={onGenerateSkeleton} disabled={isGeneratingSkeleton || !readiness.canGenerateSkeleton}>
-            {isGeneratingSkeleton ? "生成中..." : volumes.length > 0 ? "重生成全书卷骨架" : "生成全书卷骨架"}
-          </Button>
-          <Button variant="secondary" onClick={onSave} disabled={isSaving}>
-            {isSaving ? "保存中..." : "保存卷工作区"}
-          </Button>
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <WorldInjectionHint worldInjectionSummary={worldInjectionSummary} />
-        {!hasCharacters ? (
-          <div className="flex items-center justify-between gap-2 rounded-md border border-amber-200 bg-amber-50 p-2 text-xs text-amber-800">
-            <span>建议先补齐角色，再生成卷战略和卷骨架。</span>
-            <Button size="sm" variant="outline" onClick={onGoToCharacterTab}>去角色管理</Button>
+    <>
+      <Card>
+        <CardHeader className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div className="space-y-1">
+            <CardTitle>卷战略 / 卷骨架</CardTitle>
+            <div className="text-sm text-muted-foreground">先让系统帮你决定卷数和硬/软规划，再确认可继续拆节奏板的卷骨架。</div>
           </div>
-        ) : null}
-        <div className="flex flex-wrap items-center gap-2 rounded-md border border-border/70 bg-muted/20 p-2 text-xs text-muted-foreground">
-          <span>{generationNotice}</span>
-          {hasUnsavedVolumeDraft ? <Badge variant="secondary">含未保存草稿</Badge> : null}
-        </div>
-        <div className="grid items-start gap-3 lg:grid-cols-[1.1fr_0.9fr]">
-          <div className="space-y-3">
-            <Card className="self-start">
-              <CardHeader className="pb-3">
-                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                  <CardTitle className="text-base">阶段就绪度</CardTitle>
-                  <Badge variant={outlineStageReady ? "default" : "outline"}>
-                    {completedReadinessCount}/{readinessSteps.length} 已就绪
-                  </Badge>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-3 text-sm">
-                <div className="rounded-xl border border-border/70 bg-muted/20 p-3">
-                  <div className="text-xs text-muted-foreground">推荐下一步</div>
-                  <div className="mt-1 font-medium text-foreground">{nextOutlineAction}</div>
-                  <div className="mt-3 h-2 overflow-hidden rounded-full bg-muted">
-                    <div
-                      className="h-full rounded-full bg-primary transition-all"
-                      style={{ width: `${readinessProgress}%` }}
-                    />
+          <div className="flex flex-wrap gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setPendingGenerationAction("strategy")}
+              disabled={isGeneratingStrategy}
+            >
+              {isGeneratingStrategy ? "生成中..." : "生成卷战略建议"}
+            </Button>
+            <Button type="button" variant="outline" onClick={onCritiqueStrategy} disabled={isCritiquingStrategy || !strategyPlan}>
+              {isCritiquingStrategy ? "审查中..." : "AI审查卷战略"}
+            </Button>
+            <Button
+              type="button"
+              onClick={() => setPendingGenerationAction("skeleton")}
+              disabled={isGeneratingSkeleton || !readiness.canGenerateSkeleton}
+            >
+              {isGeneratingSkeleton ? "生成中..." : volumes.length > 0 ? "重生成全书卷骨架" : "生成全书卷骨架"}
+            </Button>
+            <Button type="button" variant="secondary" onClick={onSave} disabled={isSaving}>
+              {isSaving ? "保存中..." : "保存卷工作区"}
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <WorldInjectionHint worldInjectionSummary={worldInjectionSummary} />
+          {!hasCharacters ? (
+            <div className="flex items-center justify-between gap-2 rounded-md border border-amber-200 bg-amber-50 p-2 text-xs text-amber-800">
+              <span>建议先补齐角色，再生成卷战略和卷骨架。</span>
+              <Button type="button" size="sm" variant="outline" onClick={onGoToCharacterTab}>去角色管理</Button>
+            </div>
+          ) : null}
+          <div className="flex flex-wrap items-center gap-2 rounded-md border border-border/70 bg-muted/20 p-2 text-xs text-muted-foreground">
+            <span>{generationNotice}</span>
+            {hasUnsavedVolumeDraft ? <Badge variant="secondary">含未保存草稿</Badge> : null}
+          </div>
+          <div className="grid items-start gap-3 lg:grid-cols-[1.1fr_0.9fr]">
+            <div className="space-y-3">
+              <Card className="self-start">
+                <CardHeader className="pb-3">
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                    <CardTitle className="text-base">阶段就绪度</CardTitle>
+                    <Badge variant={outlineStageReady ? "default" : "outline"}>
+                      {completedReadinessCount}/{readinessSteps.length} 已就绪
+                    </Badge>
                   </div>
-                  <div className="mt-2 text-xs text-muted-foreground">
-                    {outlineStageReady
-                      ? "当前卷战略阶段已经具备完整推进条件。"
-                      : readiness.blockingReasons.length > 0
-                        ? `还有 ${readiness.blockingReasons.length} 项阻塞条件需要处理。`
-                        : "当前可以继续推进本阶段。"}
+                </CardHeader>
+                <CardContent className="space-y-3 text-sm">
+                  <div className="rounded-xl border border-border/70 bg-muted/20 p-3">
+                    <div className="text-xs text-muted-foreground">推荐下一步</div>
+                    <div className="mt-1 font-medium text-foreground">{nextOutlineAction}</div>
+                    <div className="mt-3 h-2 overflow-hidden rounded-full bg-muted">
+                      <div
+                        className="h-full rounded-full bg-primary transition-all"
+                        style={{ width: `${readinessProgress}%` }}
+                      />
+                    </div>
+                    <div className="mt-2 text-xs text-muted-foreground">
+                      {outlineStageReady
+                        ? "当前卷战略阶段已经具备完整推进条件。"
+                        : readiness.blockingReasons.length > 0
+                          ? `还有 ${readiness.blockingReasons.length} 项阻塞条件需要处理。`
+                          : "当前可以继续推进本阶段。"}
+                    </div>
                   </div>
-                </div>
 
                 <div className="grid gap-2 sm:grid-cols-2">
                   {readinessSteps.map((item) => (
@@ -523,7 +576,48 @@ export default function OutlineTab(props: OutlineTabViewProps) {
             )}
           </div>
         </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+
+      <Dialog
+        open={Boolean(generationDialogConfig)}
+        onOpenChange={(open) => {
+          if (!open) {
+            setPendingGenerationAction(null);
+          }
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{generationDialogConfig?.title ?? "确认操作"}</DialogTitle>
+            <DialogDescription>{generationDialogConfig?.description ?? ""}</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3 text-sm text-muted-foreground">
+            {generationDialogConfig?.details.map((detail) => (
+              <div key={detail} className="rounded-md border border-border/70 bg-muted/20 px-3 py-2 leading-6">
+                {detail}
+              </div>
+            ))}
+            {generationDialogConfig?.warning ? (
+              <div className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-amber-800">
+                {generationDialogConfig.warning}
+              </div>
+            ) : null}
+          </div>
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => setPendingGenerationAction(null)}>
+              取消
+            </Button>
+            <Button
+              type="button"
+              onClick={generationDialogConfig?.onConfirm}
+              disabled={generationDialogConfig?.isPending}
+            >
+              {generationDialogConfig?.confirmLabel ?? "确认"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }

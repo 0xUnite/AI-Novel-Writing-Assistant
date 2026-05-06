@@ -5,6 +5,7 @@ const {
   buildChapterWriteContext,
   buildChapterReviewContext,
   buildChapterRepairContext,
+  buildChapterWriterContextBlocks,
   buildChapterReviewContextBlocks,
   buildChapterRepairContextBlocks,
 } = require("../dist/prompting/prompts/novel/chapterLayeredContext.js");
@@ -19,6 +20,7 @@ function createContextPackage() {
       content: null,
       expectation: "完成第一次明确反压",
       targetWordCount: 3000,
+      taskSheet: "任务单：女二必须带来半份情报，结尾用交换情报制造新悬念。",
       supportingContextText: "",
     },
     plan: {
@@ -36,6 +38,12 @@ function createContextPackage() {
       sourceIssueIds: [],
       replannedFromPlanId: null,
       hookTarget: "把交换情报做成新的悬念",
+      chapterMeta: {
+        eventWeight: 4,
+        highStakesDialogue: true,
+        schemeBeat: true,
+        kindOfHook: "threat_approaches",
+      },
       rawPlanJson: null,
       scenes: [],
       createdAt: now,
@@ -273,7 +281,11 @@ test("chapter layered contexts carry volume mission, character duties and repair
   assert.ok(writeContext.characterBehaviorGuides.some((item) => item.absenceRisk === "high"));
   assert.ok(writeContext.pendingCandidateGuards.some((item) => item.proposedName === "林策"));
   assert.ok(writeContext.openConflictSummaries.some((item) => item.includes("第一次反压仍未落地")));
+  assert.equal(writeContext.chapterBridge, null);
   assert.equal(writeContext.chapterMission.targetWordCount, 3000);
+  assert.equal(writeContext.chapterMission.taskSheet, "任务单：女二必须带来半份情报，结尾用交换情报制造新悬念。");
+  assert.equal(writeContext.chapterMeta.eventWeight, 4);
+  assert.equal(writeContext.chapterMeta.kindOfHook, "threat_approaches");
   assert.ok(reviewContext.structureObligations.includes("volume mission: 建立压迫源并完成第一次反压"));
   assert.ok(reviewContext.structureObligations.includes("pending payoff: 伏笔A"));
   assert.ok(repairContext.allowedEditBoundaries.some((item) => item.includes("Pending character candidates remain read-only")));
@@ -281,16 +293,84 @@ test("chapter layered contexts carry volume mission, character duties and repair
 
   const reviewBlocks = buildChapterReviewContextBlocks(reviewContext);
   const repairBlocks = buildChapterRepairContextBlocks(repairContext);
+  const writerBlocks = buildChapterWriterContextBlocks(writeContext);
+
+  assert.ok(writerBlocks.some((block) => (
+    block.id === "chapter_mission"
+    && /Task sheet:/.test(block.content)
+    && /女二必须带来半份情报/.test(block.content)
+  )));
+  assert.ok(writerBlocks.some((block) => (
+    block.id === "chapter_quality_constraints"
+    && /event_weight=4/.test(block.content)
+    && /High-energy event is mandatory/.test(block.content)
+    && /scheme_four_step/.test(block.content)
+    && /读者信息量/.test(block.content)
+    && /不可退让动机/.test(block.content)
+  )));
+  assert.ok(writerBlocks.some((block) => (
+    block.id === "human_texture_guidance"
+    && /心理戏必须嵌在动作前后/.test(block.content)
+    && /4-8 轮有效对话/.test(block.content)
+    && /轻微幽默/.test(block.content)
+    && /Relationship micro-shift targets/.test(block.content)
+  )));
+  assert.ok(writerBlocks.some((block) => (
+    block.id === "chapter_pacing_guidance"
+    && /读者看完只能用一句话概括/.test(block.content)
+    && /十几句话才能复述/.test(block.content)
+    && /主线逻辑断裂/.test(block.content)
+    && /Plan signal: plan_role=pressure; event_weight=4/.test(block.content)
+  )));
+  assert.ok(writerBlocks.some((block) => (
+    block.id === "creative_agency_guidance"
+    && /大纲、人设、伏笔是导航和护栏/.test(block.content)
+    && /主角不能只被剧情推着走/.test(block.content)
+    && /人物要有撞击感/.test(block.content)
+    && /Character agency seeds/.test(block.content)
+  )));
+  assert.ok(writerBlocks.some((block) => (
+    block.id === "character_social_depth_guidance"
+    && /功能性大于完美性/.test(block.content)
+    && /记忆点大于完整性/.test(block.content)
+    && /破坏力大于邪恶值/.test(block.content)
+    && /Strong-link relation seeds/.test(block.content)
+  )));
+  assert.ok(writerBlocks.some((block) => (
+    block.id === "opening_conversion_guidance"
+    && /chapter_order=5; opening_window=false/.test(block.content)
+    && /不要把正文强行写成投放文案/.test(block.content)
+    && /有效微创新/.test(block.content)
+    && /300 字以内必须进入主题/.test(block.content)
+    && /前置高光事件/.test(block.content)
+    && /排比、夸张和数字强调/.test(block.content)
+  )));
+  assert.ok(writerBlocks.some((block) => (
+    block.id === "launch_appeal_density_guidance"
+    && /直白、吸睛、快节奏/.test(block.content)
+    && /每 300 字争取有一个小看点/.test(block.content)
+    && /每 500 字有一个小钩子/.test(block.content)
+    && /真情实感优先于预制套路/.test(block.content)
+  )));
+  assert.ok(writerBlocks.some((block) => (
+    block.id === "chapter_detail_policy_guidance"
+    && /detail_level=spotlight/.test(block.content)
+    && /篇幅是硬合同/.test(block.content)
+    && /详写高光/.test(block.content)
+  )));
 
   assert.ok(reviewBlocks.some((block) => (
     block.id === "character_dynamics"
     && /Character behavior guidance/.test(block.content)
     && /Pending candidate guardrails/.test(block.content)
   )));
+  assert.ok(!writerBlocks.some((block) => block.id === "chapter_bridge"));
   assert.ok(reviewBlocks.some((block) => (
     block.id === "chapter_mission"
     && /Target length: around 3000 Chinese characters/.test(block.content)
-    && /2550-3450/.test(block.content)
+    && /2700-3240/.test(block.content)
+    && /start wrapping near 3120/.test(block.content)
+    && /never exceed 3360/.test(block.content)
   )));
   assert.ok(repairBlocks.some((block) => block.id === "structure_obligations" && /volume mission/.test(block.content)));
   assert.ok(repairBlocks.some((block) => block.id === "repair_boundaries" && /read-only/.test(block.content)));

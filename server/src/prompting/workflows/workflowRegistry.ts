@@ -186,6 +186,7 @@ const workflowDefinitions: Record<StructuredIntent["intent"], WorkflowDefinition
         const createNovelInput: Record<string, unknown> = {
           title: intent.novelTitle,
         };
+        if (intent.contentForm) createNovelInput.contentForm = intent.contentForm;
         if (intent.description) createNovelInput.description = intent.description;
         if (intent.genre) createNovelInput.genre = intent.genre;
         if (intent.styleTone) createNovelInput.styleTone = intent.styleTone;
@@ -195,6 +196,10 @@ const workflowDefinitions: Record<StructuredIntent["intent"], WorkflowDefinition
         if (intent.emotionIntensity) createNovelInput.emotionIntensity = intent.emotionIntensity;
         if (intent.aiFreedom) createNovelInput.aiFreedom = intent.aiFreedom;
         if (typeof intent.defaultChapterLength === "number") createNovelInput.defaultChapterLength = intent.defaultChapterLength;
+        if (intent.contentForm === "short_story" && typeof intent.targetChapterCount === "number") {
+          createNovelInput.estimatedChapterCount = intent.targetChapterCount;
+        }
+        if (typeof intent.targetTotalWordCount === "number") createNovelInput.targetTotalWordCount = intent.targetTotalWordCount;
 
         actions.push({
           agent: "Planner",

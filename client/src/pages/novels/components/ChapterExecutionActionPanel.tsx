@@ -1,9 +1,13 @@
 import type { Chapter } from "@ai-novel/shared/types/novel";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { chapterStatusLabel, chapterSuggestedActionLabel } from "./chapterExecution.shared";
+import {
+  chapterStatusLabel,
+  chapterSuggestedActionLabel,
+  resolveEffectiveChapterStatus,
+} from "./chapterExecution.shared";
 
 interface ChapterExecutionActionPanelProps {
   novelId: string;
@@ -82,10 +86,15 @@ export default function ChapterExecutionActionPanel(props: ChapterExecutionActio
     isReplanningChapter,
     isRunningFullAudit,
   } = props;
+  const location = useLocation();
+  const projectBasePath = location.pathname.startsWith("/short-stories") ? "/short-stories" : "/novels";
 
   const selectedChapterLabel = selectedChapter
     ? `第${selectedChapter.order}章 ${selectedChapter.title || "未命名章节"}`
     : "请选择一个章节";
+  const selectedChapterStatus = selectedChapter
+    ? resolveEffectiveChapterStatus(selectedChapter)
+    : null;
 
   return (
     <Card className="self-start overflow-hidden border-border/70 lg:sticky lg:top-4">
@@ -101,7 +110,7 @@ export default function ChapterExecutionActionPanel(props: ChapterExecutionActio
           <div className="mt-1 text-sm font-semibold text-foreground">{selectedChapterLabel}</div>
           {selectedChapter ? (
             <div className="mt-2 flex flex-wrap gap-1.5">
-              <Badge variant="secondary">{chapterStatusLabel(selectedChapter.chapterStatus)}</Badge>
+              <Badge variant="secondary">{chapterStatusLabel(selectedChapterStatus)}</Badge>
               <Badge variant="outline">{chapterSuggestedActionLabel(selectedChapter)}</Badge>
             </div>
           ) : null}
@@ -125,7 +134,7 @@ export default function ChapterExecutionActionPanel(props: ChapterExecutionActio
             </Button>
             {selectedChapter ? (
               <Button asChild variant="outline">
-                <Link to={`/novels/${novelId}/chapters/${selectedChapter.id}`}>打开章节编辑器</Link>
+                <Link to={`${projectBasePath}/${novelId}/chapters/${selectedChapter.id}`}>打开章节编辑器</Link>
               </Button>
             ) : (
               <Button variant="outline" disabled>打开章节编辑器</Button>

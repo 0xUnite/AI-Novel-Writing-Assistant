@@ -1,0 +1,516 @@
+- generic [ref=e2]:
+  - generic [ref=e3]:
+    - banner [ref=e4]:
+      - generic [ref=e5]:
+        - img [ref=e6]
+        - generic [ref=e9]:
+          - generic [ref=e10]: AI 小说创作工作台
+          - generic [ref=e11]: AI Novel Production Engine
+      - generic [ref=e342]:
+        - generic [ref=e343]: 模型
+        - combobox [ref=e344] [cursor=pointer]:
+          - generic: MiniMax
+          - img [ref=e345]
+        - button "MiniMax-M2.7" [ref=e348] [cursor=pointer]:
+          - generic [ref=e349]: MiniMax-M2.7
+          - img [ref=e350]
+    - generic [ref=e13]:
+      - complementary [ref=e14]:
+        - button "收起导航栏" [ref=e16] [cursor=pointer]:
+          - img [ref=e17]
+        - navigation [ref=e19]:
+          - generic [ref=e20]:
+            - generic [ref=e21]: 创作
+            - link "首页" [ref=e22] [cursor=pointer]:
+              - /url: /
+              - generic [ref=e23]:
+                - img [ref=e25]
+                - generic [ref=e28]: 首页
+            - link "小说列表" [ref=e29] [cursor=pointer]:
+              - /url: /novels
+              - generic [ref=e30]:
+                - img [ref=e32]
+                - generic [ref=e34]: 小说列表
+            - link "短故事" [ref=e35] [cursor=pointer]:
+              - /url: /short-stories
+              - generic [ref=e36]:
+                - img [ref=e38]
+                - generic [ref=e41]: 短故事
+            - link "创作中枢" [ref=e42] [cursor=pointer]:
+              - /url: /creative-hub
+              - generic [ref=e43]:
+                - img [ref=e45]
+                - generic [ref=e50]: 创作中枢
+            - link "拆书" [ref=e51] [cursor=pointer]:
+              - /url: /book-analysis
+              - generic [ref=e52]:
+                - img [ref=e54]
+                - generic [ref=e61]: 拆书
+            - link "任务中心 R2 F45" [ref=e62] [cursor=pointer]:
+              - /url: /tasks
+              - generic [ref=e63]:
+                - img [ref=e65]
+                - generic [ref=e68]: 任务中心
+                - generic [ref=e69]:
+                  - generic [ref=e70]: R2
+                  - generic [ref=e71]: F45
+          - generic [ref=e72]:
+            - generic [ref=e73]: 资产
+            - link "题材基底库" [ref=e74] [cursor=pointer]:
+              - /url: /genres
+              - generic [ref=e75]:
+                - img [ref=e77]
+                - generic [ref=e81]: 题材基底库
+            - link "推进模式库" [ref=e82] [cursor=pointer]:
+              - /url: /story-modes
+              - generic [ref=e83]:
+                - img [ref=e85]
+                - generic [ref=e89]: 推进模式库
+            - link "标题工坊" [ref=e90] [cursor=pointer]:
+              - /url: /titles
+              - generic [ref=e91]:
+                - img [ref=e93]
+                - generic [ref=e96]: 标题工坊
+            - link "知识库" [ref=e97] [cursor=pointer]:
+              - /url: /knowledge
+              - generic [ref=e98]:
+                - img [ref=e100]
+                - generic [ref=e104]: 知识库
+            - link "世界观" [ref=e105] [cursor=pointer]:
+              - /url: /worlds
+              - generic [ref=e106]:
+                - img [ref=e108]
+                - generic [ref=e113]: 世界观
+            - link "写法引擎" [ref=e114] [cursor=pointer]:
+              - /url: /style-engine
+              - generic [ref=e115]:
+                - img [ref=e117]
+                - generic [ref=e120]: 写法引擎
+            - link "基础角色库" [ref=e121] [cursor=pointer]:
+              - /url: /base-characters
+              - generic [ref=e122]:
+                - img [ref=e124]
+                - generic [ref=e128]: 基础角色库
+          - generic [ref=e129]:
+            - generic [ref=e130]: 系统
+            - link "模型路由" [ref=e131] [cursor=pointer]:
+              - /url: /settings/model-routes
+              - generic [ref=e132]:
+                - img [ref=e134]
+                - generic [ref=e138]: 模型路由
+            - link "系统设置" [ref=e139] [cursor=pointer]:
+              - /url: /settings
+              - generic [ref=e140]:
+                - img [ref=e142]
+                - generic [ref=e145]: 系统设置
+      - main [ref=e146]:
+        - generic [ref=e352]:
+          - generic [ref=e353]:
+            - button "项目概览" [ref=e354] [cursor=pointer]
+            - button "知识库绑定" [ref=e355] [cursor=pointer]
+            - button "导出" [ref=e356] [cursor=pointer]
+            - button "创建续写项目" [ref=e357] [cursor=pointer]
+            - button "清洗旧章节标点" [ref=e358] [cursor=pointer]
+            - button "任务面板 最近任务" [ref=e359] [cursor=pointer]:
+              - text: 任务面板
+              - generic [ref=e360]: 最近任务
+          - generic [ref=e361]:
+            - generic [ref=e363]:
+              - generic [ref=e364]:
+                - heading "创作阶段" [level=3] [ref=e365]
+                - generic [ref=e366]: 这里是当前项目的唯一阶段导航。点击卡片即可切换到对应模块，并同时查看完成状态。
+              - generic [ref=e367]:
+                - generic [ref=e368]:
+                  - generic [ref=e369]: 阶段进度
+                  - generic [ref=e370]: 2/8
+                - generic [ref=e373]: 当前阶段：项目设定
+            - generic [ref=e374]:
+              - button "1 当前阶段 项目设定 定义作品身份、约束和 AI 协作方式。" [ref=e375] [cursor=pointer]:
+                - generic [ref=e376]:
+                  - generic [ref=e377]: "1"
+                  - generic [ref=e378]: 当前阶段
+                - generic [ref=e379]: 项目设定
+                - generic [ref=e380]: 定义作品身份、约束和 AI 协作方式。
+              - button "2 待推进 故事宏观规划 先把故事想法变成约束引擎，再进入角色和主线阶段。" [ref=e381] [cursor=pointer]:
+                - generic [ref=e382]:
+                  - generic [ref=e383]: "2"
+                  - generic [ref=e384]: 待推进
+                - generic [ref=e385]: 故事宏观规划
+                - generic [ref=e386]: 先把故事想法变成约束引擎，再进入角色和主线阶段。
+              - button "3 待推进 角色准备 补齐核心角色、关系和当前目标。" [ref=e387] [cursor=pointer]:
+                - generic [ref=e388]:
+                  - generic [ref=e389]: "3"
+                  - generic [ref=e390]: 待推进
+                - generic [ref=e391]: 角色准备
+                - generic [ref=e392]: 补齐核心角色、关系和当前目标。
+              - button "4 待推进 卷战略 / 卷骨架 先决定分卷策略，再确认每一卷的开卷抓手、压迫源和兑现方式。" [ref=e393] [cursor=pointer]:
+                - generic [ref=e394]:
+                  - generic [ref=e395]: "4"
+                  - generic [ref=e396]: 待推进
+                - generic [ref=e397]: 卷战略 / 卷骨架
+                - generic [ref=e398]: 先决定分卷策略，再确认每一卷的开卷抓手、压迫源和兑现方式。
+              - button "5 待推进 节奏 / 拆章 先做当前卷节奏板，再拆当前卷章节列表并补齐单章细化。" [ref=e399] [cursor=pointer]:
+                - generic [ref=e400]:
+                  - generic [ref=e401]: "5"
+                  - generic [ref=e402]: 待推进
+                - generic [ref=e403]: 节奏 / 拆章
+                - generic [ref=e404]: 先做当前卷节奏板，再拆当前卷章节列表并补齐单章细化。
+              - button "6 待推进 章节执行 生成章节、审计结果并处理修正。" [ref=e405] [cursor=pointer]:
+                - generic [ref=e406]:
+                  - generic [ref=e407]: "6"
+                  - generic [ref=e408]: 待推进
+                - generic [ref=e409]: 章节执行
+                - generic [ref=e410]: 生成章节、审计结果并处理修正。
+              - button "7 待推进 出稿质检 批量出稿、单章修复与全书连贯守门集中处理。" [ref=e411] [cursor=pointer]:
+                - generic [ref=e412]:
+                  - generic [ref=e413]: "7"
+                  - generic [ref=e414]: 待推进
+                - generic [ref=e415]: 出稿质检
+                - generic [ref=e416]: 批量出稿、单章修复与全书连贯守门集中处理。
+              - button "8 已就绪 版本历史 查看重要版本、冻结点和差异。" [ref=e417] [cursor=pointer]:
+                - generic [ref=e418]:
+                  - generic [ref=e419]: "8"
+                  - generic [ref=e420]: 已就绪
+                - generic [ref=e421]: 版本历史
+                - generic [ref=e422]: 查看重要版本、冻结点和差异。
+          - generic [ref=e424]:
+            - generic [ref=e425]:
+              - generic [ref=e426]:
+                - generic [ref=e427]:
+                  - generic [ref=e428]: 《八零恶妻要离婚，冷面糙汉他慌了》正在自动导演
+                  - generic [ref=e429]: 等待审核
+                  - generic [ref=e430]: "任务 #cmolr8k8"
+                - generic [ref=e431]: AI 正在后台接管这本书的开书流程。为避免和自动写入冲突，当前编辑区域会按阶段临时锁定。
+              - generic [ref=e432]:
+                - button "继续自动导演" [ref=e433] [cursor=pointer]
+                - button "任务中心" [ref=e434] [cursor=pointer]
+            - generic [ref=e435]:
+              - generic [ref=e436]:
+                - generic [ref=e437]: 流程进度
+                - generic [ref=e438]: 100%
+              - generic [ref=e441]: 终稿质检完成
+              - generic [ref=e442]: 最近检查点：主流程完成
+            - generic [ref=e444]:
+              - generic [ref=e445]:
+                - heading "书级定位与基本信息" [level=3] [ref=e447]
+                - generic [ref=e449]:
+                  - generic [ref=e450]:
+                    - generic [ref=e451]: 填写建议
+                    - generic [ref=e452]: 建议先想清楚这篇短故事写给谁、靠什么吸引人、用多少章完成闭环，再补创作模式、世界边界和写法确认。这里的设置会直接影响后续章节规划和正文生成。
+                    - button "AI 自动导演接管" [ref=e454] [cursor=pointer]
+                  - generic [ref=e455]:
+                    - generic [ref=e456]:
+                      - generic [ref=e457]: 作品定位
+                      - generic [ref=e458]: 先定义这是什么短故事，以及它是从零开始还是基于既有内容继续创作。
+                    - generic [ref=e459]:
+                      - generic [ref=e461]: 短故事标题
+                      - textbox "短故事标题" [ref=e462]:
+                        - /placeholder: 例如：雾港审判局
+                        - text: 八零恶妻要离婚，冷面糙汉他慌了
+                    - generic [ref=e463]:
+                      - generic [ref=e465]: 一句话概述
+                      - textbox "一句话概述" [ref=e466]:
+                        - /placeholder: 用 2-4 句话说明主角、核心冲突和故事看点。
+                        - text: 短故事，4到5万字，女主第一人称。苏清月是现代连锁超市女老板，穿到八零年代驻岛随军家属院，成了人人嫌弃的作精恶毒后妈。原主偷走给烈士遗孤龙凤胎买救命药的钱，要倒贴小白脸周文斌；休假归来的冷面军官贺峥撞见，拍下离婚报告要她滚。穿越后的苏清月冷静签字，只要求一个月把两个孩子治好。她有随身空间：现代独栋大超市、米面粮油、药品和微型灵泉。她不纠缠、不内耗，把贺峥当合作对象，救孩子、打极品、做生意、去南方特区。贺峥从厌恶、震惊、单向沦陷到追妻火葬场。结局苏清月事业成势，与彻底改变后的贺峥建立平等关系。
+                    - generic [ref=e467]:
+                      - generic [ref=e468]:
+                        - generic [ref=e469]:
+                          - generic [ref=e470]: 书级 framing
+                          - generic [ref=e471]: 用最直白的话说清楚：这篇短故事写给谁、卖点是什么、读者看完整篇会得到什么。不会写专业策划词也没关系，按你的直觉描述即可。
+                        - button "帮我填写" [ref=e473] [cursor=pointer]
+                      - generic [ref=e474]:
+                        - generic [ref=e475]:
+                          - generic [ref=e476]:
+                            - generic [ref=e477]: 目标读者
+                            - button "说明这本书最主要写给谁看。不会写专业人群画像也没关系，按直觉描述即可。" [ref=e478] [cursor=pointer]: "?"
+                          - textbox "目标读者" [ref=e479]:
+                            - /placeholder: 例如：爱看都市高压逆袭、关系拉扯和持续追更钩子的读者
+                            - text: 番茄短篇女频读者，偏爱八零年代、空间养崽、糙汉追妻火葬场、女主搞钱成长。
+                        - generic [ref=e480]:
+                          - generic [ref=e481]:
+                            - generic [ref=e482]: 核心商业标签
+                            - button "用逗号分隔 3-6 个标签即可，例如逆袭、强冲突、悬念拉满、职场博弈。" [ref=e483] [cursor=pointer]: "?"
+                          - textbox "核心商业标签" [ref=e484]:
+                            - /placeholder: 例如：逆袭，强冲突，悬念拉满，职场博弈
+                            - text: 八零年代，随军家属院，空间物资，一胎双宝，恶女洗白，糙汉追妻
+                        - generic [ref=e485]:
+                          - generic [ref=e486]:
+                            - generic [ref=e487]: 竞品感 / 熟悉阅读感
+                            - button "写成读者会联想到的阅读感，不是要求你模仿具体作品。" [ref=e488] [cursor=pointer]: "?"
+                          - textbox "竞品感 / 熟悉阅读感" [ref=e489]:
+                            - /placeholder: 例如：现实职场压迫感里带一点冷幽默和高密度关系拉扯
+                            - text: 八零年代家属院爽文、空间物资养崽、糙汉追妻火葬场，节奏快、反差强、少拉扯。
+                        - generic [ref=e490]:
+                          - generic [ref=e491]:
+                            - generic [ref=e492]: 本书核心卖点
+                            - button "写清楚这本书最抓人的点，例如关系拉扯、逆袭爽点、悬念推进或设定新鲜感。" [ref=e493] [cursor=pointer]: "?"
+                          - textbox "本书核心卖点" [ref=e494]:
+                            - /placeholder: 例如：主角每次解决现实困局都会撬动更大的关系链和利益链，读者会一直期待下一次反压。
+                            - text: 现代女老板穿成八零恶毒后妈，随身超市空间养大烈士遗孤，一边洗白一边搞钱，冷面军官从厌恶到卑微追妻。
+                      - generic [ref=e495]:
+                        - generic [ref=e496]:
+                          - generic [ref=e497]: 完整故事承诺
+                          - button "写清楚前 30 章一定要让读者看到什么、爽到什么、相信什么。" [ref=e498] [cursor=pointer]: "?"
+                        - textbox "完整故事承诺" [ref=e499]:
+                          - /placeholder: 例如：整篇必须完成主角从被困局压住到主动反击的完整转折，结尾兑现核心爽点，并留下一个有余味的关系变化。
+                          - text: 16章内完成穿越开局、救崽洗白、极品打脸、黑市起步、男主沦陷、清醒离婚、特区创业、追妻火葬场和平等复合。
+                    - generic [ref=e500]:
+                      - generic [ref=e501]:
+                        - generic [ref=e502]: 创作模式
+                        - button "决定项目是从零开始，还是基于已有作品继续创作。它会直接影响后续优先使用哪些上下文来源。" [ref=e503] [cursor=pointer]: "?"
+                      - generic [ref=e504]:
+                        - button "原创 推荐 从零开始创建世界、角色和主线，适合大多数新项目。" [ref=e505] [cursor=pointer]:
+                          - generic [ref=e506]:
+                            - generic [ref=e507]: 原创
+                            - generic [ref=e508]: 推荐
+                          - generic [ref=e509]: 从零开始创建世界、角色和主线，适合大多数新项目。
+                        - button "续写 基于已有小说或知识文档继续创作，后续会优先注入既有设定和拆书内容。" [ref=e510] [cursor=pointer]:
+                          - generic [ref=e512]: 续写
+                          - generic [ref=e513]: 基于已有小说或知识文档继续创作，后续会优先注入既有设定和拆书内容。
+                    - generic [ref=e514]:
+                      - generic [ref=e515]: 题材基底与推进模式的区别
+                      - generic [ref=e516]: 题材基底回答“这是什么书”，例如修仙、都市、历史架空；推进模式回答“这本书靠什么持续推进和兑现”，例如系统流、无敌流、种田流。
+                    - generic [ref=e517]:
+                      - generic [ref=e518]:
+                        - generic [ref=e519]:
+                          - generic [ref=e520]: 题材基底
+                          - button "题材基底回答“这是什么书”，例如修仙、都市、历史架空。它会影响规划、标题和整体卖点倾向，建议尽量尽早确定。" [ref=e521] [cursor=pointer]: "?"
+                        - combobox "题材基底" [ref=e522]:
+                          - option "暂不设置题材基底" [selected]
+                          - option "现代都市狗血短剧"
+                          - option "现代都市女性成长火葬场"
+                          - option "原创古典宇宙仙侠"
+                      - generic [ref=e523]:
+                        - generic [ref=e524]:
+                          - generic [ref=e525]: 绑定世界观
+                          - button "如果绑定世界观，后续规划和章节生成会自动注入该世界设定。" [ref=e526] [cursor=pointer]: "?"
+                        - combobox "绑定世界观" [ref=e527]:
+                          - option "不绑定世界观" [selected]
+                          - option "现代资本与珠宝名流场"
+                          - option "现代财阀复仇短剧世界"
+                          - option "盖天-浑天-宣夜三重折叠宇宙"
+                          - option "2005-2025中国商业社会"
+                      - generic [ref=e528]:
+                        - generic [ref=e529]:
+                          - generic [ref=e530]: 单章目标字数
+                          - button "这是章节规划和生成时的硬性篇幅基准。常见推荐值是 2500 到 3500，系统会围绕它收紧上下限。" [ref=e531] [cursor=pointer]: "?"
+                        - spinbutton "单章目标字数" [ref=e532]: "2800"
+                        - generic [ref=e533]: 短故事推荐先设为 2000-3000，系统会围绕它收紧单章上下限。
+                      - generic [ref=e534]:
+                        - generic [ref=e535]:
+                          - generic [ref=e536]: 整篇目标字数
+                          - button "短故事的整篇硬目标，建议控制在 2 万到 8 万字。系统会用它反推目标章节数，避免规划自动膨胀成长篇。" [ref=e537] [cursor=pointer]: "?"
+                        - spinbutton "整篇目标字数" [ref=e538]: "45000"
+                        - generic [ref=e539]: 短故事按 2 万到 8 万字收束；修改总字数或单章字数会自动反推章节数。
+                      - generic [ref=e540]:
+                        - generic [ref=e541]:
+                          - generic [ref=e542]: 目标章节数
+                          - button "这是当前结构预算，不是长篇最终完结宣判。填 0 表示开放长篇/滚动规划，只规划下一段可执行窗口。" [ref=e543] [cursor=pointer]: "?"
+                        - spinbutton "目标章节数" [ref=e544]: "16"
+                        - generic [ref=e545]: 短故事章节数会和整篇目标字数互相校准，建议保持 8-32 章以内。
+                    - generic [ref=e546]:
+                      - generic [ref=e547]:
+                        - generic [ref=e548]:
+                          - generic [ref=e549]: 主推进模式
+                          - button "主推进模式回答“这本书靠什么持续推进和兑现”，例如系统流、无敌流、种田流。后续规划和生成会优先服从它。" [ref=e550] [cursor=pointer]: "?"
+                        - combobox "主推进模式" [ref=e551]:
+                          - option "暂不设置主推进模式" [selected]
+                          - option "底层逆袭升级"
+                          - option "短剧狗血复仇"
+                          - option "清醒退婚马甲复仇"
+                          - option "因果证道博弈"
+                          - option "真假白月光火葬场"
+                          - option "资本女王打脸"
+                      - generic [ref=e552]:
+                        - generic [ref=e553]:
+                          - generic [ref=e554]: 副推进模式
+                          - button "副推进模式只负责补充风味，例如在治愈日常中叠加小店经营感，在无敌流中叠加马甲感，不能覆盖主模式的边界。" [ref=e555] [cursor=pointer]: "?"
+                        - combobox "副推进模式" [ref=e556]:
+                          - option "不叠加副推进模式" [selected]
+                          - option "底层逆袭升级"
+                          - option "短剧狗血复仇"
+                          - option "清醒退婚马甲复仇"
+                          - option "因果证道博弈"
+                          - option "真假白月光火葬场"
+                          - option "资本女王打脸"
+                  - generic [ref=e557]:
+                    - generic [ref=e558]:
+                      - generic [ref=e559]: 叙事体验
+                      - generic [ref=e560]: 这些字段定义读者会如何感知这部作品，也会直接影响章节规划的语气、密度和推进方式。
+                    - generic [ref=e561]:
+                      - generic [ref=e562]:
+                        - generic [ref=e563]:
+                          - generic [ref=e564]: 叙事视角
+                          - button "决定章节生成默认采用哪种叙述视角，也会影响信息分发方式。" [ref=e565] [cursor=pointer]: "?"
+                        - combobox "叙事视角" [ref=e566]:
+                          - option "第三人称"
+                          - option "第一人称" [selected]
+                          - option "混合视角"
+                        - generic [ref=e567]: 代入感强，但信息受限，适合强主角视角叙事。
+                      - generic [ref=e568]:
+                        - generic [ref=e569]:
+                          - generic [ref=e570]: 节奏偏好
+                          - button "决定章节规划时是偏铺垫还是偏推进，会影响场景密度和钩子强度。" [ref=e571] [cursor=pointer]: "?"
+                        - combobox "节奏偏好" [ref=e572]:
+                          - option "均衡"
+                          - option "慢节奏"
+                          - option "快节奏" [selected]
+                        - generic [ref=e573]: 更重事件驱动、钩子和连续推进。
+                      - generic [ref=e574]:
+                        - generic [ref=e575]:
+                          - generic [ref=e576]: 情绪浓度
+                          - button "决定后续生成时情绪爆发和冲突的频率，不是越高越好。" [ref=e577] [cursor=pointer]: "?"
+                        - combobox "情绪浓度" [ref=e578]:
+                          - option "中情绪浓度"
+                          - option "低情绪浓度"
+                          - option "高情绪浓度" [selected]
+                        - generic [ref=e579]: 更强调爆发、冲突和强刺激场面。
+                      - generic [ref=e580]:
+                        - generic [ref=e581]:
+                          - generic [ref=e582]: 文风关键词
+                          - button "写几个关键词即可，例如冷峻、克制、黑色幽默。它会影响生成的语言风格。" [ref=e583] [cursor=pointer]: "?"
+                        - textbox "文风关键词" [ref=e584]:
+                          - /placeholder: 例如：冷峻、克制、黑色幽默
+                          - text: 年代爽文，生活烟火气，人物对话自然，情绪克制但有爆点，去AI腔。
+                  - generic [ref=e585]:
+                    - generic [ref=e586]:
+                      - generic [ref=e587]: AI 协作方式
+                      - generic [ref=e588]: 这部分定义你和 AI 如何分工，以及系统后续可以自动推进到什么程度。
+                    - generic [ref=e589]:
+                      - generic [ref=e590]:
+                        - generic [ref=e591]: 项目模式
+                        - button "决定你和 AI 的协作方式。会影响后续哪些步骤自动推进、哪些步骤更依赖人工确认。" [ref=e592] [cursor=pointer]: "?"
+                      - generic [ref=e593]:
+                        - button "AI 副驾 推荐 你定方向，AI 提方案和草稿，适合前期打磨和高频人工决策。" [ref=e594] [cursor=pointer]:
+                          - generic [ref=e595]:
+                            - generic [ref=e596]: AI 副驾
+                            - generic [ref=e597]: 推荐
+                          - generic [ref=e598]: 你定方向，AI 提方案和草稿，适合前期打磨和高频人工决策。
+                        - button "AI 接管 AI 负责主推进，你在关键节点审核，适合已有明确目标的项目。" [ref=e599] [cursor=pointer]:
+                          - generic [ref=e601]: AI 接管
+                          - generic [ref=e602]: AI 负责主推进，你在关键节点审核，适合已有明确目标的项目。
+                        - button "草稿优先 先快速产出文本和方向，结构约束较弱，适合试故事和找感觉。" [ref=e603] [cursor=pointer]:
+                          - generic [ref=e605]: 草稿优先
+                          - generic [ref=e606]: 先快速产出文本和方向，结构约束较弱，适合试故事和找感觉。
+                        - button "流水线优先 适合设定较完整后按规划、生成、审计、修复连续推进。" [ref=e607] [cursor=pointer]:
+                          - generic [ref=e609]: 流水线优先
+                          - generic [ref=e610]: 适合设定较完整后按规划、生成、审计、修复连续推进。
+                    - generic [ref=e611]:
+                      - generic [ref=e612]:
+                        - generic [ref=e613]:
+                          - generic [ref=e614]: AI 自由度
+                          - button "决定 AI 可以偏离既有规划和设定的程度。前期建议保持低或中。" [ref=e615] [cursor=pointer]: "?"
+                        - combobox "AI 自由度" [ref=e616]:
+                          - option "中自由度" [selected]
+                          - option "低自由度"
+                          - option "高自由度"
+                        - generic [ref=e617]: 允许 AI 在设定内补充细节和局部推进，适合作为默认值。
+                      - generic [ref=e618]:
+                        - generic [ref=e619]:
+                          - generic [ref=e620]: 资源完备度
+                          - button "用于标记当前设定、角色、主线资料是否充分。数值越高，越适合进入自动化生产阶段。" [ref=e621] [cursor=pointer]: "?"
+                        - spinbutton "资源完备度" [ref=e622]: "100"
+                        - generic [ref=e623]: 0 表示刚起步，100 表示设定、角色和规划都比较完备。
+                  - generic [ref=e624]:
+                    - generic [ref=e625]:
+                      - generic [ref=e626]: 生产进度与状态
+                      - generic [ref=e627]: 这些状态主要服务于项目管理和后续流程判断，不是一次性填死，后续可以按阶段调整。
+                    - generic [ref=e628]:
+                      - generic [ref=e629]:
+                        - generic [ref=e631]: 项目状态
+                        - combobox "项目状态" [ref=e632]:
+                          - option "未开始"
+                          - option "进行中"
+                          - option "已完成" [selected]
+                          - option "返工"
+                          - option "阻塞"
+                      - generic [ref=e633]:
+                        - generic [ref=e635]: 主线状态
+                        - combobox "主线状态" [ref=e636]:
+                          - option "未开始"
+                          - option "进行中"
+                          - option "已完成" [selected]
+                          - option "返工"
+                          - option "阻塞"
+                      - generic [ref=e637]:
+                        - generic [ref=e639]: 大纲状态
+                        - combobox "大纲状态" [ref=e640]:
+                          - option "未开始"
+                          - option "进行中"
+                          - option "已完成" [selected]
+                          - option "返工"
+                          - option "阻塞"
+                      - generic [ref=e641]:
+                        - generic [ref=e642]:
+                          - generic [ref=e643]: 发布状态
+                          - button "只是作品生命周期标记，不影响基础创作能力，但会影响列表和项目管理状态。" [ref=e644] [cursor=pointer]: "?"
+                        - generic [ref=e645]:
+                          - button "草稿 推荐 仍在开发和打磨阶段，适合绝大多数项目。" [ref=e646] [cursor=pointer]:
+                            - generic [ref=e647]:
+                              - generic [ref=e648]: 草稿
+                              - generic [ref=e649]: 推荐
+                            - generic [ref=e650]: 仍在开发和打磨阶段，适合绝大多数项目。
+                          - button "已发布 用于标记已成型或已对外发布的作品。" [ref=e651] [cursor=pointer]:
+                            - generic [ref=e653]: 已发布
+                            - generic [ref=e654]: 用于标记已成型或已对外发布的作品。
+                  - button "保存基本信息" [ref=e656] [cursor=pointer]
+              - generic [ref=e657]:
+                - generic [ref=e658]:
+                  - generic [ref=e659]:
+                    - heading "标题工坊" [level=3] [ref=e660]
+                    - generic [ref=e661]: 在项目内快速生成标题候选；如果要做跨项目沉淀和筛选，可以进入完整标题工坊。
+                  - link "打开完整工坊" [ref=e662] [cursor=pointer]:
+                    - /url: /titles
+                - generic [ref=e664]:
+                  - generic [ref=e665]:
+                    - generic [ref=e666]:
+                      - generic [ref=e667]:
+                        - generic [ref=e668]: 项目内标题工坊
+                        - generic [ref=e669]: 基于当前已保存的小说简介和类型生成候选。如果刚修改过简介或类型，建议先保存基本信息再生成。
+                      - button "保存当前标题" [ref=e670] [cursor=pointer]
+                    - generic [ref=e671]:
+                      - generic [ref=e673]:
+                        - generic [ref=e674]: 模型
+                        - combobox [ref=e675] [cursor=pointer]:
+                          - generic: MiniMax
+                          - img [ref=e676]
+                        - button "MiniMax-M2.7" [ref=e679] [cursor=pointer]:
+                          - generic [ref=e680]: MiniMax-M2.7
+                          - img [ref=e681]
+                      - button "生成标题候选" [ref=e684] [cursor=pointer]
+                  - generic [ref=e685]: 点一次生成，就能得到一批基于当前项目设定的标题候选。
+              - generic [ref=e686]:
+                - generic [ref=e687]:
+                  - generic [ref=e688]:
+                    - heading "正文开写前的写法确认" [level=3] [ref=e689]
+                    - generic [ref=e690]: 不在创建阶段强制你先挑写法。等这本书的目标读者、卖点和前 30 章承诺初步明确后，再让系统帮你推荐更合适的写法资产。
+                  - link "打开写法引擎" [ref=e691] [cursor=pointer]:
+                    - /url: /writing-formula
+                - generic [ref=e692]:
+                  - button "AI 推荐写法资产" [ref=e694] [cursor=pointer]
+                  - generic [ref=e695]: 先让系统根据这本小说的目标读者、前 30 章承诺、题材、文风关键词和叙事方向推荐 2-3 套候选写法，再决定是否采用。
+              - generic [ref=e696]:
+                - generic [ref=e698]:
+                  - generic [ref=e699]:
+                    - heading "围绕这本书的世界边界" [level=3] [ref=e700]
+                    - generic [ref=e701]: 系统会结合这本书的目标读者、卖点和前期承诺，从已绑定世界里裁出真正会用到的组织、地点和规则。你通常只需要确认主舞台、前期必须保留项和不要越界的边界说明。
+                  - generic [ref=e702]:
+                    - button "重新整理世界设定" [disabled]
+                    - button "保存这本书的保留项" [disabled]
+                - generic [ref=e704]: 这本小说还没有绑定世界观。先在上面的“基本信息”里选择一个世界，系统才会帮你整理可用设定。
+  - region "Notifications alt+T":
+    - list:
+      - listitem [ref=e705]:
+        - img [ref=e707]
+        - generic [ref=e710]: 请求参数校验失败。
+      - listitem [ref=e711]:
+        - img [ref=e713]
+        - generic [ref=e716]: 请求参数校验失败。
+      - listitem [ref=e717]:
+        - img [ref=e719]
+        - generic [ref=e722]: 请求参数校验失败。
+      - listitem:
+        - generic:
+          - img
+        - generic:
+          - generic: 请求参数校验失败。

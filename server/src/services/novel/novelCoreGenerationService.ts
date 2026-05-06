@@ -25,6 +25,7 @@ import { titleGenerationService } from "../title/TitleGenerationService";
 import { NovelWorldSliceService } from "./storyWorldSlice/NovelWorldSliceService";
 import { formatStoryWorldSlicePromptBlock } from "./storyWorldSlice/storyWorldSliceFormatting";
 import { normalizeNovelBiblePayload } from "./novelBiblePersistence";
+import { ensureChapterTitle } from "./chapterTitle";
 import {
   ChapterGenerateOptions,
   DEFAULT_ESTIMATED_CHAPTER_COUNT,
@@ -81,7 +82,7 @@ export class NovelCoreGenerationService {
         initialPrompt: initialPrompt || undefined,
       },
       options: {
-        provider: options.provider ?? "deepseek",
+        provider: options.provider,
         model: options.model,
         temperature: options.temperature ?? 0.7,
       },
@@ -144,7 +145,7 @@ export class NovelCoreGenerationService {
         totalChapters,
       },
       options: {
-        provider: options.provider ?? "deepseek",
+        provider: options.provider,
         model: options.model,
         temperature: options.temperature ?? 0.2,
       },
@@ -193,7 +194,7 @@ export class NovelCoreGenerationService {
         reason,
       },
       options: {
-        provider: options.provider ?? "deepseek",
+        provider: options.provider,
         model: options.model,
         temperature: 0.1,
       },
@@ -213,17 +214,22 @@ export class NovelCoreGenerationService {
 
     await Promise.all(
       chapters.map((chapter) => {
+        const chapterTitle = ensureChapterTitle({
+          order: chapter.order,
+          title: chapter.title,
+          expectation: chapter.summary,
+        });
         const existingId = existingByOrder.get(chapter.order);
         if (existingId) {
           return prisma.chapter.update({
             where: { id: existingId },
-            data: { title: chapter.title, expectation: chapter.summary },
+            data: { title: chapterTitle, expectation: chapter.summary },
           });
         }
         return prisma.chapter.create({
           data: {
             novelId,
-            title: chapter.title,
+            title: chapterTitle,
             order: chapter.order,
             content: "",
             expectation: chapter.summary,
@@ -276,7 +282,7 @@ export class NovelCoreGenerationService {
         referenceContext: referenceContext.trim() || undefined,
       },
       options: {
-        provider: options.provider ?? "deepseek",
+        provider: options.provider,
         model: options.model,
         temperature: options.temperature ?? 0.6,
       },
@@ -333,12 +339,17 @@ export class NovelCoreGenerationService {
     const worldContext = storyWorldSlice
       ? formatStoryWorldSlicePromptBlock(storyWorldSlice)
       : buildWorldContextFromNovel(novel);
-    const targetChapters = options.targetChapters
+    
+    const requestedStartOrder = options.startOrder ?? 1;
+    const requestedTargetChapters = options.targetChapters
       ?? Math.max(
         novel.estimatedChapterCount ?? DEFAULT_ESTIMATED_CHAPTER_COUNT,
         novel.chapters.length || 0,
         1,
       );
+    const startOrder = Math.min(requestedStartOrder, requestedTargetChapters);
+    const targetChapters = Math.max(requestedTargetChapters, startOrder);
+    const requestedRangeSize = Math.max(targetChapters - startOrder + 1, 0);
 
     const streamed = await streamStructuredPrompt({
       asset: novelBeatPrompt,
@@ -347,11 +358,12 @@ export class NovelCoreGenerationService {
         description: novel.description ?? "",
         worldContext,
         bibleRawContent: novel.bible?.rawContent ?? "暂无",
+        startOrder,
         targetChapters,
         referenceContext: referenceContext.trim() || undefined,
       },
       options: {
-        provider: options.provider ?? "deepseek",
+        provider: options.provider,
         model: options.model,
         temperature: options.temperature ?? 0.7,
       },
@@ -361,17 +373,25 @@ export class NovelCoreGenerationService {
       stream: streamed.stream as AsyncIterable<BaseMessageChunk>,
       onDone: async (_fullContent: string) => {
         const completed = await streamed.complete;
-        const normalizedBeats = completed.output.map((item, index) => ({
-          novelId,
-          chapterOrder: normalizeBeatOrder(item.chapterOrder, index + 1),
-          beatType: String(item.beatType ?? "main").slice(0, 120),
-          title: String(item.title ?? `拍点 ${index + 1}`).slice(0, 200),
-          content: String(item.content ?? ""),
-          status: normalizeBeatStatus(item.status),
-        }));
+        const normalizedBeats = completed.output
+          .slice(0, requestedRangeSize)
+          .map((item, index) => ({
+            novelId,
+            chapterOrder: normalizeBeatOrder(startOrder + index, startOrder + index),
+            beatType: String(item.beatType ?? "main").slice(0, 120),
+            title: String(item.title ?? `拍点 ${startOrder + index}`).slice(0, 200),
+            content: String(item.content ?? ""),
+            status: normalizeBeatStatus(item.status),
+          }))
+          .filter((item) => item.chapterOrder >= startOrder && item.chapterOrder <= targetChapters);
 
         await prisma.$transaction(async (tx) => {
-          await tx.plotBeat.deleteMany({ where: { novelId } });
+          await tx.plotBeat.deleteMany({ 
+            where: { 
+              novelId,
+              chapterOrder: { gte: startOrder, lte: targetChapters }
+            } 
+          });
           if (normalizedBeats.length > 0) {
             await tx.plotBeat.createMany({ data: normalizedBeats });
           }
@@ -395,7 +415,7 @@ export class NovelCoreGenerationService {
         content: (chapter.content ?? "").slice(-1800),
       },
       options: {
-        provider: options.provider ?? "deepseek",
+        provider: options.provider,
         model: options.model,
         temperature: options.temperature ?? 0.8,
       },

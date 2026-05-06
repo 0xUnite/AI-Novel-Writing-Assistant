@@ -19,6 +19,11 @@ import type { TitleFactorySuggestion } from "@ai-novel/shared/types/title";
 import { titleGenerationService } from "../../title/TitleGenerationService";
 import { isNearDuplicateTitle } from "../../title/titleGeneration.shared";
 import type { NovelWorkflowResumeTarget } from "@ai-novel/shared/types/novelWorkflow";
+import {
+  clampStructureChapterCount,
+  MAX_VOLUME_CHAPTER_TARGET,
+} from "../volume/volumeStructureBudget";
+import { deriveShortStoryChapterCount } from "../novelPlanningScale";
 import type {
   DirectorBookContractParsed,
   DirectorCandidateResponse,
@@ -153,7 +158,15 @@ function resolveDirectorReviewScope(phase: DirectorSessionState["phase"]): Direc
 export function normalizeCandidate(
   candidate: DirectorCandidateResponse["candidates"][number],
   index: number,
+  projectContext?: Pick<DirectorProjectContextInput, "contentForm" | "defaultChapterLength" | "targetTotalWordCount">,
 ): DirectorCandidate {
+  const targetChapterCount = projectContext?.contentForm === "short_story"
+    ? deriveShortStoryChapterCount({
+      targetTotalWordCount: projectContext.targetTotalWordCount,
+      defaultChapterLength: projectContext.defaultChapterLength,
+      fallbackChapterCount: candidate.targetChapterCount,
+    })
+    : candidate.targetChapterCount;
   return {
     id: randomUUID(),
     workingTitle: candidate.workingTitle.trim() || `方案 ${index + 1}`,
@@ -170,7 +183,7 @@ export function normalizeCandidate(
     toneKeywords: Array.from(
       new Set(candidate.toneKeywords.map((item) => item.trim()).filter(Boolean)),
     ).slice(0, 4),
-    targetChapterCount: Math.max(12, Math.min(120, Math.round(candidate.targetChapterCount))),
+    targetChapterCount: Math.max(1, Math.min(MAX_VOLUME_CHAPTER_TARGET, Math.round(targetChapterCount))),
   };
 }
 
@@ -259,7 +272,18 @@ export function toBookSpec(
   candidate: DirectorCandidate,
   idea: string,
   overrideTargetChapterCount?: number,
+  projectContext?: Pick<DirectorProjectContextInput, "contentForm" | "defaultChapterLength" | "targetTotalWordCount">,
 ): BookSpec {
+  const explicitTarget = typeof overrideTargetChapterCount === "number" && overrideTargetChapterCount > 0
+    ? overrideTargetChapterCount
+    : undefined;
+  const shortStoryTarget = projectContext?.contentForm === "short_story"
+    ? deriveShortStoryChapterCount({
+      targetTotalWordCount: projectContext.targetTotalWordCount,
+      defaultChapterLength: projectContext.defaultChapterLength,
+      fallbackChapterCount: candidate.targetChapterCount,
+    })
+    : undefined;
   return {
     storyInput: idea.trim(),
     positioning: candidate.positioning.trim(),
@@ -269,10 +293,7 @@ export function toBookSpec(
     endingDirection: candidate.endingDirection.trim(),
     hookStrategy: candidate.hookStrategy.trim(),
     progressionLoop: candidate.progressionLoop.trim(),
-    targetChapterCount: Math.max(
-      12,
-      Math.min(120, Math.round(overrideTargetChapterCount ?? candidate.targetChapterCount)),
-    ),
+    targetChapterCount: clampStructureChapterCount(explicitTarget ?? shortStoryTarget ?? candidate.targetChapterCount),
   };
 }
 
@@ -302,8 +323,13 @@ export function buildStoryInput(input: DirectorConfirmRequest, bookSpec: BookSpe
     input.targetAudience?.trim() ? `目标读者：${input.targetAudience.trim()}` : "",
     input.bookSellingPoint?.trim() ? `书级卖点：${input.bookSellingPoint.trim()}` : "",
     input.competingFeel?.trim() ? `对标气质：${input.competingFeel.trim()}` : "",
-    input.first30ChapterPromise?.trim() ? `前30章承诺：${input.first30ChapterPromise.trim()}` : "",
+    input.first30ChapterPromise?.trim()
+      ? `${input.contentForm === "short_story" ? "完整故事承诺" : "前30章承诺"}：${input.first30ChapterPromise.trim()}`
+      : "",
     input.commercialTags && input.commercialTags.length > 0 ? `商业标签：${input.commercialTags.join("、")}` : "",
+    input.contentForm === "short_story" && typeof input.targetTotalWordCount === "number"
+      ? `短故事整篇目标字数：${input.targetTotalWordCount}`
+      : "",
     `确认方案：${input.candidate.workingTitle}`,
     `作品定位：${bookSpec.positioning}`,
     `核心卖点：${bookSpec.sellingPoint}`,
@@ -337,6 +363,7 @@ export function buildWorkflowSeedPayload(
   extra?: Record<string, unknown>,
 ): Record<string, unknown> {
   const basicForm = {
+    contentForm: input.contentForm ?? "novel",
     title: input.title?.trim() || "",
     description: input.description?.trim() || "",
     targetAudience: input.targetAudience?.trim() || "",
@@ -354,6 +381,7 @@ export function buildWorkflowSeedPayload(
     emotionIntensity: input.emotionIntensity ?? "medium",
     aiFreedom: input.aiFreedom ?? "medium",
     defaultChapterLength: input.defaultChapterLength ?? 2800,
+    targetTotalWordCount: input.targetTotalWordCount ?? null,
     estimatedChapterCount: input.estimatedChapterCount ?? null,
     projectStatus: input.projectStatus ?? "not_started",
     storylineStatus: input.storylineStatus ?? "not_started",
@@ -366,6 +394,7 @@ export function buildWorkflowSeedPayload(
   };
   return {
     title: basicForm.title || null,
+    contentForm: basicForm.contentForm,
     description: basicForm.description || null,
     targetAudience: basicForm.targetAudience || null,
     bookSellingPoint: basicForm.bookSellingPoint || null,
@@ -383,6 +412,7 @@ export function buildWorkflowSeedPayload(
     aiFreedom: basicForm.aiFreedom,
     runMode: input.runMode ?? "auto_to_ready",
     estimatedChapterCount: basicForm.estimatedChapterCount,
+    targetTotalWordCount: basicForm.targetTotalWordCount,
     idea: input.idea.trim(),
     basicForm,
     ...extra,

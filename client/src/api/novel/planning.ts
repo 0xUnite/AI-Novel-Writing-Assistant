@@ -3,6 +3,9 @@ import type { LLMProvider } from "@ai-novel/shared/types/llm";
 import type {
   AuditIssue,
   AuditReport,
+  ContinuityAuditProgress,
+  NovelProductionNextAction,
+  NovelReviewBatchJob,
   QualityScore,
   ReplanRecommendation,
   ReplanResult,
@@ -147,6 +150,104 @@ export async function getChapterAuditReports(id: string, chapterId: string) {
   return data;
 }
 
+export async function getNovelContinuityProgress(id: string, threshold: number) {
+  const { data } = await apiClient.get<ApiResponse<ContinuityAuditProgress>>(`/novels/${id}/continuity-progress`, {
+    params: { threshold },
+  });
+  return data;
+}
+
+export async function getNovelProductionNextAction(id: string, threshold: number) {
+  const { data } = await apiClient.get<ApiResponse<NovelProductionNextAction>>(`/novels/${id}/production-next-action`, {
+    params: { threshold },
+  });
+  return data;
+}
+
+export async function listNovelReviewBatchJobs(
+  id: string,
+  params?: {
+    jobTypes?: Array<"quality_review_all" | "quality_repair_until_pass" | "continuity_audit" | "continuity_repair_blocked">;
+    limit?: number;
+  },
+) {
+  const { data } = await apiClient.get<ApiResponse<NovelReviewBatchJob[]>>(`/novels/${id}/review-batch-jobs`, {
+    params: {
+      ...(params?.jobTypes?.length ? { jobTypes: params.jobTypes.join(",") } : {}),
+      ...(typeof params?.limit === "number" ? { limit: params.limit } : {}),
+    },
+  });
+  return data;
+}
+
+export async function getNovelReviewBatchJob(id: string, jobId: string) {
+  const { data } = await apiClient.get<ApiResponse<NovelReviewBatchJob>>(`/novels/${id}/review-batch-jobs/${jobId}`);
+  return data;
+}
+
+export async function startQualityReviewBatchJob(
+  id: string,
+  payload?: {
+    provider?: LLMProvider;
+    model?: string;
+    temperature?: number;
+    threshold?: number;
+    maxRepairAttempts?: number;
+    includeFinalizedRecheck?: boolean;
+  },
+) {
+  const { data } = await apiClient.post<ApiResponse<NovelReviewBatchJob>>(`/novels/${id}/review-batch-jobs/quality-review`, payload ?? {});
+  return data;
+}
+
+export async function startQualityRepairBatchJob(
+  id: string,
+  payload?: {
+    provider?: LLMProvider;
+    model?: string;
+    temperature?: number;
+    threshold?: number;
+    maxRepairAttempts?: number;
+  },
+) {
+  const { data } = await apiClient.post<ApiResponse<NovelReviewBatchJob>>(`/novels/${id}/review-batch-jobs/quality-repair`, payload ?? {});
+  return data;
+}
+
+export async function startContinuityAuditBatchJob(
+  id: string,
+  payload?: {
+    provider?: LLMProvider;
+    model?: string;
+    temperature?: number;
+    threshold?: number;
+    maxRepairAttempts?: number;
+    autoRepairBlocked?: boolean;
+  },
+) {
+  const { data } = await apiClient.post<ApiResponse<NovelReviewBatchJob>>(`/novels/${id}/review-batch-jobs/continuity-audit`, payload ?? {});
+  return data;
+}
+
+export async function startContinuityRepairBatchJob(
+  id: string,
+  payload?: {
+    provider?: LLMProvider;
+    model?: string;
+    temperature?: number;
+    threshold?: number;
+    maxRepairAttempts?: number;
+  },
+) {
+  const { data } = await apiClient.post<ApiResponse<NovelReviewBatchJob>>(`/novels/${id}/review-batch-jobs/continuity-repair`, payload ?? {});
+  return data;
+}
+
+export async function cancelNovelReviewBatchJob(id: string, jobId: string) {
+  const { data } = await apiClient.post<ApiResponse<NovelReviewBatchJob>>(`/novels/${id}/review-batch-jobs/${jobId}/cancel`, {});
+  return data;
+}
+
 export async function resolveAuditIssue(id: string, issueId: string) {
   const { data } = await apiClient.post<ApiResponse<AuditIssue[]>>(`/novels/${id}/audit-issues/${issueId}/resolve`, {});
   return data;
@@ -159,6 +260,10 @@ export async function getNovelQualityReport(id: string) {
       summary: QualityScore;
       chapterReports: Array<{
         chapterId?: string | null;
+        chapterOrder?: number | null;
+        chapterLabel?: string | null;
+        chapterStatus?: string | null;
+        generationState?: string | null;
         coherence: number;
         repetition: number;
         pacing: number;
@@ -166,6 +271,8 @@ export async function getNovelQualityReport(id: string) {
         engagement: number;
         overall: number;
         issues?: string | null;
+        isStale?: boolean;
+        isMissing?: boolean;
       }>;
       totalReports?: number;
     }>

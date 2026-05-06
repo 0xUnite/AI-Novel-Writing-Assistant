@@ -7,6 +7,7 @@ import type {
   BookAnalysisStatus,
 } from "@ai-novel/shared/types/bookAnalysis";
 import type { KnowledgeDocumentDetail, KnowledgeDocumentSummary } from "@ai-novel/shared/types/knowledge";
+import type { NovelContentForm } from "@ai-novel/shared/types/novel";
 import type { AggregatedEvidenceItem, LLMConfigState, SectionDraft } from "../bookAnalysis.types";
 
 export type ExportFormat = "markdown" | "json";
@@ -14,6 +15,7 @@ export type ExportFormat = "markdown" | "json";
 export interface NovelOption {
   id: string;
   title: string;
+  contentForm?: NovelContentForm | null;
 }
 
 export interface PendingState {

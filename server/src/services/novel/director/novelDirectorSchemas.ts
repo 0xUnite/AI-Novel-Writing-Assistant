@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { MAX_VOLUME_CHAPTER_TARGET } from "../volume/volumeStructureBudget";
 
 const nonEmptyString = z.string().trim().min(1);
 const titleStyleSchema = z.enum(["literary", "conflict", "suspense", "high_concept"]);
@@ -12,6 +13,37 @@ const keywordArraySchema = z.union([
     : value.split(/[,，、/|]/g).map((item) => item.trim()).filter(Boolean);
   return Array.from(new Set(list)).slice(0, 4);
 }).pipe(z.array(nonEmptyString).min(2).max(4));
+
+function splitAbsoluteRedLines(value: string): string[] {
+  const withLineBreaks = value
+    .replace(/\r\n?/g, "\n")
+    .replace(/([。！？；;])\s*(?=(?:\d+|[一二三四五六七八九十]+)[.．、）)]\s*)/g, "$1\n")
+    .replace(/(?:^|\n)\s*(?:\d+|[一二三四五六七八九十]+)[.．、）)]\s*/g, "\n");
+
+  const lineItems = withLineBreaks
+    .split(/\n+/g)
+    .map((item) => item.trim())
+    .filter(Boolean);
+
+  if (lineItems.length >= 2) {
+    return lineItems;
+  }
+
+  return value
+    .split(/[；;|]/g)
+    .map((item) => item.replace(/^\s*(?:\d+|[一二三四五六七八九十]+)[.．、）)]\s*/, "").trim())
+    .filter(Boolean);
+}
+
+const absoluteRedLinesSchema = z.union([
+  z.array(nonEmptyString),
+  nonEmptyString,
+]).transform((value) => {
+  const list = Array.isArray(value)
+    ? value
+    : splitAbsoluteRedLines(value);
+  return Array.from(new Set(list.map((item) => item.trim()).filter(Boolean))).slice(0, 6);
+}).pipe(z.array(nonEmptyString).min(2).max(6));
 
 export const directorCandidateSchema = z.object({
   workingTitle: nonEmptyString,
@@ -32,7 +64,7 @@ export const directorCandidateSchema = z.object({
   progressionLoop: nonEmptyString,
   whyItFits: nonEmptyString,
   toneKeywords: keywordArraySchema,
-  targetChapterCount: z.coerce.number().int().min(12).max(120),
+  targetChapterCount: z.coerce.number().int().min(1).max(MAX_VOLUME_CHAPTER_TARGET),
 });
 
 export const directorCandidateResponseSchema = z.object({
@@ -48,7 +80,7 @@ export const directorBookContractSchema = z.object({
   chapter30Payoff: nonEmptyString,
   escalationLadder: nonEmptyString,
   relationshipMainline: nonEmptyString,
-  absoluteRedLines: z.array(nonEmptyString).min(2).max(6),
+  absoluteRedLines: absoluteRedLinesSchema,
 });
 
 export const directorPlanBlueprintSchema = z.object({

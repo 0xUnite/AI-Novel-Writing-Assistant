@@ -128,13 +128,21 @@ export function buildVolumeSkeletonContextBlocks(input: VolumeSkeletonPromptInpu
       group: "chapter_budget",
       priority: 96,
       required: true,
-      content: `Chapter budget: ${input.chapterBudget}`,
+      content: [
+        `Chapter budget: ${input.chapterBudget}`,
+        typeof input.targetVolumeCount === "number" ? `Target volume count: ${input.targetVolumeCount}` : "",
+        input.chapterBudgets?.length
+          ? `Per-volume chapter budget: ${input.chapterBudgets.map((count, index) => `volume ${index + 1}=${count}`).join(" | ")}`
+          : "",
+        "The total chapter budget is a hard structure contract, not a loose suggestion.",
+      ].filter(Boolean).join("\n"),
     }),
     guidanceBlock(input.guidance),
   ].filter((block): block is PromptContextBlock => Boolean(block));
 }
 
 export function buildVolumeBeatSheetContextBlocks(input: VolumeBeatSheetPromptInput): PromptContextBlock[] {
+  const targetChapterEndOrder = input.targetChapterStartOrder + input.targetChapterCount - 1;
   return [
     createContextBlock({
       id: "book_contract",
@@ -161,6 +169,17 @@ export function buildVolumeBeatSheetContextBlocks(input: VolumeBeatSheetPromptIn
       priority: 100,
       required: true,
       content: `Target volume:\n${buildCompactVolumeCard(input.targetVolume)}`,
+    }),
+    createContextBlock({
+      id: "target_chapter_count",
+      group: "target_chapter_count",
+      priority: 98,
+      required: true,
+      content: [
+        `Target volume chapter count: ${input.targetChapterCount}`,
+        `Target chapter order window: ${input.targetChapterStartOrder}-${targetChapterEndOrder}`,
+        "Beat chapterSpanHint must stay inside this window and cover it contiguously.",
+      ].join("\n"),
     }),
     createContextBlock({
       id: "volume_window",

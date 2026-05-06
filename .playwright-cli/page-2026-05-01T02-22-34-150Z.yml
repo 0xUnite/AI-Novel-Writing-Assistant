@@ -1,0 +1,306 @@
+- generic [ref=e2]:
+  - generic [ref=e3]:
+    - banner [ref=e4]:
+      - generic [ref=e5]:
+        - img [ref=e6]
+        - generic [ref=e9]:
+          - generic [ref=e10]: AI 小说创作工作台
+          - generic [ref=e11]: AI Novel Production Engine
+      - link "模型设置" [ref=e12] [cursor=pointer]:
+        - /url: /settings/model-routes
+    - generic [ref=e13]:
+      - complementary [ref=e14]:
+        - button "收起导航栏" [ref=e16] [cursor=pointer]:
+          - img [ref=e17]
+        - navigation [ref=e19]:
+          - generic [ref=e20]:
+            - generic [ref=e21]: 创作
+            - link "首页" [ref=e22] [cursor=pointer]:
+              - /url: /
+              - generic [ref=e23]:
+                - img [ref=e25]
+                - generic [ref=e28]: 首页
+            - link "小说列表" [ref=e29] [cursor=pointer]:
+              - /url: /novels
+              - generic [ref=e30]:
+                - img [ref=e32]
+                - generic [ref=e34]: 小说列表
+            - link "短故事" [ref=e35] [cursor=pointer]:
+              - /url: /short-stories
+              - generic [ref=e36]:
+                - img [ref=e38]
+                - generic [ref=e41]: 短故事
+            - link "创作中枢" [ref=e42] [cursor=pointer]:
+              - /url: /creative-hub
+              - generic [ref=e43]:
+                - img [ref=e45]
+                - generic [ref=e50]: 创作中枢
+            - link "拆书" [ref=e51] [cursor=pointer]:
+              - /url: /book-analysis
+              - generic [ref=e52]:
+                - img [ref=e54]
+                - generic [ref=e61]: 拆书
+            - link "任务中心 R2 F45" [ref=e62] [cursor=pointer]:
+              - /url: /tasks
+              - generic [ref=e63]:
+                - img [ref=e65]
+                - generic [ref=e68]: 任务中心
+                - generic [ref=e69]:
+                  - generic [ref=e70]: R2
+                  - generic [ref=e71]: F45
+          - generic [ref=e72]:
+            - generic [ref=e73]: 资产
+            - link "题材基底库" [ref=e74] [cursor=pointer]:
+              - /url: /genres
+              - generic [ref=e75]:
+                - img [ref=e77]
+                - generic [ref=e81]: 题材基底库
+            - link "推进模式库" [ref=e82] [cursor=pointer]:
+              - /url: /story-modes
+              - generic [ref=e83]:
+                - img [ref=e85]
+                - generic [ref=e89]: 推进模式库
+            - link "标题工坊" [ref=e90] [cursor=pointer]:
+              - /url: /titles
+              - generic [ref=e91]:
+                - img [ref=e93]
+                - generic [ref=e96]: 标题工坊
+            - link "知识库" [ref=e97] [cursor=pointer]:
+              - /url: /knowledge
+              - generic [ref=e98]:
+                - img [ref=e100]
+                - generic [ref=e104]: 知识库
+            - link "世界观" [ref=e105] [cursor=pointer]:
+              - /url: /worlds
+              - generic [ref=e106]:
+                - img [ref=e108]
+                - generic [ref=e113]: 世界观
+            - link "写法引擎" [ref=e114] [cursor=pointer]:
+              - /url: /style-engine
+              - generic [ref=e115]:
+                - img [ref=e117]
+                - generic [ref=e120]: 写法引擎
+            - link "基础角色库" [ref=e121] [cursor=pointer]:
+              - /url: /base-characters
+              - generic [ref=e122]:
+                - img [ref=e124]
+                - generic [ref=e128]: 基础角色库
+          - generic [ref=e129]:
+            - generic [ref=e130]: 系统
+            - link "模型路由" [ref=e131] [cursor=pointer]:
+              - /url: /settings/model-routes
+              - generic [ref=e132]:
+                - img [ref=e134]
+                - generic [ref=e138]: 模型路由
+            - link "系统设置" [ref=e139] [cursor=pointer]:
+              - /url: /settings
+              - generic [ref=e140]:
+                - img [ref=e142]
+                - generic [ref=e145]: 系统设置
+      - main [ref=e146]:
+        - generic [ref=e147]:
+          - generic [ref=e148]:
+            - generic [ref=e150]:
+              - paragraph [ref=e151]: 自动推进中
+              - heading "0" [level=3] [ref=e152]
+              - generic [ref=e153]: 当前仍在后台推进中的自动导演或自动执行项目。
+            - generic [ref=e155]:
+              - paragraph [ref=e156]: 待你处理
+              - heading "1" [level=3] [ref=e157]
+              - generic [ref=e158]: 等待审核、失败或已取消后需要你决定下一步的项目。
+            - generic [ref=e160]:
+              - paragraph [ref=e161]: 可进入章节执行
+              - heading "5" [level=3] [ref=e162]
+              - generic [ref=e163]: 已经准备到可开写阶段，可以直接进入章节写作。
+            - generic [ref=e165]:
+              - paragraph [ref=e166]: 后台失败任务
+              - heading "45" [level=3] [ref=e167]
+              - generic [ref=e168]: 来自任务中心的失败任务总数，可后续集中处理。
+          - generic [ref=e169]:
+            - generic [ref=e170]:
+              - heading "继续最近项目" [level=3] [ref=e171]
+              - paragraph [ref=e172]: 首页应该直接把你送回当前最值得继续的一本书。
+            - generic [ref=e175]:
+              - generic [ref=e176]:
+                - generic [ref=e177]:
+                  - generic [ref=e178]: 八零恶妻要离婚，冷面糙汉他慌了
+                  - generic [ref=e179]:
+                    - generic [ref=e180]: 自动导演已完成
+                    - generic [ref=e181]: 进度 100%
+                    - generic [ref=e182]: 草稿
+                    - generic [ref=e183]: 原创
+                    - generic [ref=e184]: 短故事
+                - generic [ref=e185]: 短故事 16 章正文已全部生成、修复并通过终稿质检，总字数 46335。
+                - generic [ref=e186]:
+                  - generic [ref=e187]: 更新时间：2026/5/1 11:21:56
+                  - generic [ref=e188]: 章节数：16
+                  - generic [ref=e189]: 角色数：11
+                  - generic [ref=e190]: 当前阶段：出稿质检
+              - generic [ref=e191]:
+                - link "进入章节执行" [ref=e192] [cursor=pointer]:
+                  - /url: /short-stories/cmolr8k720000wk8oa4sn455z/edit
+                - link "任务中心" [ref=e193] [cursor=pointer]:
+                  - /url: /tasks?kind=novel_workflow&id=cmolr8k8b0025wk8odyulrbxf
+          - generic [ref=e194]:
+            - generic [ref=e195]:
+              - heading "快捷操作" [level=3] [ref=e196]
+              - paragraph [ref=e197]: 从首页直接进入高频入口。
+            - generic [ref=e198]:
+              - link "新建小说" [ref=e199] [cursor=pointer]:
+                - /url: /novels/create
+              - link "新建短故事" [ref=e200] [cursor=pointer]:
+                - /url: /short-stories/create
+              - link "新建拆书" [ref=e201] [cursor=pointer]:
+                - /url: /book-analysis
+              - link "打开任务中心" [ref=e202] [cursor=pointer]:
+                - /url: /tasks
+          - generic [ref=e203]:
+            - generic [ref=e204]:
+              - heading "最近项目" [level=3] [ref=e205]
+              - paragraph [ref=e206]: 这里不只显示标题，也直接显示当前所处阶段和恢复入口。
+            - generic [ref=e208]:
+              - link "八零恶妻要离婚，冷面糙汉他慌了 自动导演已完成 进度 100% 草稿 原创 短故事 短故事 16 章正文已全部生成、修复并通过终稿质检，总字数 46335。 更新时间：2026/5/1 11:21:56 章节数：16 角色数：11 阶段：出稿质检 进入章节执行 任务中心" [ref=e209] [cursor=pointer]:
+                - generic [ref=e210]:
+                  - generic [ref=e211]:
+                    - generic [ref=e212]:
+                      - heading "八零恶妻要离婚，冷面糙汉他慌了" [level=3] [ref=e213]
+                      - generic [ref=e214]:
+                        - generic [ref=e215]: 自动导演已完成
+                        - generic [ref=e216]: 进度 100%
+                    - generic [ref=e217]:
+                      - generic [ref=e218]: 草稿
+                      - generic [ref=e219]: 原创
+                      - generic [ref=e220]: 短故事
+                  - paragraph [ref=e221]: 短故事 16 章正文已全部生成、修复并通过终稿质检，总字数 46335。
+                - generic [ref=e222]:
+                  - generic [ref=e223]:
+                    - generic [ref=e224]: 更新时间：2026/5/1 11:21:56
+                    - generic [ref=e225]: 章节数：16
+                    - generic [ref=e226]: 角色数：11
+                    - generic [ref=e227]: 阶段：出稿质检
+                  - generic [ref=e228]:
+                    - link "进入章节执行" [ref=e229]:
+                      - /url: /short-stories/cmolr8k720000wk8oa4sn455z/edit
+                    - link "任务中心" [ref=e230]:
+                      - /url: /tasks?kind=novel_workflow&id=cmolr8k8b0025wk8odyulrbxf
+              - link "取消订婚后，我让渣总跪到天亮 自动导演已完成 进度 100% 草稿 原创 短故事 短故事 16 章正文已全部生成、修复并通过终稿质检。 更新时间：2026/5/1 11:21:23 章节数：16 角色数：9 阶段：出稿质检 进入章节执行 任务中心" [ref=e231] [cursor=pointer]:
+                - generic [ref=e232]:
+                  - generic [ref=e233]:
+                    - generic [ref=e234]:
+                      - heading "取消订婚后，我让渣总跪到天亮" [level=3] [ref=e235]
+                      - generic [ref=e236]:
+                        - generic [ref=e237]: 自动导演已完成
+                        - generic [ref=e238]: 进度 100%
+                    - generic [ref=e239]:
+                      - generic [ref=e240]: 草稿
+                      - generic [ref=e241]: 原创
+                      - generic [ref=e242]: 短故事
+                  - paragraph [ref=e243]: 短故事 16 章正文已全部生成、修复并通过终稿质检。
+                - generic [ref=e244]:
+                  - generic [ref=e245]:
+                    - generic [ref=e246]: 更新时间：2026/5/1 11:21:23
+                    - generic [ref=e247]: 章节数：16
+                    - generic [ref=e248]: 角色数：9
+                    - generic [ref=e249]: 阶段：出稿质检
+                  - generic [ref=e250]:
+                    - link "进入章节执行" [ref=e251]:
+                      - /url: /short-stories/cmol96x400000cb8oc3be13qr/edit
+                    - link "任务中心" [ref=e252]:
+                      - /url: /tasks?kind=novel_workflow&id=cmol96x610047cb8o3xtstuiw
+              - link "假死三年，我带崽燃翻全场 自动导演已完成 进度 100% 草稿 原创 短故事 短故事《假死三年，我带崽燃翻全场》已完成项目设定、故事宏观规划、角色准备、卷骨架、节奏拆章、章节执行与终审。 更新时间：2026/4/30 15:04:32 章节数：12 角色数：6 阶段：出稿质检 进入章节执行 任务中心" [ref=e253] [cursor=pointer]:
+                - generic [ref=e254]:
+                  - generic [ref=e255]:
+                    - generic [ref=e256]:
+                      - heading "假死三年，我带崽燃翻全场" [level=3] [ref=e257]
+                      - generic [ref=e258]:
+                        - generic [ref=e259]: 自动导演已完成
+                        - generic [ref=e260]: 进度 100%
+                    - generic [ref=e261]:
+                      - generic [ref=e262]: 草稿
+                      - generic [ref=e263]: 原创
+                      - generic [ref=e264]: 短故事
+                  - paragraph [ref=e265]: 短故事《假死三年，我带崽燃翻全场》已完成项目设定、故事宏观规划、角色准备、卷骨架、节奏拆章、章节执行与终审。
+                - generic [ref=e266]:
+                  - generic [ref=e267]:
+                    - generic [ref=e268]: 更新时间：2026/4/30 15:04:32
+                    - generic [ref=e269]: 章节数：12
+                    - generic [ref=e270]: 角色数：6
+                    - generic [ref=e271]: 阶段：出稿质检
+                  - generic [ref=e272]:
+                    - link "进入章节执行" [ref=e273]:
+                      - /url: /short-stories/cmok7gdxl0a6ayg8oe3wpywb7/edit
+                    - link "任务中心" [ref=e274]:
+                      - /url: /tasks?kind=novel_workflow&id=workflow_auto_fake_death_completed
+              - link "苟在底层推演万法 自动导演失败 进度 8% 草稿 原创 小说 等待生成候选方向 更新时间：2026/4/20 14:52:05 章节数：500 角色数：26 阶段：AI 自动导演 查看任务 任务中心" [ref=e275] [cursor=pointer]:
+                - generic [ref=e276]:
+                  - generic [ref=e277]:
+                    - generic [ref=e278]:
+                      - heading "苟在底层推演万法" [level=3] [ref=e279]
+                      - generic [ref=e280]:
+                        - generic [ref=e281]: 自动导演失败
+                        - generic [ref=e282]: 进度 8%
+                    - generic [ref=e283]:
+                      - generic [ref=e284]: 草稿
+                      - generic [ref=e285]: 原创
+                      - generic [ref=e286]: 小说
+                  - paragraph [ref=e287]: 等待生成候选方向
+                - generic [ref=e288]:
+                  - generic [ref=e289]:
+                    - generic [ref=e290]: 更新时间：2026/4/20 14:52:05
+                    - generic [ref=e291]: 章节数：500
+                    - generic [ref=e292]: 角色数：26
+                    - generic [ref=e293]: 阶段：AI 自动导演
+                  - generic [ref=e294]:
+                    - link "查看任务" [ref=e295]:
+                      - /url: /tasks?kind=novel_workflow&id=cmo4g16wu0005938oxsk4iq96
+                    - link "任务中心" [ref=e296]:
+                      - /url: /tasks?kind=novel_workflow&id=cmo4g16wu0005938oxsk4iq96
+              - link "重生2005：从打工仔到商业教父 自动导演已完成 进度 100% 草稿 原创 小说 《重生2005：从打工仔到商业教父》已自动完成前 10 章章节执行与质量修复。 更新时间：2026/4/18 17:48:35 章节数：92 角色数：6 阶段：质量修复 进入章节执行 任务中心" [ref=e297] [cursor=pointer]:
+                - generic [ref=e298]:
+                  - generic [ref=e299]:
+                    - generic [ref=e300]:
+                      - heading "重生2005：从打工仔到商业教父" [level=3] [ref=e301]
+                      - generic [ref=e302]:
+                        - generic [ref=e303]: 自动导演已完成
+                        - generic [ref=e304]: 进度 100%
+                    - generic [ref=e305]:
+                      - generic [ref=e306]: 草稿
+                      - generic [ref=e307]: 原创
+                      - generic [ref=e308]: 小说
+                  - paragraph [ref=e309]: 《重生2005：从打工仔到商业教父》已自动完成前 10 章章节执行与质量修复。
+                - generic [ref=e310]:
+                  - generic [ref=e311]:
+                    - generic [ref=e312]: 更新时间：2026/4/18 17:48:35
+                    - generic [ref=e313]: 章节数：92
+                    - generic [ref=e314]: 角色数：6
+                    - generic [ref=e315]: 阶段：质量修复
+                  - generic [ref=e316]:
+                    - link "进入章节执行" [ref=e317]:
+                      - /url: /novels/cmnvhbpjb004zt4jui6ac85tn/edit
+                    - link "任务中心" [ref=e318]:
+                      - /url: /tasks?kind=novel_workflow&id=cmnvhir8w005ht4jub72o8yuw
+              - link "赛博精神病院：我靠古法修仙黑入系统 自动导演已完成 进度 100% 草稿 原创 小说 《建议《赛博精神病院：我靠古法修仙黑入系统》或《代码禁区的剑仙》》已自动完成前 10 章章节执行与质量修复。 更新时间：2026/4/14 00:49:20 章节数：149 角色数：5 阶段：质量修复 进入章节执行 任务中心" [ref=e319] [cursor=pointer]:
+                - generic [ref=e320]:
+                  - generic [ref=e321]:
+                    - generic [ref=e322]:
+                      - heading "赛博精神病院：我靠古法修仙黑入系统" [level=3] [ref=e323]
+                      - generic [ref=e324]:
+                        - generic [ref=e325]: 自动导演已完成
+                        - generic [ref=e326]: 进度 100%
+                    - generic [ref=e327]:
+                      - generic [ref=e328]: 草稿
+                      - generic [ref=e329]: 原创
+                      - generic [ref=e330]: 小说
+                  - paragraph [ref=e331]: 《建议《赛博精神病院：我靠古法修仙黑入系统》或《代码禁区的剑仙》》已自动完成前 10 章章节执行与质量修复。
+                - generic [ref=e332]:
+                  - generic [ref=e333]:
+                    - generic [ref=e334]: 更新时间：2026/4/14 00:49:20
+                    - generic [ref=e335]: 章节数：149
+                    - generic [ref=e336]: 角色数：5
+                    - generic [ref=e337]: 阶段：质量修复
+                  - generic [ref=e338]:
+                    - link "进入章节执行" [ref=e339]:
+                      - /url: /novels/cmniz64mp0001an3v59x2sfal/edit
+                    - link "任务中心" [ref=e340]:
+                      - /url: /tasks?kind=novel_workflow&id=cmnx75r500159w98ok690l42y
+  - region "Notifications alt+T"

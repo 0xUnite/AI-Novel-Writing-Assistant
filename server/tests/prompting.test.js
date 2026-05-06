@@ -80,6 +80,7 @@ test("prompt registry exposes versioned planning assets", () => {
     "novel.framing.suggest@v1",
     "novel.production.characters@v1",
     "state.snapshot.extract@v2",
+    "novel.review.repair@v2",
     "storyMode.child.generate@v1",
     "storyMode.tree.generate@v1",
     "storyWorldSlice.generate@v1",
@@ -88,7 +89,7 @@ test("prompt registry exposes versioned planning assets", () => {
     "style.profile.extract@v1",
     "style.recommendation@v1",
     "novel.review.chapter@v1",
-    "novel.chapter.writer@v2",
+    "novel.chapter.writer@v3",
     "world.draft.generate@v1",
     "world.draft.refine@v1",
     "world.draft.refine_alternatives@v1",
@@ -173,9 +174,9 @@ test("novel main-chain prompt assets declare explicit non-zero context budgets",
     ["novel.volume.chapter_boundary@v1", NOVEL_PROMPT_BUDGETS.volumeChapterDetail],
     ["novel.volume.chapter_task_sheet@v1", NOVEL_PROMPT_BUDGETS.volumeChapterDetail],
     ["novel.volume.rebalance.adjacent@v1", NOVEL_PROMPT_BUDGETS.volumeRebalance],
-    ["novel.chapter.writer@v2", NOVEL_PROMPT_BUDGETS.chapterWriter],
+    ["novel.chapter.writer@v3", NOVEL_PROMPT_BUDGETS.chapterWriter],
     ["novel.review.chapter@v1", NOVEL_PROMPT_BUDGETS.chapterReview],
-    ["novel.review.repair@v1", NOVEL_PROMPT_BUDGETS.chapterRepair],
+    ["novel.review.repair@v2", NOVEL_PROMPT_BUDGETS.chapterRepair],
     ["audit.chapter.full@v1", NOVEL_PROMPT_BUDGETS.chapterReview],
   ]);
 
@@ -216,7 +217,7 @@ test("writer guard strips forbidden context groups before prompt execution", () 
 });
 
 test("chapter writer prompt carries explicit target length and continuation instructions", () => {
-  const asset = getRegisteredPromptAsset("novel.chapter.writer", "v2");
+  const asset = getRegisteredPromptAsset("novel.chapter.writer", "v3");
   assert.ok(asset);
 
   const draftMessages = asset.render({
@@ -225,8 +226,8 @@ test("chapter writer prompt carries explicit target length and continuation inst
     chapterTitle: "旧街反压",
     mode: "draft",
     targetWordCount: 3000,
-    minWordCount: 2550,
-    maxWordCount: 3450,
+    minWordCount: 2700,
+    maxWordCount: 3240,
   }, {
     blocks: [],
     selectedBlockIds: [],
@@ -234,8 +235,27 @@ test("chapter writer prompt carries explicit target length and continuation inst
     summarizedBlockIds: [],
     estimatedInputTokens: 0,
   });
-  assert.match(String(draftMessages[0].content), /本章目标长度：约 3000 字/);
-  assert.match(String(draftMessages[0].content), /2550-3450/);
+  assert.match(String(draftMessages[0].content), /本章目标长度为严格的 3000 字左右/);
+  assert.match(String(draftMessages[0].content), /硬性合同/);
+  assert.match(String(draftMessages[0].content), /2700-3240/);
+  assert.match(String(draftMessages[0].content), /人物质感与对白要求/);
+  assert.match(String(draftMessages[0].content), /human_texture_guidance/);
+  assert.match(String(draftMessages[0].content), /chapter_pacing_guidance/);
+  assert.match(String(draftMessages[0].content), /chapter_detail_policy_guidance/);
+  assert.match(String(draftMessages[0].content), /creative_agency_guidance/);
+  assert.match(String(draftMessages[0].content), /character_social_depth_guidance/);
+  assert.match(String(draftMessages[0].content), /opening_conversion_guidance/);
+  assert.match(String(draftMessages[0].content), /launch_appeal_density_guidance/);
+  assert.match(String(draftMessages[0].content), /一句话能概括/);
+  assert.match(String(draftMessages[0].content), /工具人/);
+  assert.match(String(draftMessages[0].content), /动态呈现/);
+  assert.match(String(draftMessages[0].content), /前三句/);
+  assert.match(String(draftMessages[0].content), /前置高光/);
+  assert.match(String(draftMessages[0].content), /看点密度/);
+  assert.match(String(draftMessages[0].content), /无味过渡句/);
+  assert.match(String(draftMessages[0].content), /详略自检/);
+  assert.match(String(draftMessages[0].content), /轻微幽默/);
+  assert.match(String(draftMessages[0].content), /带潜台词/);
 
   const continueMessages = asset.render({
     novelTitle: "霜轨档案",
@@ -243,8 +263,8 @@ test("chapter writer prompt carries explicit target length and continuation inst
     chapterTitle: "旧街反压",
     mode: "continue",
     targetWordCount: 3000,
-    minWordCount: 2550,
-    maxWordCount: 3450,
+    minWordCount: 2700,
+    maxWordCount: 3240,
     missingWordGap: 900,
   }, {
     blocks: [],
@@ -256,6 +276,74 @@ test("chapter writer prompt carries explicit target length and continuation inst
   assert.match(String(continueMessages[0].content), /不得重写章节开头/);
   assert.match(String(continueMessages[0].content), /至少缺少约 900 字/);
   assert.match(String(continueMessages[1].content), /任务模式：补写当前章节/);
+});
+
+test("chapter review and repair prompts encode single-chapter pacing diagnosis", () => {
+  const reviewAsset = getRegisteredPromptAsset("novel.review.chapter", "v1");
+  assert.ok(reviewAsset);
+  const reviewMessages = reviewAsset.render({
+    novelTitle: "霜轨档案",
+    chapterTitle: "旧街反压",
+    content: "主角走到旧街，想了很多，决定继续查。",
+    ragContext: "",
+  }, {
+    blocks: [],
+    selectedBlockIds: [],
+    droppedBlockIds: [],
+    summarizedBlockIds: [],
+    estimatedInputTokens: 0,
+  });
+  const reviewSystem = String(reviewMessages[0].content);
+  assert.match(reviewSystem, /一句话能概括/);
+  assert.match(reviewSystem, /主线逻辑断裂/);
+  assert.match(reviewSystem, /人设前后矛盾/);
+  assert.match(reviewSystem, /结构级重排/);
+  assert.match(reviewSystem, /大纲清单/);
+  assert.match(reviewSystem, /工具人/);
+  assert.match(reviewSystem, /人物主动选择/);
+  assert.match(reviewSystem, /social_depth/);
+  assert.match(reviewSystem, /memory_anchor/);
+  assert.match(reviewSystem, /破坏力/);
+  assert.match(reviewSystem, /opening_conversion/);
+  assert.match(reviewSystem, /前置人设特性事件/);
+  assert.match(reviewSystem, /delight_density/);
+  assert.match(reviewSystem, /premise_freshness/);
+  assert.match(reviewSystem, /detail_allocation/);
+  assert.match(reviewSystem, /小看点/);
+
+  const repairAsset = getRegisteredPromptAsset("novel.review.repair", "v2");
+  assert.ok(repairAsset);
+  const repairMessages = repairAsset.render({
+    novelTitle: "霜轨档案",
+    bibleContent: "",
+    chapterTitle: "旧街反压",
+    chapterContent: "主角走到旧街，想了很多，决定继续查。",
+    issuesJson: "[]",
+    ragContext: "",
+  }, {
+    blocks: [],
+    selectedBlockIds: [],
+    droppedBlockIds: [],
+    summarizedBlockIds: [],
+    estimatedInputTokens: 0,
+  });
+  const repairSystem = String(repairMessages[0].content);
+  assert.match(repairSystem, /小毒点/);
+  assert.match(repairSystem, /节奏过慢/);
+  assert.match(repairSystem, /节奏过快/);
+  assert.match(repairSystem, /局部止血/);
+  assert.match(repairSystem, /人物工具化/);
+  assert.match(repairSystem, /旧伤/);
+  assert.match(repairSystem, /人物平面化/);
+  assert.match(repairSystem, /记忆锚点/);
+  assert.match(repairSystem, /利益捆绑/);
+  assert.match(repairSystem, /可视化变化/);
+  assert.match(repairSystem, /前三章开篇不吸睛/);
+  assert.match(repairSystem, /开头 300-800 字/);
+  assert.match(repairSystem, /看点密度不足/);
+  assert.match(repairSystem, /300 字小看点/);
+  assert.match(repairSystem, /设定不新/);
+  assert.match(repairSystem, /详略失衡/);
 });
 
 test("director blueprint schema accepts chapter shells without scenes", () => {
@@ -781,6 +869,12 @@ test("runStructuredPrompt retries semantically after postValidate failure", asyn
           reveals: [],
           riskNotes: [],
           hookTarget: "",
+          chapter_meta: {
+            event_weight: 4,
+            high_stakes_dialogue: true,
+            scheme_beat: false,
+            kind_of_hook: "threat_approaches",
+          },
           planRole: null,
           phaseLabel: "",
           mustAdvance: [],
@@ -792,17 +886,23 @@ test("runStructuredPrompt retries semantically after postValidate failure", asyn
       };
     }
     return {
-      data: {
-        title: "第 3 章",
-        objective: "让主角确认敌人的第一次公开动作",
-        participants: ["林焰", "监察队"],
-        reveals: ["敌人已经在城内布局"],
-        riskNotes: ["不要把调查写成背景复述"],
-        hookTarget: "章末留下敌人反制的悬念",
-        planRole: "progress",
-        phaseLabel: "第一次正面推进",
-        mustAdvance: ["锁定敌人动作路径"],
-        mustPreserve: ["主角仍处于弱势"],
+        data: {
+          title: "第 3 章",
+          objective: "让主角确认敌人的第一次公开动作",
+          participants: ["林焰", "监察队"],
+          reveals: ["敌人已经在城内布局"],
+          riskNotes: ["不要把调查写成背景复述"],
+          hookTarget: "章末留下敌人反制的悬念",
+          chapter_meta: {
+            event_weight: 5,
+            high_stakes_dialogue: true,
+            scheme_beat: true,
+            kind_of_hook: "threat_approaches",
+          },
+          planRole: "progress",
+          phaseLabel: "第一次正面推进",
+          mustAdvance: ["锁定敌人动作路径"],
+          mustPreserve: ["主角仍处于弱势"],
         scenes: [{
           title: "夜巷追踪",
           objective: "发现异常交易",
@@ -1032,7 +1132,7 @@ test("streamStructuredPrompt can recover with semantic retry after streamed outp
     stream: async () => ({
       async *[Symbol.asyncIterator]() {
         yield { content: "{\"title\":\"第 3 章\",\"objective\":\"\",\"participants\":[],\"reveals\":[],\"riskNotes\":[]," };
-        yield { content: "\"hookTarget\":\"\",\"planRole\":null,\"phaseLabel\":\"\",\"mustAdvance\":[],\"mustPreserve\":[],\"scenes\":[]}" };
+        yield { content: "\"hookTarget\":\"\",\"chapter_meta\":{\"event_weight\":4,\"high_stakes_dialogue\":true,\"scheme_beat\":false,\"kind_of_hook\":\"threat_approaches\"},\"planRole\":null,\"phaseLabel\":\"\",\"mustAdvance\":[],\"mustPreserve\":[],\"scenes\":[]}" };
       },
     }),
   }));
@@ -1046,6 +1146,12 @@ test("streamStructuredPrompt can recover with semantic retry after streamed outp
         reveals: ["敌人已经渗入城防"],
         riskNotes: ["不要只写调查结果，要保留冲突推进"],
         hookTarget: "章末抛出更大威胁",
+        chapter_meta: {
+          event_weight: 5,
+          high_stakes_dialogue: true,
+          scheme_beat: true,
+          kind_of_hook: "threat_approaches",
+        },
         planRole: "progress",
         phaseLabel: "威胁显形",
         mustAdvance: ["确认敌方布局"],

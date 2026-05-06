@@ -112,7 +112,7 @@ export const directorCandidatePrompt: PromptAsset<
   outputSchema: directorCandidateResponseSchema,
   render: (input, context) => [
     new SystemMessage([
-      "你是长篇小说书级方向规划导演，服务对象是不懂写作流程的新手用户。",
+      "你是小说书级方向规划导演，服务对象是不懂写作流程的新手用户；既支持长篇连载，也支持 2-8 万字以内的短中篇。",
       "你的任务不是展开大纲，也不是写章节，而是基于种子想法生成一批现在就可以继续推进整本书规划的候选方向卡片。",
       "",
       "【任务边界】",
@@ -136,7 +136,9 @@ export const directorCandidatePrompt: PromptAsset<
       "9. progressionLoop 必须说明这本书主要靠什么循环推进，比如升级、博弈、探索、关系裂变、任务兑现等。",
       "10. whyItFits 必须说明这条候选为什么适合当前用户输入，而不是夸候选本身。",
       "11. toneKeywords 必须是能帮助后续创作定调的关键词，避免空泛抒情词堆叠。",
-      "12. targetChapterCount 必须是合理的整书目标体量，与题材密度和推进方式相匹配。",
+      "12. targetChapterCount 必须是合理的当前目标体量，与题材密度、用户给定篇幅和推进方式相匹配；短中篇可以低于 12 章，不得硬扩成长篇。",
+      "13. 如果用户只给世界观或方向、未要求完结体量，targetChapterCount 只代表第一轮滚动规划窗口，不代表最终全书章数。",
+      "14. content form 为 short_story 时，必须服从 target total words 和 default chapter length，按完整闭环短故事规划，不得自行扩成多卷长篇。",
       "",
       "【差异化要求】",
       "1. 候选之间必须有明显方向差异，不能只是换词、改名或轻微调整设定包装。",
@@ -195,7 +197,7 @@ export const directorCandidatePatchPrompt: PromptAsset<
   outputSchema: directorCandidateSchema,
   render: (input, context) => [
     new SystemMessage([
-      "你是长篇小说书级方向修正导演，服务对象是不懂写作流程的新手用户。",
+      "你是小说/短故事书级方向修正导演，服务对象是不懂写作流程的新手用户。",
       "你的任务不是重新发散两套新方案，而是基于用户已经偏向的一套候选，做一次定向修正。",
       "",
       "【任务边界】",
@@ -265,7 +267,7 @@ export const directorBlueprintPrompt: PromptAsset<
   outputSchema: directorPlanBlueprintSchema,
   render: (input, context) => [
     new SystemMessage([
-      "你是长篇小说总规划导演，负责把确认后的书级方向展开成可执行蓝图。",
+      "你是小说总规划导演，负责把确认后的书级方向展开成可执行蓝图。",
       "你的任务不是写正文，也不是展开 scene，而是把整本书规划到 book -> arc -> chapter shell 这一层。",
       "",
       "【任务边界】",
@@ -279,11 +281,12 @@ export const directorBlueprintPrompt: PromptAsset<
       "planRole 只能是：setup、progress、pressure、turn、payoff、cooldown。",
       "",
       "【规划原则】",
-      "1. 整体结构必须支持长篇连载，不要过早把后半本细化到场景级。",
+      "1. 整体结构必须支持目标体量：短中篇要收束集中，长篇连载不要过早把后半本细化到场景级。",
       "2. bookPlan 负责整书级承诺、主线、阶段推进与总节奏控制。",
       "3. arcs 必须体现明确阶段功能，不能只是把章节机械分组。",
       "4. 每个 arc 都要说明自己为什么单独存在，它负责哪一段阶段性承诺、冲突升级或关系变化。",
       "5. 每个 chapter shell 都要让新手用户一眼知道：这一章必须推进什么、必须保留什么、结尾要留下什么。",
+      "6. 若目标章节数很少，必须减少 arc 数量并提高每章功能密度；若是开放长篇，后段只做阶段方向，不写死终局细节。",
       "",
       "【chapter shell 质量要求】",
       "1. title 必须像真实章节规划标题，能体现本章推进重点。",
@@ -346,13 +349,14 @@ export const directorBookContractPrompt: PromptAsset<
   outputSchema: directorBookContractSchema,
   render: (input, context) => [
     new SystemMessage([
-      "你是长篇网文总导演，负责把已确认的书级方向收束成一本书的 Book Contract。",
+      "你是网文项目总导演，负责把已确认的书级方向收束成一本作品的 Book Contract。",
       "服务对象是不懂写作流程的新手用户。",
       "你的任务不是重写大纲，而是提炼这本书后续所有规划都必须服从的高层创作契约。",
       "",
       "【任务边界】",
       "只输出严格 JSON，不要输出解释文本、Markdown、注释或额外字段。",
       "必须输出字段：readingPromise、protagonistFantasy、coreSellingPoint、chapter3Payoff、chapter10Payoff、chapter30Payoff、escalationLadder、relationshipMainline、absoluteRedLines。",
+      "absoluteRedLines 必须输出 JSON 数组，例如 [\"禁区一\", \"禁区二\"]，禁止输出成一整段字符串或编号列表字符串。",
       "",
       "【字段要求】",
       "1. readingPromise 必须写清这本书持续给读者什么阅读满足，说明读者为什么会追下去。",

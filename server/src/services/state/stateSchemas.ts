@@ -42,8 +42,31 @@ const foreshadowStateOutputSchema = z.object({
   payoffChapterId: z.string().trim().optional(),
 });
 
+const chapterMetaOutputSchema = z.object({
+  event_weight: z.number().int().min(1).max(5).optional(),
+  eventWeight: z.number().int().min(1).max(5).optional(),
+  high_stakes_dialogue: z.boolean().optional(),
+  highStakesDialogue: z.boolean().optional(),
+  scheme_beat: z.boolean().optional(),
+  schemeBeat: z.boolean().optional(),
+  kind_of_hook: z.enum([
+    "information_reversal",
+    "decision_reversal",
+    "threat_approaches",
+    "suspense_question",
+  ]).optional(),
+  kindOfHook: z.enum([
+    "information_reversal",
+    "decision_reversal",
+    "threat_approaches",
+    "suspense_question",
+  ]).optional(),
+});
+
 export const snapshotExtractionOutputSchema = z.object({
   summary: z.string().trim().optional(),
+  chapter_meta: chapterMetaOutputSchema.optional(),
+  chapterMeta: chapterMetaOutputSchema.optional(),
   characterStates: z.array(characterStateOutputSchema).optional(),
   relationStates: z.array(relationStateOutputSchema).optional(),
   informationStates: z.array(informationStateOutputSchema).optional(),
@@ -51,4 +74,3 @@ export const snapshotExtractionOutputSchema = z.object({
 });
 
 export type SnapshotExtractionOutputSchema = z.infer<typeof snapshotExtractionOutputSchema> & Partial<SnapshotExtractionOutput>;
-

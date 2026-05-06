@@ -1,7 +1,7 @@
 export const queryKeys = {
   novels: {
     all: ["novels"] as const,
-    list: (page: number, limit: number) => ["novels", "list", page, limit] as const,
+    list: (page: number, limit: number, contentForm = "all") => ["novels", "list", page, limit, contentForm] as const,
     detail: (id: string) => ["novels", "detail", id] as const,
     chapters: (id: string) => ["novels", "chapters", id] as const,
     characters: (id: string) => ["novels", "characters", id] as const,
@@ -18,6 +18,10 @@ export const queryKeys = {
     chapterStateSnapshot: (id: string, chapterId: string) => ["novels", "state-snapshots", id, chapterId] as const,
     chapterPlan: (id: string, chapterId: string) => ["novels", "chapter-plan", id, chapterId] as const,
     chapterAuditReports: (id: string, chapterId: string) => ["novels", "chapter-audit-reports", id, chapterId] as const,
+    continuityProgress: (id: string, threshold: number) => ["novels", "continuity-progress", id, threshold] as const,
+    productionNextAction: (id: string, threshold: number) => ["novels", "production-next-action", id, threshold] as const,
+    reviewBatchJobs: (id: string, key = "all") => ["novels", "review-batch-jobs", id, key] as const,
+    reviewBatchJob: (id: string, jobId: string) => ["novels", "review-batch-job", id, jobId] as const,
     storylineVersions: (id: string) => ["novels", "storyline-versions", id] as const,
     volumeWorkspace: (id: string) => ["novels", "volume-workspace", id] as const,
     volumeVersions: (id: string) => ["novels", "volume-versions", id] as const,

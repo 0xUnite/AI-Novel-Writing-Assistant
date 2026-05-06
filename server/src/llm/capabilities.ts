@@ -15,6 +15,9 @@ export interface JsonCapability {
 
 export interface ModelParameterCompatibility {
   fixedTemperature?: number;
+  minTemperature?: number;
+  maxTemperature?: number;
+  defaultTemperature?: number;
 }
 
 export function supportsForcedJsonOutput(provider: LLMProvider, model?: string): boolean {
@@ -42,6 +45,14 @@ export function getModelParameterCompatibility(provider: LLMProvider, model?: st
     };
   }
 
+  if (provider === "minimax") {
+    return {
+      minTemperature: 0.01,
+      maxTemperature: 1,
+      defaultTemperature: 1,
+    };
+  }
+
   return {};
 }
 
@@ -55,7 +66,15 @@ export function resolveModelTemperature(
   if (typeof compatibility.fixedTemperature === "number") {
     return compatibility.fixedTemperature;
   }
-  return requestedTemperature ?? fallbackTemperature;
+  const defaultTemperature = compatibility.defaultTemperature ?? fallbackTemperature;
+  let temperature = requestedTemperature ?? defaultTemperature;
+  if (typeof compatibility.minTemperature === "number") {
+    temperature = Math.max(compatibility.minTemperature, temperature);
+  }
+  if (typeof compatibility.maxTemperature === "number") {
+    temperature = Math.min(compatibility.maxTemperature, temperature);
+  }
+  return temperature;
 }
 
 export function getJsonCapability(provider: LLMProvider, model?: string): JsonCapability {
@@ -81,6 +100,10 @@ export function getJsonCapability(provider: LLMProvider, model?: string): JsonCa
       supportsJsonObject: true,
       supportsJsonSchema: false,
       // deepseek 模型名通常不需要额外条件
+    },
+    minimax: {
+      supportsJsonObject: false,
+      supportsJsonSchema: false,
     },
     grok: {
       supportsJsonObject: true,

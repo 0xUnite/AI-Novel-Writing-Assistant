@@ -27,6 +27,10 @@ export class NovelContextService {
     return this.core.listChapters(...args);
   }
 
+  sanitizeNovelTypography(...args: Parameters<NovelCoreService["sanitizeNovelTypography"]>) {
+    return this.core.sanitizeNovelTypography(...args);
+  }
+
   createChapter(...args: Parameters<NovelCoreService["createChapter"]>) {
     return this.core.createChapter(...args);
   }

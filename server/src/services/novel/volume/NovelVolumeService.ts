@@ -12,12 +12,13 @@ import type { Prisma } from "@prisma/client";
 import { prisma } from "../../../db/prisma";
 import { novelEventBus } from "../../../events";
 import { StoryMacroPlanService } from "../storyMacro/StoryMacroPlanService";
+import { ensureChapterTitle } from "../chapterTitle";
 import {
-  buildTaskSheetFromVolumeChapter,
   buildVolumeDiff,
   buildVolumeDiffSummary,
   buildVolumeImpactResult,
   buildVolumeSyncPlan,
+  normalizeTaskSheetForVolumeChapter,
   type ExistingChapterRecord,
   type LegacyVolumeSource,
 } from "./volumePlanUtils";
@@ -399,11 +400,16 @@ export class NovelVolumeService {
       });
       await persistActiveVolumeWorkspace(tx, novelId, persistedDocument, versionId);
       for (const item of plan.creates) {
-        const taskSheet = item.chapter.taskSheet?.trim() || buildTaskSheetFromVolumeChapter(item.chapter);
+        const taskSheet = normalizeTaskSheetForVolumeChapter(item.chapter);
+        const chapterTitle = ensureChapterTitle({
+          order: item.chapter.chapterOrder,
+          title: item.chapter.title,
+          expectation: item.chapter.summary,
+        });
         await tx.chapter.create({
           data: {
             novelId,
-            title: item.chapter.title,
+            title: chapterTitle,
             order: item.chapter.chapterOrder,
             content: "",
             expectation: item.chapter.summary,
@@ -416,11 +422,16 @@ export class NovelVolumeService {
         });
       }
       for (const item of plan.updates) {
-        const taskSheet = item.chapter.taskSheet?.trim() || buildTaskSheetFromVolumeChapter(item.chapter);
+        const taskSheet = normalizeTaskSheetForVolumeChapter(item.chapter);
+        const chapterTitle = ensureChapterTitle({
+          order: item.chapter.chapterOrder,
+          title: item.chapter.title,
+          expectation: item.chapter.summary,
+        });
         await tx.chapter.updateMany({
           where: { id: item.chapterId, novelId },
           data: {
-            title: item.chapter.title,
+            title: chapterTitle,
             order: item.chapter.chapterOrder,
             expectation: item.chapter.summary,
             targetWordCount: item.chapter.targetWordCount ?? null,

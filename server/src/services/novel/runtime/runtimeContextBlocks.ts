@@ -1,4 +1,5 @@
 import type { GenerationContextPackage } from "@ai-novel/shared/types/chapterRuntime";
+import { extractBridgeState } from "./utils/bridgeStateExtractor";
 
 function compactText(value: string | null | undefined, limit: number): string {
   const normalized = String(value ?? "").replace(/\s+/g, " ").trim();
@@ -16,6 +17,38 @@ export function buildPreviousChaptersSummary(
     return requestSummary;
   }
   return summaries.map((item) => `第${item.chapter.order}章《${item.chapter.title}》 ${item.summary}`);
+}
+
+export function buildChapterBridgeContext(input: {
+  previousChapter: { id: string; order: number; title: string; content: string | null } | null;
+  previousSummary?: string | null;
+}): GenerationContextPackage["chapterBridge"] {
+  if (!input.previousChapter?.content?.trim()) {
+    return null;
+  }
+  const bridgeState = extractBridgeState(input.previousChapter.content);
+  const previousChapterSummary = compactText(
+    input.previousSummary,
+    180,
+  ) || compactText(bridgeState.tailExcerpt || bridgeState.lastSentence, 180) || "上一章结尾留下了需要立即承接的动作与压力。";
+  return {
+    previousChapterId: input.previousChapter.id,
+    previousChapterOrder: input.previousChapter.order,
+    previousChapterTitle: input.previousChapter.title,
+    previousChapterSummary,
+    tailExcerpt: bridgeState.tailExcerpt,
+    imageryWarning: bridgeState.imageryWarning,
+    carryOverFacts: bridgeState.carryOverFacts,
+    lastTenSentences: bridgeState.lastTenSentences,
+    lastScene: bridgeState.lastScene,
+    lastTime: bridgeState.lastTime,
+    lastCharacters: bridgeState.lastCharacters,
+    lastCharacterStates: bridgeState.lastCharacterStates,
+    pendingActions: bridgeState.pendingActions,
+    keyItems: bridgeState.keyItems,
+    lastSentence: bridgeState.lastSentence,
+    openingDirective: `本章开头必须把第${input.previousChapter.order}章结尾的最后动作、地点、决策或风险当作既成事实或正在发生的压力来承接，并立刻写出下一步动作、反应、后果或新信息；禁止把上一章尾句换一种说法重复一遍。除非任务单明确要求跳时或换场，否则禁止直接切到无关新场景；如确需切换，第一段必须写出过桥。`,
+  };
 }
 
 export function buildSupportingContextText(input: {
@@ -45,7 +78,7 @@ export function buildSupportingContextText(input: {
     input.summaryText,
     input.recentChapterContentText,
     input.factText,
-    input.ragText ? `语义检索补充：\n${input.ragText}` : "",
+    input.ragText ? `语义检索补充（rag_facts，世界圣经优先）：\n${input.ragText}` : "",
     input.bibleText,
     input.outlineText,
     input.charactersContextText,
@@ -105,7 +138,7 @@ export function buildBibleText(bible: {
     return "";
   }
   return [
-    "作品圣经：",
+    "作品圣经（world_rules）：",
     bible.mainPromise ? `主线承诺：${compactText(bible.mainPromise, 140)}` : "",
     bible.coreSetting ? `核心设定：${compactText(bible.coreSetting, 140)}` : "",
     bible.forbiddenRules ? `禁止冲突：${compactText(bible.forbiddenRules, 140)}` : "",

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import StreamOutput from "@/components/common/StreamOutput";
 import LLMSelector from "@/components/common/LLMSelector";
@@ -32,6 +32,8 @@ import { ChapterRuntimeAuditCard, ChapterRuntimeContextCard } from "./components
 
 export default function NovelChapterEdit() {
   const { id = "", chapterId = "" } = useParams();
+  const navigate = useNavigate();
+  const location = useLocation();
   const queryClient = useQueryClient();
   const llm = useLLMStore();
   const [contentDraft, setContentDraft] = useState("");
@@ -52,6 +54,19 @@ export default function NovelChapterEdit() {
     () => detailResponse?.data?.chapters.find((item) => item.id === chapterId),
     [chapterId, detailResponse?.data?.chapters],
   );
+
+  useEffect(() => {
+    const detail = detailResponse?.data;
+    if (!detail || !chapterId) {
+      return;
+    }
+    const expectedBasePath = detail.contentForm === "short_story" ? "/short-stories" : "/novels";
+    const currentBasePath = location.pathname.startsWith("/short-stories") ? "/short-stories" : "/novels";
+    if (currentBasePath === expectedBasePath) {
+      return;
+    }
+    navigate(`${expectedBasePath}/${detail.id}/chapters/${chapterId}${location.search}`, { replace: true });
+  }, [chapterId, detailResponse?.data, location.pathname, location.search, navigate]);
 
   useEffect(() => {
     setContentDraft(chapter?.content ?? "");

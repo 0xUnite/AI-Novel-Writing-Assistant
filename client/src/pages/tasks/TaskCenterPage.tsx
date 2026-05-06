@@ -12,6 +12,7 @@ import OpenInCreativeHubButton from "@/components/creativeHub/OpenInCreativeHubB
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/components/ui/toast";
+import { formatCurrentItemLabel } from "@/lib/formatCurrentItemLabel";
 import { useLLMStore } from "@/store/llmStore";
 
 const ACTIVE_STATUSES = new Set<TaskStatus>(["queued", "running", "waiting_approval"]);
@@ -83,25 +84,26 @@ function formatResumeTarget(target: NovelWorkflowResumeTarget | null | undefined
   if (target.route === "/novels/create") {
     return target.mode === "director" ? "创建页 / AI 自动导演" : "创建页";
   }
+  const editPageLabel = target.route === "/short-stories/:id/edit" ? "短故事编辑页" : "小说编辑页";
   if (target.stage === "story_macro") {
-    return "小说编辑页 / 故事宏观规划";
+    return `${editPageLabel} / 故事宏观规划`;
   }
   if (target.stage === "character") {
-    return "小说编辑页 / 角色准备";
+    return `${editPageLabel} / 角色准备`;
   }
   if (target.stage === "outline") {
-    return "小说编辑页 / 卷战略";
+    return `${editPageLabel} / 卷战略`;
   }
   if (target.stage === "structured") {
-    return "小说编辑页 / 节奏拆章";
+    return `${editPageLabel} / 节奏拆章`;
   }
   if (target.stage === "chapter") {
-    return "小说编辑页 / 章节执行";
+    return `${editPageLabel} / 章节执行`;
   }
   if (target.stage === "pipeline") {
-    return "小说编辑页 / 质量修复";
+    return `${editPageLabel} / 出稿质检`;
   }
-  return "小说编辑页 / 项目设定";
+  return `${editPageLabel} / 项目设定`;
 }
 
 function formatStatus(status: TaskStatus): string {
@@ -445,7 +447,7 @@ export default function TaskCenterPage() {
                     {formatKind(task.kind)} | 进度 {Math.round(task.progress * 100)}%
                   </div>
                   <div className="mt-1 text-xs text-muted-foreground">
-                    阶段：{task.currentStage ?? "暂无"} | 当前项：{task.currentItemLabel ?? "暂无"}
+                    阶段：{task.currentStage ?? "暂无"} | 当前项：{formatCurrentItemLabel(task.currentItemLabel) ?? "暂无"}
                   </div>
                   {task.kind === "novel_workflow" ? (
                     <div className="mt-1 text-xs text-muted-foreground">
@@ -485,7 +487,7 @@ export default function TaskCenterPage() {
                 </div>
                 <div className="space-y-1 text-muted-foreground">
                   <div>当前阶段：{selectedTask.currentStage ?? "暂无"}</div>
-                  <div>当前项：{selectedTask.currentItemLabel ?? "暂无"}</div>
+                  <div>当前项：{formatCurrentItemLabel(selectedTask.currentItemLabel) ?? "暂无"}</div>
                   {selectedTask.kind === "novel_workflow" ? (
                     <>
                       <div>最近检查点：{formatCheckpoint(selectedTask.checkpointType)}</div>

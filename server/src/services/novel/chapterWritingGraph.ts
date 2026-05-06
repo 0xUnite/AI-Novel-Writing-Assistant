@@ -10,7 +10,9 @@ import {
   sanitizeWriterContextBlocks,
 } from "../../prompting/prompts/novel/chapterLayeredContext";
 import { chapterWriterPrompt } from "../../prompting/prompts/novel/chapterWriter.prompts";
+import { chapterRepairPrompt } from "../../prompting/prompts/novel/review.prompts";
 import { NovelContinuationService } from "./NovelContinuationService";
+import { hasGeneratedReasoningLeak, sanitizeGeneratedChapterContent } from "./chapterContentSanitizer";
 
 export interface ChapterGraphLLMOptions {
   provider?: LLMProvider;
@@ -30,6 +32,7 @@ interface ChapterRef {
   content?: string | null;
   expectation?: string | null;
   targetWordCount?: number | null;
+  taskSheet?: string | null;
 }
 
 type ContinuationPack = Awaited<ReturnType<NovelContinuationService["buildChapterContextPack"]>>;
@@ -61,15 +64,41 @@ export interface ChapterStreamInput {
 }
 
 const continuationService = new NovelContinuationService();
+const DEFAULT_WRITER_MAX_TOKENS = 9000;
+const MIN_WRITER_MAX_TOKENS = 3600;
+const WRITER_POSTPROCESS_TIMEOUT_MS = 4 * 60 * 1000;
+
+function withPostprocessTimeout<T>(promise: Promise<T>, timeoutMs: number, fallback: () => T): Promise<T> {
+  let timeout: NodeJS.Timeout | null = null;
+  const timeoutPromise = new Promise<T>((resolve) => {
+    timeout = setTimeout(() => resolve(fallback()), timeoutMs);
+    timeout.unref?.();
+  });
+  promise.catch(() => null);
+  return Promise.race([promise, timeoutPromise]).finally(() => {
+    if (timeout) {
+      clearTimeout(timeout);
+    }
+  });
+}
 
 function countChapterCharacters(content: string): number {
   return content.replace(/\s+/g, "").trim().length;
+}
+
+function resolveWriterMaxTokens(maxWordCount?: number | null): number {
+  if (maxWordCount == null) {
+    return DEFAULT_WRITER_MAX_TOKENS;
+  }
+  return Math.max(MIN_WRITER_MAX_TOKENS, Math.min(10000, Math.ceil(maxWordCount * 1.1)));
 }
 
 function buildLengthInstruction(targetWordCount?: number | null): {
   targetWordCount: number | null;
   minWordCount: number | null;
   maxWordCount: number | null;
+  softWordCountLimit: number | null;
+  hardWordCountLimit: number | null;
   instruction: string;
 } {
   const range = resolveTargetWordRange(targetWordCount);
@@ -81,7 +110,7 @@ function buildLengthInstruction(targetWordCount?: number | null): {
   }
   return {
     ...range,
-    instruction: `Write about ${range.targetWordCount} Chinese characters. Acceptable range: ${range.minWordCount}-${range.maxWordCount}. Do not end clearly below the minimum.`,
+    instruction: `Write about ${range.targetWordCount} Chinese characters. Target range: ${range.minWordCount}-${range.maxWordCount}. Start wrapping near ${range.softWordCountLimit}, never exceed ${range.hardWordCountLimit}, and do not end clearly below the minimum.`,
   };
 }
 
@@ -205,9 +234,10 @@ export class ChapterWritingGraph {
         provider: input.options.provider,
         model: input.options.model,
         temperature: input.options.temperature ?? 0.8,
+        maxTokens: resolveWriterMaxTokens(lengthGoal.maxWordCount),
       },
     });
-    const appended = completion.output.trim();
+    const appended = sanitizeGeneratedChapterContent(completion.output.trim());
     if (!appended) {
       return input.content;
     }
@@ -221,6 +251,116 @@ export class ChapterWritingGraph {
       minWordCount: lengthGoal.minWordCount,
     });
     return merged;
+  }
+
+  private async compressDraftToUpperBound(input: {
+    novelTitle: string;
+    chapter: ChapterRef;
+    content: string;
+    contextPackage: GenerationContextPackage;
+    options: ChapterGraphLLMOptions;
+    targetWordCount: number | null;
+    minWordCount: number | null;
+    maxWordCount: number | null;
+  }): Promise<string> {
+    if (input.maxWordCount == null) {
+      return input.content;
+    }
+
+    const currentLength = countChapterCharacters(input.content);
+    if (currentLength <= input.maxWordCount) {
+      return input.content;
+    }
+
+    const writeContext = input.contextPackage.chapterWriteContext;
+    if (!writeContext) {
+      this.deps.logWarn("Chapter draft exceeded hard word limit without write context; saving draft for repair", {
+        chapterOrder: input.chapter.order,
+        currentLength,
+        maxWordCount: input.maxWordCount,
+      });
+      return input.content;
+    }
+
+    const targetAfterCompression = input.targetWordCount ?? input.maxWordCount;
+    const minAfterCompression = Math.min(
+      input.maxWordCount,
+      Math.max(input.minWordCount ?? 0, Math.floor(targetAfterCompression * 0.82)),
+    );
+    const sanitized = sanitizeWriterContextBlocks(buildChapterWriterContextBlocks(writeContext));
+    let workingContent = input.content;
+    let workingLength = currentLength;
+
+    for (let attempt = 1; attempt <= 2; attempt += 1) {
+      const repaired = await runTextPrompt({
+        asset: chapterRepairPrompt,
+        promptInput: {
+          novelTitle: input.novelTitle,
+          bibleContent: [
+            `本章目标字数：约 ${targetAfterCompression} 字。`,
+            `压缩后可接受下限：${minAfterCompression} 字。`,
+            `压缩后绝对上限：${input.maxWordCount} 字。`,
+          ].join("\n"),
+          chapterTitle: `第${input.chapter.order}章 ${input.chapter.title}`,
+          chapterContent: workingContent,
+          issuesJson: JSON.stringify([
+            {
+              severity: "high",
+              category: "pacing",
+              evidence: `当前生成正文 ${workingLength} 字，超过目标上限 ${input.maxWordCount} 字。`,
+              fixSuggestion: `在不改变本章核心事件、人物状态和章末钩子的前提下，压缩重复回顾、空泛心理、冗余动作和低信息描写，把完整正文压缩到 ${input.maxWordCount} 字以内，且尽量不低于 ${minAfterCompression} 字。`,
+            },
+          ], null, 2),
+          ragContext: "",
+          modeHint: [
+            "只做压缩去冗余，不要重写成新剧情。",
+            `必须输出完整章节正文，目标 ${targetAfterCompression} 字左右。`,
+            `压缩后不得超过 ${input.maxWordCount} 字；不要低于 ${minAfterCompression} 字。`,
+            "优先删减重复说明、低信息环境描写、重复心理判断和可合并的动作段。",
+          ].join(" "),
+        },
+        contextBlocks: sanitized.allowedBlocks,
+        options: {
+          provider: input.options.provider,
+          model: input.options.model,
+          temperature: Math.min(input.options.temperature ?? 0.55, 0.65),
+          maxTokens: resolveWriterMaxTokens(input.maxWordCount),
+        },
+      });
+      const compressed = sanitizeGeneratedChapterContent(repaired.output.trim());
+      const compressedLength = countChapterCharacters(compressed);
+      if (compressed && compressedLength <= input.maxWordCount && compressedLength >= minAfterCompression) {
+        this.deps.logInfo("Chapter draft auto-compressed for hard word limit", {
+          chapterOrder: input.chapter.order,
+          beforeLength: currentLength,
+          afterLength: compressedLength,
+          maxWordCount: input.maxWordCount,
+          attempt,
+        });
+        return compressed;
+      }
+      if (compressed && compressedLength > 0 && compressedLength < workingLength) {
+        workingContent = compressed;
+        workingLength = compressedLength;
+      }
+    }
+
+    if (workingLength < currentLength) {
+      this.deps.logWarn("Chapter draft compressed but still exceeds hard word limit; saving shorter draft for review", {
+        chapterOrder: input.chapter.order,
+        beforeLength: currentLength,
+        afterLength: workingLength,
+        maxWordCount: input.maxWordCount,
+      });
+      return workingContent;
+    }
+
+    this.deps.logWarn("Chapter draft exceeded hard word limit; saving original draft instead of discarding generated content", {
+      chapterOrder: input.chapter.order,
+      currentLength,
+      maxWordCount: input.maxWordCount,
+    });
+    return input.content;
   }
 
   async createChapterStream(input: ChapterStreamInput): Promise<{
@@ -255,13 +395,15 @@ export class ChapterWritingGraph {
         targetWordCount: chapterWriteContext.chapterMission.targetWordCount ?? null,
         minWordCount: targetRange.minWordCount,
         maxWordCount: targetRange.maxWordCount,
+        softWordCountLimit: targetRange.softWordCountLimit,
+        hardWordCountLimit: targetRange.hardWordCountLimit,
       },
       contextBlocks: sanitized.allowedBlocks,
       options: {
         provider: input.options.provider,
         model: input.options.model,
         temperature: input.options.temperature ?? 0.8,
-        maxTokens: undefined,
+        maxTokens: resolveWriterMaxTokens(targetRange.maxWordCount),
       },
     });
 
@@ -270,28 +412,74 @@ export class ChapterWritingGraph {
       onDone: async (fullContent: string) => {
         const completed = await streamed.complete.catch(() => null);
         const rawContent = completed?.output ?? fullContent;
-        const normalized = await this.continuityNode(
-          input.novelId,
-          input.chapter,
-          rawContent,
-          input.options,
-          continuationPack,
+        const sanitizedRawContent = sanitizeGeneratedChapterContent(rawContent);
+        if (hasGeneratedReasoningLeak(rawContent)) {
+          this.deps.logWarn("Writer reasoning block removed from chapter draft", {
+            chapterOrder: input.chapter.order,
+          });
+        }
+        const normalized = await withPostprocessTimeout(
+          this.continuityNode(
+            input.novelId,
+            input.chapter,
+            sanitizedRawContent,
+            input.options,
+            continuationPack,
+          ),
+          WRITER_POSTPROCESS_TIMEOUT_MS,
+          () => {
+            this.deps.logWarn("Writer postprocess timeout: continuityNode fallback applied", {
+              chapterOrder: input.chapter.order,
+              timeoutMs: WRITER_POSTPROCESS_TIMEOUT_MS,
+            });
+            return sanitizedRawContent;
+          },
         );
-        const lengthAdjusted = await this.enforceTargetLength({
-          novelId: input.novelId,
-          novelTitle: input.novelTitle,
-          chapter: input.chapter,
-          content: normalized,
-          contextPackage,
-          options: input.options,
-        });
+        const lengthAdjusted = await withPostprocessTimeout(
+          this.enforceTargetLength({
+            novelId: input.novelId,
+            novelTitle: input.novelTitle,
+            chapter: input.chapter,
+            content: normalized,
+            contextPackage,
+            options: input.options,
+          }),
+          WRITER_POSTPROCESS_TIMEOUT_MS,
+          () => {
+            this.deps.logWarn("Writer postprocess timeout: enforceTargetLength fallback applied", {
+              chapterOrder: input.chapter.order,
+              timeoutMs: WRITER_POSTPROCESS_TIMEOUT_MS,
+            });
+            return normalized;
+          },
+        );
+        const bounded = await withPostprocessTimeout(
+          this.compressDraftToUpperBound({
+            novelTitle: input.novelTitle,
+            chapter: input.chapter,
+            content: lengthAdjusted,
+            contextPackage,
+            options: input.options,
+            targetWordCount: targetRange.targetWordCount,
+            minWordCount: targetRange.minWordCount,
+            maxWordCount: targetRange.hardWordCountLimit,
+          }),
+          WRITER_POSTPROCESS_TIMEOUT_MS,
+          () => {
+            this.deps.logWarn("Writer postprocess timeout: compressDraftToUpperBound fallback applied", {
+              chapterOrder: input.chapter.order,
+              timeoutMs: WRITER_POSTPROCESS_TIMEOUT_MS,
+            });
+            return lengthAdjusted;
+          },
+        );
         await this.deps.saveDraftAndArtifacts(
           input.novelId,
           input.chapter.id,
-          lengthAdjusted,
+          bounded,
           "drafted",
         );
-        return { finalContent: lengthAdjusted };
+        return { finalContent: bounded };
       },
     };
   }

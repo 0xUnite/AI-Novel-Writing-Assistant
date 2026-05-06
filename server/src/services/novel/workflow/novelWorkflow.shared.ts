@@ -19,7 +19,7 @@ export const NOVEL_WORKFLOW_STAGE_LABELS: Record<NovelWorkflowStage, string> = {
   volume_strategy: "卷战略 / 卷骨架",
   structured_outline: "节奏 / 拆章",
   chapter_execution: "章节执行",
-  quality_repair: "质量修复",
+  quality_repair: "出稿质检",
 };
 
 export const NOVEL_WORKFLOW_STAGE_PROGRESS: Record<NovelWorkflowStage, number> = {
@@ -41,7 +41,7 @@ export const NOVEL_WORKFLOW_STAGE_STEPS = [
   { key: "volume_strategy", label: "卷战略 / 卷骨架" },
   { key: "structured_outline", label: "节奏 / 拆章" },
   { key: "chapter_execution", label: "章节执行" },
-  { key: "quality_repair", label: "质量修复" },
+  { key: "quality_repair", label: "出稿质检" },
 ] as const;
 
 export function buildNovelCreateResumeTarget(taskId: string, mode: "director" | null = null): NovelWorkflowResumeTarget {
@@ -103,7 +103,8 @@ export function resumeTargetToRoute(target: NovelWorkflowResumeTarget | null | u
     searchParams.set("volumeId", target.volumeId);
   }
   const query = searchParams.toString();
-  return query ? `/novels/${target.novelId}/edit?${query}` : `/novels/${target.novelId}/edit`;
+  const basePath = target.route === "/short-stories/:id/edit" ? "/short-stories" : "/novels";
+  return query ? `${basePath}/${target.novelId}/edit?${query}` : `${basePath}/${target.novelId}/edit`;
 }
 
 export function parseMilestones(value: string | null | undefined): NovelWorkflowMilestone[] {

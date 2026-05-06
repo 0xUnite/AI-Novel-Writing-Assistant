@@ -344,6 +344,7 @@ const volumeGenerateSchema = llmGenerateSchema.extend({
   targetChapterId: z.string().trim().min(1).optional(),
   detailMode: z.enum(["purpose", "boundary", "task_sheet"]).optional(),
   estimatedChapterCount: z.number().int().min(1).max(500).optional(),
+  targetVolumeCount: z.number().int().min(1).max(12).optional(),
   respectExistingVolumeCount: z.boolean().optional(),
   draftVolumes: z.array(z.unknown()).optional(),
   draftWorkspace: volumeDocumentSchema.optional(),
@@ -387,7 +388,15 @@ const structuredOutlineSchema = llmGenerateSchema.extend({
 });
 
 const beatGenerateSchema = llmGenerateSchema.extend({
+  startOrder: z.number().int().min(1).optional(),
   targetChapters: z.number().int().min(1).max(500).optional(),
+}).refine((value) => {
+  if (typeof value.startOrder === "number" && typeof value.targetChapters === "number") {
+    return value.startOrder <= value.targetChapters;
+  }
+  return true;
+}, {
+  message: "拍点生成的起始章节必须小于或等于目标章节。",
 });
 
 const pipelineRunSchema = llmGenerateSchema.extend({
@@ -397,6 +406,7 @@ const pipelineRunSchema = llmGenerateSchema.extend({
   runMode: z.enum(["fast", "polish"]).optional(),
   autoReview: z.boolean().optional(),
   autoRepair: z.boolean().optional(),
+  autoPrepareStoryAssets: z.boolean().optional(),
   skipCompleted: z.boolean().optional(),
   qualityThreshold: z.number().int().min(0).max(100).optional(),
   repairMode: z.enum(["detect_only", "light_repair", "heavy_repair", "continuity_only", "character_only", "ending_only"]).optional(),
@@ -415,9 +425,17 @@ const reviewSchema = llmGenerateSchema.extend({
   content: z.string().optional(),
 });
 
+const reviewBatchJobSchema = llmGenerateSchema.extend({
+  threshold: z.number().int().min(0).max(100).optional(),
+  maxRepairAttempts: z.number().int().min(1).max(100).optional(),
+  autoRepairBlocked: z.boolean().optional(),
+  includeFinalizedRecheck: z.boolean().optional(),
+});
+
 const repairSchema = llmGenerateSchema.extend({
   reviewIssues: z.array(reviewIssueSchema).optional(),
   auditIssueIds: z.array(z.string().trim().min(1)).optional(),
+  repairMode: z.enum(["detect_only", "light_repair", "heavy_repair", "continuity_only", "character_only", "ending_only"]).optional(),
 });
 
 const replanSchema = llmGenerateSchema.extend({
@@ -544,6 +562,7 @@ registerNovelReviewRoutes({
   chapterParamsSchema,
   auditIssueParamsSchema,
   reviewSchema,
+  reviewBatchJobSchema,
   repairSchema,
 });
 

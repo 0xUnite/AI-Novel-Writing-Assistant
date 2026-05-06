@@ -1,4 +1,5 @@
 import type { QualityScore, ReviewIssue } from "@ai-novel/shared/types/novel";
+import { buildContinuitySummaryFromFacts } from "./chapterMemorySanitizer";
 
 export interface ExtractedFact {
   category: "plot" | "character" | "world";
@@ -24,7 +25,8 @@ export function toText(content: unknown): string {
 }
 
 export function cleanJsonText(source: string): string {
-  return source.replace(/```json|```/gi, "").trim();
+  const withoutThink = source.replace(/<think>[\s\S]*?<\/think>/gi, "");
+  return withoutThink.replace(/```json|```/gi, "").trim();
 }
 
 export function extractJSONValue(source: string): string {
@@ -109,13 +111,41 @@ export function clamp(score: number): number {
   return Math.max(0, Math.min(100, Math.round(score)));
 }
 
+function isTenPointQualityScale(value: Partial<QualityScore>): boolean {
+  const scoreValues = [
+    value.coherence,
+    value.pacing,
+    value.voice,
+    value.engagement,
+    value.overall,
+  ].filter((item): item is number => typeof item === "number" && Number.isFinite(item));
+  return scoreValues.length > 0
+    && scoreValues.every((item) => item >= 0 && item <= 10)
+    && scoreValues.some((item) => item > 0);
+}
+
+function normalizeQualityMetric(value: number | undefined, fallback: number, tenPointScale: boolean): number {
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    return clamp(fallback);
+  }
+  return clamp(tenPointScale ? value * 10 : value);
+}
+
+function normalizeRepetitionMetric(value: number | undefined, fallback: number, tenPointScale: boolean): number {
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    return clamp(fallback);
+  }
+  return clamp(tenPointScale ? 100 - value * 10 : value);
+}
+
 export function normalizeScore(value: Partial<QualityScore>): QualityScore {
-  const coherence = clamp(value.coherence ?? 0);
-  const repetition = clamp(value.repetition ?? 100);
-  const pacing = clamp(value.pacing ?? 0);
-  const voice = clamp(value.voice ?? 0);
-  const engagement = clamp(value.engagement ?? 0);
-  const overall = clamp(value.overall ?? (coherence + (100 - repetition) + pacing + voice + engagement) / 5);
+  const tenPointScale = isTenPointQualityScale(value);
+  const coherence = normalizeQualityMetric(value.coherence, 0, tenPointScale);
+  const repetition = normalizeRepetitionMetric(value.repetition, 100, tenPointScale);
+  const pacing = normalizeQualityMetric(value.pacing, 0, tenPointScale);
+  const voice = normalizeQualityMetric(value.voice, 0, tenPointScale);
+  const engagement = normalizeQualityMetric(value.engagement, 0, tenPointScale);
+  const overall = normalizeQualityMetric(value.overall, (coherence + (100 - repetition) + pacing + voice + engagement) / 5, tenPointScale);
   return { coherence, repetition, pacing, voice, engagement, overall };
 }
 
@@ -153,9 +183,17 @@ export function extractFacts(content: string): ExtractedFact[] {
   const lines = content
     .split(/[\n。！？!?]/)
     .map((item) => item.trim())
-    .filter((item) => item.length >= 8)
-    .slice(0, 12);
-  return lines.map((line) => {
+    .filter((item) => item.length >= 8);
+
+  const balancedLines = lines.length <= 12
+    ? lines
+    : Array.from(new Set([
+      lines[Math.max(0, Math.floor(lines.length / 2) - 1)],
+      lines[Math.floor(lines.length / 2)],
+      ...lines.slice(-10),
+    ].filter((item): item is string => Boolean(item)))).slice(0, 12);
+
+  return balancedLines.map((line) => {
     if (/世界|地理|宗门|王朝|大陆|规则|城邦|门派/.test(line)) {
       return { category: "world" as const, content: line };
     }
@@ -174,36 +212,19 @@ export function briefSummary(content: string, facts?: ExtractedFact[]): string {
   const extractedFacts = (facts ?? extractFacts(content))
     .map((item) => ({ ...item, content: item.content.trim() }))
     .filter((item) => item.content.length > 0);
-  const unique = (items: string[], maxItems = 3) => {
-    const result: string[] = [];
-    const seen = new Set<string>();
-    for (const item of items) {
-      if (seen.has(item)) {
-        continue;
-      }
-      seen.add(item);
-      result.push(item);
-      if (result.length >= maxItems) {
-        break;
-      }
-    }
-    return result;
-  };
-  const plotEvents = unique(extractedFacts.filter((item) => item.category === "plot").map((item) => item.content), 2);
-  const characterStates = unique(extractedFacts.filter((item) => item.category === "character").map((item) => item.content), 2);
-  const worldFacts = unique(extractedFacts.filter((item) => item.category === "world").map((item) => item.content), 1);
-  const blocks: string[] = [];
-  if (plotEvents.length > 0) {
-    blocks.push(`Plot: ${plotEvents.join("；")}`);
+  const continuitySummary = buildContinuitySummaryFromFacts(extractedFacts);
+  if (continuitySummary) {
+    return continuitySummary;
   }
-  if (characterStates.length > 0) {
-    blocks.push(`Character: ${characterStates.join("；")}`);
-  }
-  if (worldFacts.length > 0) {
-    blocks.push(`World: ${worldFacts.join("；")}`);
-  }
-  if (blocks.length > 0) {
-    return blocks.join("\n");
+  const sentences = text
+    .split(/(?<=[。！？!?])/g)
+    .map((item) => item.trim())
+    .filter((item) => item.length > 0);
+  if (sentences.length > 0) {
+    const balancedSentences = sentences.length <= 5
+      ? sentences
+      : Array.from(new Set([...sentences.slice(0, 2), ...sentences.slice(-3)]));
+    return balancedSentences.join("").slice(0, 260);
   }
   return text.length <= 220 ? text : `${text.slice(0, 220)}...`;
 }

@@ -40,6 +40,32 @@ export function chapterStatusLabel(status?: Chapter["chapterStatus"] | null): st
   }
 }
 
+export function resolveEffectiveChapterStatus(chapter: Chapter): NonNullable<Chapter["chapterStatus"]> {
+  const hasContent = hasText(chapter.content);
+  if (chapter.generationState === "approved" || chapter.generationState === "published") {
+    return "completed";
+  }
+  if (chapter.chapterStatus === "needs_repair") {
+    return "needs_repair";
+  }
+  if (
+    (chapter.generationState === "drafted" || chapter.generationState === "reviewed" || chapter.generationState === "repaired")
+    && hasContent
+  ) {
+    return "pending_review";
+  }
+  if (chapter.chapterStatus === "generating" && !hasContent) {
+    return "generating";
+  }
+  if (chapter.chapterStatus) {
+    return chapter.chapterStatus;
+  }
+  if (hasContent) {
+    return "pending_review";
+  }
+  return chapterHasPreparationAssets(chapter) ? "pending_generation" : "unplanned";
+}
+
 export function generationStateLabel(state?: Chapter["generationState"] | null): string {
   switch (state) {
     case "planned":
@@ -83,36 +109,38 @@ export function chapterHasPreparationAssets(chapter: Chapter): boolean {
 }
 
 export function chapterSuggestedActionLabel(chapter: Chapter): string {
-  if (chapter.chapterStatus === "generating") return "等待生成";
-  if (chapter.chapterStatus === "needs_repair") return "修复问题";
-  if (chapter.chapterStatus === "pending_review") return "运行审校";
-  if (chapter.chapterStatus === "completed") return "继续润色";
-  if (chapter.chapterStatus === "unplanned" || !chapterHasPreparationAssets(chapter)) return "补章节计划";
-  if (!hasText(chapter.content) || chapter.chapterStatus === "pending_generation") return "写本章";
+  const status = resolveEffectiveChapterStatus(chapter);
+  if (status === "generating") return "等待生成";
+  if (status === "needs_repair") return "修复问题";
+  if (status === "pending_review") return "运行审校";
+  if (status === "completed") return "继续润色";
+  if (status === "unplanned" || !chapterHasPreparationAssets(chapter)) return "补章节计划";
+  if (!hasText(chapter.content) || status === "pending_generation") return "写本章";
   if (chapter.generationState === "drafted") return "运行审校";
   return "打开编辑器";
 }
 
 export function chapterMatchesQueueFilter(chapter: Chapter, filter: QueueFilterKey): boolean {
+  const status = resolveEffectiveChapterStatus(chapter);
   if (filter === "all") return true;
   if (filter === "completed") {
-    return chapter.chapterStatus === "completed"
+    return status === "completed"
       || chapter.generationState === "approved"
       || chapter.generationState === "published";
   }
   if (filter === "review") {
-    return chapter.chapterStatus === "pending_review"
-      || chapter.chapterStatus === "needs_repair"
+    return status === "pending_review"
+      || status === "needs_repair"
       || chapter.generationState === "drafted"
       || chapter.generationState === "reviewed";
   }
   if (filter === "setup") {
-    return chapter.chapterStatus === "unplanned" || (!chapterHasPreparationAssets(chapter) && !hasText(chapter.content));
+    return status === "unplanned" || (!chapterHasPreparationAssets(chapter) && !hasText(chapter.content));
   }
   if (filter === "draft") {
-    return chapter.chapterStatus === "pending_generation"
-      || chapter.chapterStatus === "generating"
-      || (!hasText(chapter.content) && chapter.chapterStatus !== "unplanned");
+    return status === "pending_generation"
+      || status === "generating"
+      || (!hasText(chapter.content) && status !== "unplanned");
   }
   return true;
 }

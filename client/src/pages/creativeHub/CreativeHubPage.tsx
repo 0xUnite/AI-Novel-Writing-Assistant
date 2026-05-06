@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ApiResponse } from "@ai-novel/shared/types/api";
 import type { CreativeHubResourceBinding, CreativeHubThread } from "@ai-novel/shared/types/creativeHub";
+import type { NovelContentForm } from "@ai-novel/shared/types/novel";
 import type { LangChainMessage } from "@assistant-ui/react-langgraph";
 import { useSearchParams } from "react-router-dom";
 import {
@@ -144,6 +145,7 @@ export default function CreativeHubPage() {
   const novels = (novelsQuery.data?.data?.items ?? []).map((item) => ({
     id: item.id,
     title: item.title,
+    contentForm: item.contentForm,
   }));
 
   const createThreadMutation = useMutation({
@@ -359,12 +361,14 @@ export default function CreativeHubPage() {
     await runtimeState.sendPrompt(prompt);
   }, [runtimeState]);
 
-  const handleCreateNovelQuickAction = useCallback(async (title: string) => {
+  const handleCreateNovelQuickAction = useCallback(async (title: string, contentForm?: NovelContentForm) => {
     const normalized = title.trim();
     if (!normalized) {
       return;
     }
-    await runtimeState.sendPrompt(`创建一本小说《${normalized}》。`);
+    await runtimeState.sendPrompt(contentForm === "short_story"
+      ? `创建一篇短故事《${normalized}》。`
+      : `创建一本小说《${normalized}》。`);
   }, [runtimeState]);
 
   useEffect(() => {
@@ -466,7 +470,7 @@ export default function CreativeHubPage() {
             }}
             onNovelChange={(novelId) => void handleBindingsChange({ novelId: novelId || null })}
             onQuickAction={(prompt) => void handleQuickAction(prompt)}
-            onCreateNovel={(title) => void handleCreateNovelQuickAction(title)}
+            onCreateNovel={(title, nextContentForm) => void handleCreateNovelQuickAction(title, nextContentForm)}
             onStartProduction={(prompt) => void handleQuickAction(prompt)}
           />
         </div>

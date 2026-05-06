@@ -117,7 +117,7 @@ export default function ModelRoutesPage() {
     }
     const route = routeMap.get(taskType);
     return {
-      provider: route?.provider ?? "deepseek",
+      provider: route?.provider ?? "minimax",
       model: route?.model ?? "",
       temperature: route?.temperature != null ? String(route.temperature) : "0.7",
       maxTokens: route?.maxTokens != null ? String(route.maxTokens) : "",

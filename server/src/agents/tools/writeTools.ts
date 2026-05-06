@@ -192,6 +192,7 @@ export const writeToolDefinitions: Partial<
         startOrder: input.startOrder,
         endOrder: input.endOrder,
         maxRetries: input.maxRetries,
+        autoPrepareStoryAssets: true,
         provider: context.provider,
         model: context.model,
         temperature: context.temperature,

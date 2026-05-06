@@ -20,6 +20,7 @@ export const novelSetupItemStatusSchema = z.enum(["missing", "partial", "ready"]
 
 export const novelListItemSchema = z.object({
   id: z.string(),
+  contentForm: z.enum(["novel", "short_story"]).default("novel"),
   title: z.string(),
   description: z.string().nullable(),
   status: z.string(),
@@ -30,6 +31,7 @@ export const novelListItemSchema = z.object({
 
 export const listNovelsInput = z.object({
   query: z.string().trim().min(1).optional(),
+  contentForm: z.enum(["novel", "short_story"]).optional(),
   projectStatus: novelProjectStatusSchema.optional(),
   limit: z.number().int().min(1).max(50).optional(),
 });
@@ -40,6 +42,7 @@ export const listNovelsOutput = z.object({
 });
 
 export const createNovelInput = z.object({
+  contentForm: z.enum(["novel", "short_story"]).optional(),
   title: z.string().trim().min(1),
   description: z.string().trim().optional(),
   genre: z.string().trim().optional(),
@@ -49,6 +52,8 @@ export const createNovelInput = z.object({
   emotionIntensity: z.enum(["low", "medium", "high"]).optional(),
   aiFreedom: z.enum(["low", "medium", "high"]).optional(),
   defaultChapterLength: z.number().int().min(500).max(10000).optional(),
+  estimatedChapterCount: z.number().int().min(0).max(500).optional(),
+  targetTotalWordCount: z.number().int().min(0).max(2_000_000).optional(),
   projectStatus: novelProjectStatusSchema.optional(),
   projectMode: projectModeSchema.optional(),
 });
@@ -90,6 +95,7 @@ export const novelSetupStatusSchema = z.object({
 
 export const createNovelOutput = z.object({
   novelId: z.string(),
+  contentForm: z.enum(["novel", "short_story"]).default("novel"),
   title: z.string(),
   status: z.string(),
   chapterCount: z.number().int(),
@@ -108,6 +114,7 @@ export const selectNovelWorkspaceInput = z
 
 export const selectNovelWorkspaceOutput = z.object({
   novelId: z.string(),
+  contentForm: z.enum(["novel", "short_story"]).default("novel"),
   title: z.string(),
   chapterCount: z.number().int(),
   summary: z.string(),
@@ -127,6 +134,7 @@ export const chapterOverviewSchema = z.object({
 
 export const getNovelContextOutput = z.object({
   novelId: z.string(),
+  contentForm: z.enum(["novel", "short_story"]).default("novel"),
   title: z.string(),
   description: z.string().nullable(),
   genre: z.string().nullable(),
@@ -137,6 +145,7 @@ export const getNovelContextOutput = z.object({
   emotionIntensity: z.enum(["low", "medium", "high"]).nullable(),
   aiFreedom: z.enum(["low", "medium", "high"]).nullable(),
   defaultChapterLength: z.number().int().nullable(),
+  targetTotalWordCount: z.number().int().nullable(),
   worldId: z.string().nullable(),
   worldName: z.string().nullable(),
   outline: z.string().nullable(),
@@ -452,6 +461,7 @@ export function toChapterOverview(chapter: {
 
 export function toNovelListItem(novel: {
   id: string;
+  contentForm?: string | null;
   title: string;
   description: string | null;
   status: string;
@@ -463,6 +473,7 @@ export function toNovelListItem(novel: {
 }) {
   return {
     id: novel.id,
+    contentForm: novel.contentForm === "short_story" ? "short_story" : "novel",
     title: novel.title,
     description: novel.description ?? null,
     status: novel.status,

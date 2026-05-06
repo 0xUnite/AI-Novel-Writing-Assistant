@@ -41,53 +41,53 @@ export interface ResolvedModel {
 
 const DEFAULT_ROUTES: Record<ModelRouteTaskType | "default", ResolvedModel> = {
   planner: {
-    provider: "deepseek",
-    model: PROVIDERS.deepseek.defaultModel,
+    provider: "minimax",
+    model: PROVIDERS.minimax.defaultModel,
     temperature: 0.3,
   },
   writer: {
-    provider: "deepseek",
-    model: PROVIDERS.deepseek.defaultModel,
+    provider: "minimax",
+    model: PROVIDERS.minimax.defaultModel,
     temperature: 0.8,
   },
   review: {
-    provider: "deepseek",
-    model: PROVIDERS.deepseek.defaultModel,
+    provider: "minimax",
+    model: PROVIDERS.minimax.defaultModel,
     temperature: 0.2,
   },
   repair: {
-    provider: "deepseek",
-    model: PROVIDERS.deepseek.defaultModel,
+    provider: "minimax",
+    model: PROVIDERS.minimax.defaultModel,
     temperature: 0.4,
   },
   summary: {
-    provider: "deepseek",
-    model: PROVIDERS.deepseek.defaultModel,
+    provider: "minimax",
+    model: PROVIDERS.minimax.defaultModel,
     temperature: 0.2,
   },
   fact_extraction: {
-    provider: "deepseek",
-    model: PROVIDERS.deepseek.defaultModel,
+    provider: "minimax",
+    model: PROVIDERS.minimax.defaultModel,
     temperature: 0.2,
   },
   chat: {
-    provider: "deepseek",
-    model: PROVIDERS.deepseek.defaultModel,
+    provider: "minimax",
+    model: PROVIDERS.minimax.defaultModel,
     temperature: 0.7,
   },
   default: {
-    provider: "deepseek",
-    model: PROVIDERS.deepseek.defaultModel,
+    provider: "minimax",
+    model: PROVIDERS.minimax.defaultModel,
     temperature: 0.7,
   },
 };
 
 function normalizeProviderId(value: string | null | undefined): LLMProvider {
   if (typeof value !== "string") {
-    return "deepseek";
+    return "minimax";
   }
   const trimmed = value.trim();
-  return trimmed || "deepseek";
+  return trimmed || "minimax";
 }
 
 function normalizeMaxTokens(provider: LLMProvider, maxTokens?: number): number | undefined {

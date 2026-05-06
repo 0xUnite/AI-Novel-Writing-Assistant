@@ -102,7 +102,8 @@ const EDGE_RELATION_LABELS = [
 ] as const;
 
 function cleanJsonText(source: string): string {
-  return source.replace(/```json|```/gi, "").trim();
+  const withoutThink = source.replace(/<think>[\s\S]*?<\/think>/gi, "");
+  return withoutThink.replace(/```json|```/gi, "").trim();
 }
 
 function extractJSONObject(source: string): string {

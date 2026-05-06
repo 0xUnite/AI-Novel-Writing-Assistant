@@ -9,6 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { formatCurrentItemLabel } from "@/lib/formatCurrentItemLabel";
 import type { NovelTaskDrawerState } from "./NovelEditView.types";
 
 function formatStatus(status: TaskStatus): string {
@@ -134,7 +135,7 @@ export default function NovelTaskDrawer({
                   </div>
                   <div className="rounded-xl border bg-background/80 p-3">
                     <div className="text-xs text-muted-foreground">当前动作</div>
-                    <div className="mt-1 text-sm font-medium text-foreground">{task.currentItemLabel ?? "暂无"}</div>
+                    <div className="mt-1 text-sm font-medium text-foreground">{formatCurrentItemLabel(task.currentItemLabel) ?? "暂无"}</div>
                   </div>
                   <div className="rounded-xl border bg-background/80 p-3">
                     <div className="text-xs text-muted-foreground">最近检查点</div>

@@ -19,6 +19,7 @@ export async function runNovelPipeline(
     runMode?: PipelineRunMode;
     autoReview?: boolean;
     autoRepair?: boolean;
+    autoPrepareStoryAssets?: boolean;
     skipCompleted?: boolean;
     qualityThreshold?: number;
     repairMode?: PipelineRepairMode;

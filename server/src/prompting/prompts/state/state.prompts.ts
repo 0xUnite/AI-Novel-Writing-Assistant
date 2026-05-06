@@ -9,6 +9,7 @@ export interface StateSnapshotPromptInput {
   chapterTitle: string;
   chapterGoal: string;
   charactersText: string;
+  protectedIdentityText?: string;
   summaryText: string;
   factsText: string;
   timelineText: string;
@@ -35,7 +36,7 @@ export const stateSnapshotPrompt: PromptAsset<
       "你的任务是基于当前章节相关材料，提取“章节结束后”的全局状态快照，供后续规划、续写和一致性校验使用。",
       "",
       "只输出一个合法 JSON 对象，不要输出 Markdown、解释、注释、代码块或额外文本。",
-      "输出字段必须且只能是：summary, characterStates, relationStates, informationStates, foreshadowStates。",
+      "输出字段必须且只能是：summary, chapter_meta, characterStates, relationStates, informationStates, foreshadowStates。",
       "",
       "全局硬规则：",
       "1. 所有内容必须使用简体中文。",
@@ -43,6 +44,9 @@ export const stateSnapshotPrompt: PromptAsset<
       "3. 输出的是“章节结束后的状态”，不是剧情复述，不是章节摘要扩写。",
       "4. 若信息不足，宁可不写该条，也不要把猜测写成事实。",
       "5. 各字段之间必须一致，不得互相冲突。",
+      "6. 若提供“受保护真实身份字段”，它们是世界圣经定稿，不得被后续章节临时改写；正文出现冲突时，只能记录为角色误信或未揭露，不得覆盖真实身份。",
+      "7. 严禁照抄正文原句，尤其不要把开头动作、环境句、脚步/呼吸/回头/门窗/矿道等短暂描写写进 emotion、summary 或 knownFacts。",
+      "8. characterStates 必须写成状态标签或稳定事实，例如目标、处境、关系位置、伤势、认知差、下一步压力；不要写成“某人把某物放下/走到某处/看了一眼”这类动作复述。",
       "",
       "字段目标：",
       "1. summary：用简洁语言概括“本章结束后，整体局面到了什么状态”。要体现局势、人物格局或关键信息面，而不是复述过程。",
@@ -50,12 +54,22 @@ export const stateSnapshotPrompt: PromptAsset<
       "3. relationStates：只写本章实际发生变化的关系状态，不要重复未变化的旧关系。",
       "4. informationStates：只写本章结束后真正影响认知差的信息状态，包括读者知道、角色知道或角色误信的信息。",
       "5. foreshadowStates：只写本章中被建立、强化、等待兑现、已经兑现或失效的伏笔状态。",
+      "6. chapter_meta：提取供后续生成读取的章节元信息，必须包含 event_weight、high_stakes_dialogue、scheme_beat、kind_of_hook。",
+      "",
+      "chapter_meta 规则：",
+      "1. event_weight 使用 1-5 整数，1 表示低压过桥，3 表示常规推进，4-5 表示高能事件或重大转折。",
+      "2. high_stakes_dialogue 表示本章是否存在会改变信息、关系、压力或筹码的高价值对话。",
+      "3. scheme_beat 表示本章是否明显包含信息差、选项演算、落子与结果揭晓式算计。",
+      "4. kind_of_hook 只能四选一：information_reversal、decision_reversal、threat_approaches、suspense_question。",
+      "5. kind_of_hook 必须根据正文章尾实际效果回填，不要只照抄任务单。",
       "",
       "characterStates 规则：",
       "1. 每个角色最多一条。",
       "2. 只保留本章结束后仍然成立、且会影响后续的状态，例如立场变化、心理卡点、处境变化、能力状态、关系位置变化。",
       "3. 不要写短暂动作，不要写纯过程信息。",
-      "4. 如果不知道 characterId，可填 characterName，但不要两者都缺失。",
+      "4. emotion 字段只写情绪或处境状态，例如警惕、压抑、动摇、被迫冒险、信任下降；不要填正文句子。",
+      "5. summary 字段只写后续会用到的状态变化，不能复制正文片段。",
+      "6. 如果不知道 characterId，可填 characterName，但不要两者都缺失。",
       "",
       "relationStates 规则：",
       "1. 只保留“本章实际发生变化”的关系。",
@@ -91,6 +105,11 @@ export const stateSnapshotPrompt: PromptAsset<
       "角色清单：",
       input.charactersText,
       "",
+      input.protectedIdentityText ? [
+        "受保护真实身份字段：",
+        input.protectedIdentityText,
+        "",
+      ].join("\n") : "",
       "章节摘要：",
       input.summaryText,
       "",
@@ -112,6 +131,8 @@ export const stateSnapshotPrompt: PromptAsset<
       "4. foreshadowStates 的 status 只能是 setup, hinted, pending_payoff, paid_off, failed。",
       "5. 如果不知道 characterId，可填 characterName；如果 holderType=character，可填 holderRefName。",
       "6. summary 必须简洁描述当前章节后的全局状态。",
+      "7. chapter_meta.kind_of_hook 必须回填章尾钩子的实际类别。",
+      "8. 受保护真实身份字段不得被 characterStates、informationStates 或 summary 改写。",
     ].join("\n")),
   ],
 };

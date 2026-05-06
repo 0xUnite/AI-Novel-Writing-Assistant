@@ -41,7 +41,7 @@ const storyMacroDecomposeSchema = llmGenerateSchema.extend({
 
 const storyMacroBuildSchema = llmGenerateSchema;
 
-const storyMacroUpdateSchema = z.object({
+export const storyMacroUpdateSchema = z.object({
   storyInput: z.string().trim().nullable().optional(),
   expansion: z.object({
     expanded_premise: z.string().trim().optional(),
@@ -54,7 +54,7 @@ const storyMacroUpdateSchema = z.object({
     }).optional(),
     mystery_box: z.string().trim().optional(),
     emotional_line: z.string().trim().optional(),
-    setpiece_seeds: z.array(z.string().trim().min(1)).min(1).max(3).optional(),
+    setpiece_seeds: z.array(z.string().trim().min(1)).max(3).optional(),
     tone_reference: z.string().trim().optional(),
   }).optional(),
   decomposition: z.object({
@@ -63,10 +63,10 @@ const storyMacroUpdateSchema = z.object({
     main_hook: z.string().trim().optional(),
     progression_loop: z.string().trim().optional(),
     growth_path: z.string().trim().optional(),
-    major_payoffs: z.array(z.string().trim().min(1)).min(1).max(5).optional(),
+    major_payoffs: z.array(z.string().trim().min(1)).max(5).optional(),
     ending_flavor: z.string().trim().optional(),
   }).optional(),
-  constraints: z.array(z.string().trim().min(1)).min(1).max(8).optional(),
+  constraints: z.array(z.string().trim().min(1)).max(8).optional(),
   lockedFields: z.object({
     expanded_premise: z.boolean().optional(),
     protagonist_core: z.boolean().optional(),

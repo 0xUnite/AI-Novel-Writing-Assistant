@@ -6,21 +6,25 @@ import type {
   StoryPlan,
   StoryStateSnapshot,
 } from "@ai-novel/shared/types/novel";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { toast } from "@/components/ui/toast";
 import MarkdownViewer from "@/components/common/MarkdownViewer";
 import StreamOutput from "@/components/common/StreamOutput";
+import { buildChapterHeading, getChapterPlainBody } from "../chapterExport.utils";
 import { ChapterRuntimeAuditCard, ChapterRuntimeContextCard } from "./ChapterRuntimePanels";
 import { hasText, type AssetTabKey, MetricBadge } from "./chapterExecution.shared";
 
 interface ChapterExecutionResultPanelProps {
   novelId: string;
   selectedChapter: Chapter | undefined;
+  nextChapter?: Chapter;
   assetTab: AssetTabKey;
   onAssetTabChange: (tab: AssetTabKey) => void;
+  onSelectChapter: (chapterId: string) => void;
   chapterPlan?: StoryPlan | null;
   latestStateSnapshot?: StoryStateSnapshot | null;
   chapterAuditReports: AuditReport[];
@@ -75,8 +79,10 @@ export default function ChapterExecutionResultPanel(props: ChapterExecutionResul
   const {
     novelId,
     selectedChapter,
+    nextChapter,
     assetTab,
     onAssetTabChange,
+    onSelectChapter,
     chapterPlan,
     latestStateSnapshot,
     chapterAuditReports,
@@ -98,6 +104,8 @@ export default function ChapterExecutionResultPanel(props: ChapterExecutionResul
     repairStreamingChapterLabel,
     onAbortRepair,
   } = props;
+  const location = useLocation();
+  const projectBasePath = location.pathname.startsWith("/short-stories") ? "/short-stories" : "/novels";
 
   if (!selectedChapter) {
     return (
@@ -108,7 +116,7 @@ export default function ChapterExecutionResultPanel(props: ChapterExecutionResul
   }
 
   const chapterLabel = `第${selectedChapter.order}章`;
-  const chapterTitle = selectedChapter.title || "未命名章节";
+  const chapterTitle = selectedChapter.title?.trim() || buildChapterHeading(selectedChapter);
   const chapterObjective = chapterPlan?.objective ?? selectedChapter.expectation ?? "这一章还没有明确目标，建议先补章节计划。";
   const savedChapterContent = selectedChapter.content?.trim() ?? "";
   const hasSavedChapterContent = hasText(savedChapterContent);
@@ -126,6 +134,15 @@ export default function ChapterExecutionResultPanel(props: ChapterExecutionResul
         ? visibleLiveWritingOutput
         : "";
   const contentPanelWordCount = contentPanelContent.trim().length;
+  const exportSourceChapter = {
+    ...selectedChapter,
+    content: contentPanelContent,
+  };
+  const exportableChapterTitle = buildChapterHeading(exportSourceChapter);
+  const exportableChapterBody = getChapterPlainBody(exportSourceChapter);
+  const canCopyChapter = hasText(contentPanelContent);
+  const nextChapterBody = nextChapter ? getChapterPlainBody(nextChapter) : "";
+  const canCopyNextChapter = Boolean(nextChapter && hasText(nextChapterBody));
 
   const isSelectedChapterRepairStreaming = isRepairStreaming && repairStreamingChapterId === selectedChapter.id;
   const visibleRepairStreamContent = repairStreamingChapterId === selectedChapter.id ? repairStreamContent : "";
@@ -136,6 +153,46 @@ export default function ChapterExecutionResultPanel(props: ChapterExecutionResul
 
   const targetWordCount = selectedChapter.targetWordCount ?? null;
   const qualityOverall = chapterQualityReport?.overall ?? selectedChapter.qualityScore ?? null;
+
+  const handleCopyChapterContent = async () => {
+    if (!canCopyChapter || !hasText(exportableChapterBody)) {
+      toast.error("当前章节还没有可复制的正文。");
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(exportableChapterBody);
+      toast.success(`${chapterLabel}正文已复制。`);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "复制正文失败。");
+    }
+  };
+
+  const handleCopyChapterTitle = async () => {
+    try {
+      await navigator.clipboard.writeText(exportableChapterTitle);
+      toast.success(`${chapterLabel}章节名已复制。`);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "复制章节名失败。");
+    }
+  };
+
+  const handleCopyNextChapter = async () => {
+    if (!nextChapter) {
+      toast.error("已经是最后一章了。");
+      return;
+    }
+    if (!canCopyNextChapter) {
+      toast.error("下一章还没有可复制的正文。");
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(nextChapterBody);
+      onSelectChapter(nextChapter.id);
+      toast.success(`已复制第${nextChapter.order}章，并切到下一章。`);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "复制下一章失败。");
+    }
+  };
 
   return (
     <div className="space-y-4">
@@ -162,9 +219,20 @@ export default function ChapterExecutionResultPanel(props: ChapterExecutionResul
                 </p>
               </div>
             </div>
-            <Button asChild size="sm" variant="outline">
-              <Link to={`/novels/${novelId}/chapters/${selectedChapter.id}`}>打开章节编辑器</Link>
-            </Button>
+            <div className="flex flex-wrap items-center gap-2">
+              <Button size="sm" variant="outline" onClick={() => void handleCopyChapterTitle()}>
+                复制章节名
+              </Button>
+              <Button size="sm" variant="outline" onClick={() => void handleCopyChapterContent()} disabled={!canCopyChapter}>
+                复制本章
+              </Button>
+              <Button size="sm" variant="outline" onClick={() => void handleCopyNextChapter()} disabled={!nextChapter}>
+                复制下一章
+              </Button>
+              <Button asChild size="sm" variant="outline">
+                <Link to={`${projectBasePath}/${novelId}/chapters/${selectedChapter.id}`}>打开章节编辑器</Link>
+              </Button>
+            </div>
           </div>
 
           <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">

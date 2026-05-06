@@ -21,7 +21,7 @@ export type NovelWorkflowCheckpoint =
   | "workflow_completed";
 
 export interface NovelWorkflowResumeTarget {
-  route: "/novels/create" | "/novels/:id/edit";
+  route: "/novels/create" | "/novels/:id/edit" | "/short-stories/:id/edit";
   novelId?: string | null;
   taskId?: string | null;
   stage?: "basic" | "story_macro" | "character" | "outline" | "structured" | "chapter" | "pipeline";

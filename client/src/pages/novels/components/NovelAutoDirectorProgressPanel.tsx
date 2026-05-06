@@ -4,6 +4,7 @@ import {
 } from "@ai-novel/shared/types/novelDirector";
 import type { UnifiedTaskDetail } from "@ai-novel/shared/types/task";
 import AITakeoverContainer, { type AITakeoverMode } from "@/components/workflow/AITakeoverContainer";
+import { formatCurrentItemLabel } from "@/lib/formatCurrentItemLabel";
 
 type DirectorExecutionViewMode = "execution_progress" | "execution_failed";
 
@@ -193,7 +194,7 @@ export default function NovelAutoDirectorProgressPanel({
   onBackgroundContinue,
   onOpenTaskCenter,
 }: NovelAutoDirectorProgressPanelProps) {
-  const currentAction = task?.currentItemLabel?.trim()
+  const currentAction = formatCurrentItemLabel(task?.currentItemLabel)
     || (mode === "execution_failed" ? "导演任务执行中断" : "正在准备导演任务");
   const taskTitle = task?.title?.trim() || titleHint?.trim() || "新小说项目";
   const milestones = Array.isArray(task?.meta.milestones)

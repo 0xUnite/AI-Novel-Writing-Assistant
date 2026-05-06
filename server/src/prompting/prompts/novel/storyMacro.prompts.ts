@@ -81,6 +81,25 @@ function buildExpansionAndDecompositionPrompt(
       "3. 用户输入彼此冲突，或与项目上下文冲突时，在 issues 中标记 conflict。",
       "4. 即使存在问题，也仍要尽可能产出一个可用但克制的故事引擎原型。",
       "",
+      "字段长度与数量上限：",
+      "1. expanded_premise <= 900 字符。",
+      "2. protagonist_core <= 500 字符。",
+      "3. conflict_engine <= 500 字符。",
+      "4. conflict_layers.external / internal / relational 各 <= 280 字符。",
+      "5. mystery_box <= 320 字符。",
+      "6. emotional_line <= 400 字符。",
+      "7. setpiece_seeds 必须 2-3 条，每条 <= 260 字符。",
+      "8. tone_reference <= 320 字符。",
+      "9. selling_point <= 200 字符。",
+      "10. core_conflict <= 320 字符。",
+      "11. main_hook <= 320 字符。",
+      "12. progression_loop <= 400 字符。",
+      "13. growth_path <= 400 字符。",
+      "14. major_payoffs 必须 2-5 条，每条 <= 220 字符。",
+      "15. ending_flavor <= 220 字符。",
+      "16. constraints 必须 2-8 条，每条 <= 240 字符。",
+      "17. 宁可更短、更凝练，也不要超长。",
+      "",
       "输出要求：",
       "1. 只输出严格合法的 JSON 对象。",
       "2. 不要输出解释、备注、Markdown、代码块或任何额外文本。",
@@ -175,6 +194,10 @@ function buildFieldRegenerationPrompt(input: {
       "14. 如果目标字段是 major_payoffs：必须是真正值得兑现的爆点，不要写普通剧情节点。",
       "15. 如果目标字段是 ending_flavor：应体现结局气质与最终余味，而不是具体结局细纲。",
       "16. 如果目标字段是 constraints：必须写成后续生成可以直接遵守的叙事规则，禁止空话。",
+      "17. 如果目标字段是 setpiece_seeds：输出 2-3 条，每条 <= 260 字符。",
+      "18. 如果目标字段是 major_payoffs：输出 2-5 条，每条 <= 220 字符。",
+      "19. 如果目标字段是 ending_flavor：输出 <= 220 字符。",
+      "20. 如果目标字段是 constraints：输出 2-8 条，每条 <= 240 字符。",
       "",
       "输出要求：",
       "1. 只输出严格合法的 JSON 对象。",
@@ -204,6 +227,9 @@ export const storyMacroDecompositionPrompt: PromptAsset<
   taskType: "planner",
   mode: "structured",
   language: "zh",
+  repairPolicy: {
+    maxAttempts: 2,
+  },
   contextPolicy: {
     maxTokensBudget: NOVEL_PROMPT_BUDGETS.storyMacroDecomposition,
     requiredGroups: ["story_input"],
@@ -214,7 +240,10 @@ export const storyMacroDecompositionPrompt: PromptAsset<
     const prompt = buildExpansionAndDecompositionPrompt(input.storyInput, input.projectContext);
     return [
       new SystemMessage(prompt.system),
-      new HumanMessage(renderSelectedContextBlocks(context)),
+      new HumanMessage([
+        prompt.user,
+        renderSelectedContextBlocks(context),
+      ].filter(Boolean).join("\n\n")),
     ];
   },
 };

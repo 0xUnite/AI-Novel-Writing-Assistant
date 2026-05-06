@@ -1,0 +1,18 @@
+[     293ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4da9aa86:20102
+[     479ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://127.0.0.1:5173/favicon.ico:0
+[   12238ms] [ERROR] Failed to load resource: the server responded with a status of 400 (Bad Request) @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/volumes:0
+[   12374ms] [ERROR] Failed to load resource: the server responded with a status of 400 (Bad Request) @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/volumes/versions:0
+[   13245ms] [ERROR] Failed to load resource: the server responded with a status of 400 (Bad Request) @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/volumes:0
+[   13380ms] [ERROR] Failed to load resource: the server responded with a status of 400 (Bad Request) @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/volumes/versions:0
+[   42505ms] [ERROR] Failed to load resource: the server responded with a status of 400 (Bad Request) @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/volumes:0
+[   42564ms] [ERROR] Failed to load resource: the server responded with a status of 400 (Bad Request) @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/volumes/versions:0
+[   43512ms] [ERROR] Failed to load resource: the server responded with a status of 400 (Bad Request) @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/volumes:0
+[   43575ms] [ERROR] Failed to load resource: the server responded with a status of 400 (Bad Request) @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/volumes/versions:0
+[   66445ms] [ERROR] The final argument passed to %s changed size between renders. The order and size of this array must remain constant.
+
+Previous: %s
+Incoming: %s useEffect [workflow_completed, pipeline, cmolr8k720000wk8oa4sn455z, 1, cmolr8k7p000pwk8onb2yi0l0, ] [workflow_completed, succeeded, pipeline, cmolr8k720000wk8oa4sn455z, 1, cmolr8k7p000pwk8onb2yi0l0, ] @ http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4da9aa86:5627
+[   66548ms] [ERROR] Failed to load resource: the server responded with a status of 400 (Bad Request) @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/volumes:0
+[   66553ms] [ERROR] Failed to load resource: the server responded with a status of 400 (Bad Request) @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/volumes/versions:0
+[   67557ms] [ERROR] Failed to load resource: the server responded with a status of 400 (Bad Request) @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/volumes:0
+[   67570ms] [ERROR] Failed to load resource: the server responded with a status of 400 (Bad Request) @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/volumes/versions:0

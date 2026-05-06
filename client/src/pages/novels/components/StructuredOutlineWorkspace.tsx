@@ -31,7 +31,9 @@ function parseBeatSpan(chapterSpanHint: string): { start: number; end: number } 
   if (numbers.length === 0 || numbers.some((value) => Number.isNaN(value))) {
     return null;
   }
-  return { start: numbers[0], end: numbers[numbers.length - 1] };
+  const first = numbers[0] ?? 0;
+  const last = numbers[numbers.length - 1] ?? first;
+  return { start: Math.min(first, last), end: Math.max(first, last) };
 }
 
 function getBeatSheetRequiredChapterCount(
@@ -40,11 +42,15 @@ function getBeatSheetRequiredChapterCount(
   if (!beatSheet) {
     return 0;
   }
-  return beatSheet.beats.reduce((maxValue, beat) => {
-    const span = parseBeatSpan(beat.chapterSpanHint);
-    const upperBound = span?.end ?? 0;
-    return upperBound > maxValue ? upperBound : maxValue;
-  }, 0);
+  const spans = beatSheet.beats
+    .map((beat) => parseBeatSpan(beat.chapterSpanHint))
+    .filter((span): span is { start: number; end: number } => Boolean(span));
+  if (spans.length === 0) {
+    return 0;
+  }
+  const firstStart = Math.min(...spans.map((span) => span.start));
+  const lastEnd = Math.max(...spans.map((span) => span.end));
+  return firstStart > 1 ? Math.max(1, lastEnd - firstStart + 1) : lastEnd;
 }
 
 function chapterMatchesBeat(chapter: StructuredChapter, beat: StructuredBeat): boolean {

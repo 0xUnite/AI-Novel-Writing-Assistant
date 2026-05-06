@@ -1,0 +1,1021 @@
+[     345ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4da9aa86:20102
+[     766ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://127.0.0.1:5173/favicon.ico:0
+[     887ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://127.0.0.1:5173/favicon.ico:0
+[ 1106916ms] [LOG] [vite] server connection lost. Polling for restart... @ http://127.0.0.1:5173/@vite/client:864
+[ 1108865ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/review-batch-jobs?limit=10:0
+[ 1109087ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[ 1109869ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/review-batch-jobs?limit=10:0
+[ 1110230ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[ 1110264ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[ 1112820ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4da9aa86:20102
+[14933500ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://127.0.0.1:5173/src/pages/novels/hooks/useNovelQualityBatchMutations.ts?t=1777619804689:0
+[14933503ms] [ERROR] [vite] Failed to reload /src/pages/novels/NovelEdit.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above) @ http://127.0.0.1:5173/@vite/client:808
+[15042265ms] [LOG] [vite] server connection lost. Polling for restart... @ http://127.0.0.1:5173/@vite/client:864
+[15044844ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[15048424ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4da9aa86:20102
+[15365241ms] [LOG] [vite] server connection lost. Polling for restart... @ http://127.0.0.1:5173/@vite/client:864
+[15367609ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[15367965ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[15368620ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[15369350ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[15373913ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4da9aa86:20102
+[15769331ms] [ERROR] React has detected a change in the order of Hooks called by %s. This will lead to bugs and errors if not fixed. For more information, read the Rules of Hooks: https://react.dev/link/rules-of-hooks
+
+   Previous render            Next render
+   ------------------------------------------------------
+%s   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ NovelEdit 1. useContext                 useContext
+2. useContext                 useContext
+3. useContext                 useContext
+4. useContext                 useContext
+5. useContext                 useContext
+6. useContext                 useContext
+7. useContext                 useContext
+8. useContext                 useContext
+9. useRef                     useRef
+10. useContext                useContext
+11. useLayoutEffect           useLayoutEffect
+12. useCallback               useCallback
+13. useContext                useContext
+14. useContext                useContext
+15. useCallback               useCallback
+16. useCallback               useCallback
+17. useSyncExternalStore      useSyncExternalStore
+18. useDebugValue             useDebugValue
+19. useContext                useContext
+20. useRef                    useRef
+21. useRef                    useRef
+22. useContext                useContext
+23. useContext                useContext
+24. useMemo                   useMemo
+25. useContext                useContext
+26. useContext                useContext
+27. useContext                useContext
+28. useContext                useContext
+29. useContext                useContext
+30. useContext                useContext
+31. useContext                useContext
+32. useRef                    useRef
+33. useContext                useContext
+34. useLayoutEffect           useLayoutEffect
+35. useCallback               useCallback
+36. useCallback               useCallback
+37. useContext                useContext
+38. useState                  useState
+39. useEffect                 useEffect
+40. useCallback               useCallback
+41. useSyncExternalStore      useSyncExternalStore
+42. useCallback               useCallback
+43. useEffect                 useEffect
+44. useMemo                   useMemo
+45. useMemo                   useMemo
+46. useState                  useState
+47. useState                  useState
+48. useState                  useState
+49. useState                  useState
+50. useState                  useState
+51. useState                  useState
+52. useState                  useState
+53. useState                  useState
+54. useState                  useState
+55. useState                  useState
+56. useState                  useState
+57. useState                  useState
+58. useState                  useState
+59. useState                  useState
+60. useState                  useState
+61. useState                  useState
+62. useState                  useState
+63. useState                  useState
+64. useState                  useState
+65. useState                  useState
+66. useState                  useState
+67. useState                  useState
+68. useState                  useState
+69. useState                  useState
+70. useState                  useState
+71. useState                  useState
+72. useState                  useState
+73. useState                  useState
+74. useState                  useState
+75. useState                  useState
+76. useState                  useState
+77. useState                  useState
+78. useState                  useState
+79. useState                  useState
+80. useContext                useContext
+81. useContext                useContext
+82. useContext                useContext
+83. useEffect                 useEffect
+84. useState                  useState
+85. useCallback               useCallback
+86. useSyncExternalStore      useSyncExternalStore
+87. useEffect                 useEffect
+88. useEffect                 useEffect
+89. useContext                useContext
+90. useContext                useContext
+91. useContext                useContext
+92. useEffect                 useEffect
+93. useState                  useState
+94. useCallback               useCallback
+95. useSyncExternalStore      useSyncExternalStore
+96. useEffect                 useEffect
+97. useContext                useContext
+98. useContext                useContext
+99. useContext                useContext
+100. useEffect                useEffect
+101. useState                 useState
+102. useCallback              useCallback
+103. useSyncExternalStore     useSyncExternalStore
+104. useEffect                useEffect
+105. useContext               useContext
+106. useContext               useContext
+107. useContext               useContext
+108. useEffect                useEffect
+109. useState                 useState
+110. useCallback              useCallback
+111. useSyncExternalStore     useSyncExternalStore
+112. useEffect                useEffect
+113. useContext               useContext
+114. useContext               useContext
+115. useContext               useContext
+116. useEffect                useEffect
+117. useState                 useState
+118. useCallback              useCallback
+119. useSyncExternalStore     useSyncExternalStore
+120. useEffect                useEffect
+121. useContext               useContext
+122. useContext               useContext
+123. useContext               useContext
+124. useEffect                useEffect
+125. useState                 useState
+126. useCallback              useCallback
+127. useSyncExternalStore     useSyncExternalStore
+128. useEffect                useEffect
+129. useContext               useContext
+130. useContext               useContext
+131. useContext               useContext
+132. useEffect                useEffect
+133. useState                 useState
+134. useCallback              useCallback
+135. useSyncExternalStore     useSyncExternalStore
+136. useEffect                useEffect
+137. useContext               useContext
+138. useContext               useContext
+139. useContext               useContext
+140. useEffect                useEffect
+141. useState                 useState
+142. useCallback              useCallback
+143. useSyncExternalStore     useSyncExternalStore
+144. useEffect                useEffect
+145. useContext               useContext
+146. useContext               useContext
+147. useContext               useContext
+148. useEffect                useEffect
+149. useState                 useState
+150. useCallback              useCallback
+151. useSyncExternalStore     useSyncExternalStore
+152. useEffect                useEffect
+153. useContext               useContext
+154. useContext               useContext
+155. useContext               useContext
+156. useEffect                useEffect
+157. useState                 useState
+158. useCallback              useCallback
+159. useSyncExternalStore     useSyncExternalStore
+160. useEffect                useEffect
+161. useContext               useContext
+162. useContext               useContext
+163. useContext               useContext
+164. useEffect                useEffect
+165. useState                 useState
+166. useCallback              useCallback
+167. useSyncExternalStore     useSyncExternalStore
+168. useEffect                useEffect
+169. useContext               useContext
+170. useContext               useContext
+171. useContext               useContext
+172. useEffect                useEffect
+173. useState                 useState
+174. useCallback              useCallback
+175. useSyncExternalStore     useSyncExternalStore
+176. useEffect                useEffect
+177. useContext               useContext
+178. useContext               useContext
+179. useContext               useContext
+180. useEffect                useEffect
+181. useState                 useState
+182. useCallback              useCallback
+183. useSyncExternalStore     useSyncExternalStore
+184. useEffect                useEffect
+185. useContext               useContext
+186. useContext               useContext
+187. useContext               useContext
+188. useEffect                useEffect
+189. useState                 useState
+190. useCallback              useCallback
+191. useSyncExternalStore     useSyncExternalStore
+192. useEffect                useEffect
+193. useMemo                  useMemo
+194. useMemo                  useMemo
+195. useMemo                  useMemo
+196. useContext               useContext
+197. useState                 useState
+198. useState                 useState
+199. useState                 useState
+200. useState                 useState
+201. useState                 useState
+202. useState                 useState
+203. useState                 useState
+204. useState                 useState
+205. useContext               useContext
+206. useContext               useContext
+207. useContext               useContext
+208. useEffect                useEffect
+209. useState                 useState
+210. useCallback              useCallback
+211. useSyncExternalStore     useSyncExternalStore
+212. useEffect                useEffect
+213. useEffect                useEffect
+214. useContext               useContext
+215. useState                 useState
+216. useEffect                useEffect
+217. useCallback              useCallback
+218. useSyncExternalStore     useSyncExternalStore
+219. useCallback              useCallback
+220. useContext               useContext
+221. useState                 useState
+222. useEffect                useEffect
+223. useCallback              useCallback
+224. useSyncExternalStore     useSyncExternalStore
+225. useCallback              useCallback
+226. useContext               useContext
+227. useState                 useState
+228. useEffect                useEffect
+229. useCallback              useCallback
+230. useSyncExternalStore     useSyncExternalStore
+231. useCallback              useCallback
+232. useContext               useContext
+233. useState                 useState
+234. useEffect                useEffect
+235. useCallback              useCallback
+236. useSyncExternalStore     useSyncExternalStore
+237. useCallback              useCallback
+238. useContext               useContext
+239. useState                 useState
+240. useEffect                useEffect
+241. useCallback              useCallback
+242. useSyncExternalStore     useSyncExternalStore
+243. useCallback              useCallback
+244. useState                 useState
+245. useContext               useContext
+246. useContext               useContext
+247. useContext               useContext
+248. useEffect                useEffect
+249. useState                 useState
+250. useCallback              useCallback
+251. useSyncExternalStore     useSyncExternalStore
+252. useEffect                useEffect
+253. useContext               useContext
+254. useState                 useState
+255. useEffect                useEffect
+256. useCallback              useCallback
+257. useSyncExternalStore     useSyncExternalStore
+258. useCallback              useCallback
+259. useContext               useContext
+260. useState                 useState
+261. useEffect                useEffect
+262. useCallback              useCallback
+263. useSyncExternalStore     useSyncExternalStore
+264. useCallback              useCallback
+265. useContext               useContext
+266. useContext               useContext
+267. useContext               useContext
+268. useEffect                useEffect
+269. useState                 useState
+270. useCallback              useCallback
+271. useSyncExternalStore     useSyncExternalStore
+272. useEffect                useEffect
+273. useContext               useContext
+274. useState                 useState
+275. useEffect                useEffect
+276. useCallback              useCallback
+277. useSyncExternalStore     useSyncExternalStore
+278. useCallback              useCallback
+279. useContext               useContext
+280. useState                 useState
+281. useEffect                useEffect
+282. useCallback              useCallback
+283. useSyncExternalStore     useSyncExternalStore
+284. useCallback              useCallback
+285. useEffect                useEffect
+286. useMemo                  useMemo
+287. useMemo                  useMemo
+288. useMemo                  useMemo
+289. useMemo                  useMemo
+290. useMemo                  useMemo
+291. useMemo                  useMemo
+292. useMemo                  useMemo
+293. useContext               useContext
+294. useMemo                  useMemo
+295. useMemo                  useMemo
+296. useMemo                  useMemo
+297. useMemo                  useMemo
+298. useState                 useState
+299. useState                 useState
+300. useState                 useState
+301. useContext               useContext
+302. useState                 useState
+303. useEffect                useEffect
+304. useCallback              useCallback
+305. useSyncExternalStore     useSyncExternalStore
+306. useCallback              useCallback
+307. useMemo                  useMemo
+308. useMemo                  useMemo
+309. useMemo                  useMemo
+310. useMemo                  useMemo
+311. useMemo                  useMemo
+312. useMemo                  useMemo
+313. useContext               useContext
+314. useState                 useState
+315. useEffect                useEffect
+316. useCallback              useCallback
+317. useSyncExternalStore     useSyncExternalStore
+318. useCallback              useCallback
+319. useContext               useContext
+320. useState                 useState
+321. useEffect                useEffect
+322. useCallback              useCallback
+323. useSyncExternalStore     useSyncExternalStore
+324. useCallback              useCallback
+325. useMemo                  useMemo
+326. useMemo                  useMemo
+327. useContext               useContext
+328. useState                 useState
+329. useEffect                useEffect
+330. useCallback              useCallback
+331. useSyncExternalStore     useSyncExternalStore
+332. useCallback              useCallback
+333. useContext               useContext
+334. useState                 useState
+335. useEffect                useEffect
+336. useCallback              useCallback
+337. useSyncExternalStore     useSyncExternalStore
+338. useCallback              useCallback
+339. useContext               useContext
+340. useState                 useState
+341. useEffect                useEffect
+342. useCallback              useCallback
+343. useSyncExternalStore     useSyncExternalStore
+344. useCallback              useCallback
+345. useEffect                useEffect
+346. useMemo                  useMemo
+347. useMemo                  useMemo
+348. useRef                   useRef
+349. useEffect                useEffect
+350. useEffect                useEffect
+351. useEffect                useEffect
+352. useEffect                useEffect
+353. useEffect                useEffect
+354. useEffect                useEffect
+355. useEffect                useEffect
+356. useEffect                useEffect
+357. useEffect                useEffect
+358. useMemo                  useMemo
+359. useMemo                  useMemo
+360. useMemo                  useMemo
+361. useCallback              useCallback
+362. useState                 useState
+363. useState                 useState
+364. useState                 useState
+365. useState                 useState
+366. useState                 useState
+367. useState                 useState
+368. useState                 useState
+369. useState                 useState
+370. useState                 useState
+371. useRef                   useRef
+372. useCallback              useCallback
+373. useCallback              useCallback
+374. useCallback              useCallback
+375. useEffect                useEffect
+376. useState                 useState
+377. useState                 useState
+378. useState                 useState
+379. useState                 useState
+380. useState                 useState
+381. useState                 useState
+382. useState                 useState
+383. useState                 useState
+384. useState                 useState
+385. useRef                   useRef
+386. useCallback              useCallback
+387. useCallback              useCallback
+388. useCallback              useCallback
+389. useEffect                useEffect
+390. useState                 useState
+391. useState                 useState
+392. useState                 useState
+393. useState                 useState
+394. useState                 useState
+395. useState                 useState
+396. useState                 useState
+397. useState                 useState
+398. useState                 useState
+399. useRef                   useRef
+400. useCallback              useCallback
+401. useCallback              useCallback
+402. useCallback              useCallback
+403. useEffect                useEffect
+404. useState                 useState
+405. useState                 useState
+406. useState                 useState
+407. useState                 useState
+408. useState                 useState
+409. useState                 useState
+410. useState                 useState
+411. useState                 useState
+412. useState                 useState
+413. useRef                   useRef
+414. useCallback              useCallback
+415. useCallback              useCallback
+416. useCallback              useCallback
+417. useEffect                useEffect
+418. useContext               useContext
+419. useState                 useState
+420. useEffect                useEffect
+421. useCallback              useCallback
+422. useSyncExternalStore     useSyncExternalStore
+423. useCallback              useCallback
+424. useContext               useContext
+425. useState                 useState
+426. useEffect                useEffect
+427. useCallback              useCallback
+428. useSyncExternalStore     useSyncExternalStore
+429. useCallback              useCallback
+430. useContext               useContext
+431. useState                 useState
+432. useEffect                useEffect
+433. useCallback              useCallback
+434. useSyncExternalStore     useSyncExternalStore
+435. useCallback              useCallback
+436. useContext               useContext
+437. useState                 useState
+438. useEffect                useEffect
+439. useCallback              useCallback
+440. useSyncExternalStore     useSyncExternalStore
+441. useCallback              useCallback
+442. useContext               useContext
+443. useState                 useState
+444. useEffect                useEffect
+445. useCallback              useCallback
+446. useSyncExternalStore     useSyncExternalStore
+447. useCallback              useCallback
+448. useContext               useContext
+449. useState                 useState
+450. useEffect                useEffect
+451. useCallback              useCallback
+452. useSyncExternalStore     useSyncExternalStore
+453. useCallback              useCallback
+454. useContext               useContext
+455. useState                 useState
+456. useEffect                useEffect
+457. useCallback              useCallback
+458. useSyncExternalStore     useSyncExternalStore
+459. useCallback              useCallback
+460. useContext               useContext
+461. useState                 useState
+462. useEffect                useEffect
+463. useCallback              useCallback
+464. useSyncExternalStore     useSyncExternalStore
+465. useCallback              useCallback
+466. useContext               useContext
+467. useState                 useState
+468. useEffect                useEffect
+469. useCallback              useCallback
+470. useSyncExternalStore     useSyncExternalStore
+471. useCallback              useCallback
+472. useContext               useContext
+473. useState                 useState
+474. useEffect                useEffect
+475. useCallback              useCallback
+476. useSyncExternalStore     useSyncExternalStore
+477. useCallback              useCallback
+478. useContext               useContext
+479. useContext               useContext
+480. useContext               useContext
+481. useEffect                useEffect
+482. useState                 useState
+483. useCallback              useCallback
+484. useSyncExternalStore     useSyncExternalStore
+485. useEffect                useEffect
+486. useContext               useContext
+487. useContext               useContext
+488. useContext               useContext
+489. useEffect                useEffect
+490. useState                 useState
+491. useCallback              useCallback
+492. useSyncExternalStore     useSyncExternalStore
+493. useEffect                useEffect
+494. useMemo                  useContext
+ @ http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4da9aa86:5593
+[15769369ms] Error: Should have a queue. You are likely calling Hooks conditionally, which is not allowed. (https://react.dev/link/invalid-hook-call)
+    at updateReducerImpl (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4da9aa86:5892:17)
+    at updateReducer (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4da9aa86:5887:16)
+    at Object.useState (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4da9aa86:18996:20)
+    at exports.useState (http://127.0.0.1:5173/node_modules/.vite/deps/chunk-VRUSY5EV.js?v=4da9aa86:959:36)
+    at useBaseQuery (http://127.0.0.1:5173/node_modules/.vite/deps/@tanstack_react-query.js?v=4da9aa86:3306:29)
+    at useQuery (http://127.0.0.1:5173/node_modules/.vite/deps/@tanstack_react-query.js?v=4da9aa86:3363:10)
+    at useNovelQualityBatchMutations (http://127.0.0.1:5173/src/pages/novels/hooks/useNovelQualityBatchMutations.ts?t=1777620640774:75:37)
+    at NovelEdit (http://127.0.0.1:5173/src/pages/novels/NovelEdit.tsx?t=1777620640774:1180:7)
+    at Object.react_stack_bottom_frame (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4da9aa86:18509:20)
+    at renderWithHooks (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4da9aa86:5654:24)
+[15769351ms] [WARNING] %s
+
+%s
+ An error occurred in the <NovelEdit> component. Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://react.dev/link/error-boundaries to learn more about error boundaries. @ http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4da9aa86:6965
+[15806246ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[15807251ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[15815256ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[15816261ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[15824264ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[15825268ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[15833273ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[15834278ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[15842282ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[15843286ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[15851290ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[15852294ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[15860298ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[15861300ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[15861505ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[15862509ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[15869372ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[15870376ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[15878380ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[15879383ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[15887385ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[15888391ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[15896394ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[15897401ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[15905404ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[15906409ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[15911258ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[15912264ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[15920270ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[15921302ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[15929308ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[15930311ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[15938334ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[15939340ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[15947345ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[15948350ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[15956355ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[15957017ms] [LOG] [vite] server connection lost. Polling for restart... @ http://127.0.0.1:5173/@vite/client:864
+[15957359ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[15959082ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[15959434ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/review-batch-jobs?limit=10:0
+[15959565ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[15960084ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[15963066ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4da9aa86:20102
+[16315121ms] [LOG] [vite] server connection lost. Polling for restart... @ http://127.0.0.1:5173/@vite/client:864
+[16317409ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[16318414ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[16318751ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[16319755ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[16322418ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[16322758ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[16326055ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4da9aa86:20102
+[16399525ms] [LOG] [vite] server connection lost. Polling for restart... @ http://127.0.0.1:5173/@vite/client:864
+[16402150ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[16403137ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[16403153ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[16404142ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[16406157ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[16406952ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/review-batch-jobs?limit=10:0
+[16406959ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[16407160ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[16410322ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4da9aa86:20102
+[17643986ms] [LOG] [vite] server connection lost. Polling for restart... @ http://127.0.0.1:5173/@vite/client:864
+[17645354ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/review-batch-jobs?limit=10:0
+[17645575ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[17646356ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/review-batch-jobs?limit=10:0
+[17646578ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[17647397ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[17647500ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[17648400ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[17648503ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[17651508ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[17652402ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[17652510ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[17653407ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[17654360ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/review-batch-jobs?limit=10:0
+[17654582ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[17655365ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/review-batch-jobs?limit=10:0
+[17655514ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[17655584ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[17656520ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[17657413ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[17658416ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[17659525ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[17660530ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[17662421ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[17663368ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/review-batch-jobs?limit=10:0
+[17663425ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[17663536ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[17663587ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[17664373ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/review-batch-jobs?limit=10:0
+[17664541ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[17664588ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[17667427ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[17667547ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[17668432ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[17668556ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[17671559ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[17672378ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/review-batch-jobs?limit=10:0
+[17672436ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[17672637ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[17672638ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[17673381ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/review-batch-jobs?limit=10:0
+[17673441ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[17673640ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[17675642ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[17676647ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[17677446ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[17678451ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[17679656ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[17680660ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[17681383ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/review-batch-jobs?limit=10:0
+[17681643ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[17682388ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/review-batch-jobs?limit=10:0
+[17682453ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[17682648ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[17683458ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[17683663ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[17684672ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[17687462ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[17687678ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[17688466ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[17688683ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[17690393ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/review-batch-jobs?limit=10:0
+[17690652ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[17691398ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/review-batch-jobs?limit=10:0
+[17691657ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[17691687ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[17692473ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[17692692ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[17693476ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[17695698ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[17696702ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[17697481ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[17698487ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[17699402ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/review-batch-jobs?limit=10:0
+[17699661ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[17699705ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[17700406ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/review-batch-jobs?limit=10:0
+[17700665ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[17700717ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[17702490ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[17703494ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[17703721ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[17704728ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[17707518ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[17707734ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[17708421ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/review-batch-jobs?limit=10:0
+[17708956ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[17708957ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[17708986ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[17710911ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/review-batch-jobs?limit=10:0
+[17715605ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[17715605ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[17715610ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[17717450ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[17718139ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[17719764ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/review-batch-jobs?limit=10:0
+[17720658ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[17720861ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/review-batch-jobs?limit=10:0
+[17721666ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[17722138ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[17723143ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[17723607ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[17724611ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[17724670ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[17725675ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[17727181ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[17728211ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[17728685ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[17728869ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/review-batch-jobs?limit=10:0
+[17729720ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[17729876ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/review-batch-jobs?limit=10:0
+[17732428ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[17732620ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[17733051ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[17733441ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[17733658ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[17734079ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[17737085ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[17737452ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[17737879ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/review-batch-jobs?limit=10:0
+[17738088ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[17738455ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[17738884ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/review-batch-jobs?limit=10:0
+[17741117ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[17741658ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[17742151ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[17742477ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[17742663ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[17743504ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[17745189ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[17746196ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[17746894ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/review-batch-jobs?limit=10:0
+[17747518ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[17747903ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/review-batch-jobs?limit=10:0
+[17748527ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[17749200ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[17750219ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[17750671ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[17751681ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[17752540ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[17753221ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[17753548ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[17754234ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[17755927ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/review-batch-jobs?limit=10:0
+[17756938ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/review-batch-jobs?limit=10:0
+[17757249ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[17757554ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[17758263ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[17758556ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[17759685ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[17760689ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[17761265ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[17762269ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[17762559ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[17763562ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[17764942ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/review-batch-jobs?limit=10:0
+[17765274ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[17765946ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/review-batch-jobs?limit=10:0
+[17766279ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[17767569ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[17768573ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[17768692ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[17769285ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[17769697ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[17770292ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[17775215ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4da9aa86:20102
+[18054659ms] [LOG] [vite] server connection lost. Polling for restart... @ http://127.0.0.1:5173/@vite/client:864
+[18057239ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[18057894ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[18058242ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[18058269ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/review-batch-jobs?limit=10:0
+[18058878ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[18058895ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[18059272ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/review-batch-jobs?limit=10:0
+[18059881ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[18061247ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[18062249ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[18062898ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[18063900ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[18065253ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[18066258ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[18067277ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/review-batch-jobs?limit=10:0
+[18067883ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[18067905ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[18068282ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/review-batch-jobs?limit=10:0
+[18068887ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[18068910ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[18069264ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[18070270ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[18072914ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[18073274ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[18073917ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[18074276ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[18076287ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/review-batch-jobs?limit=10:0
+[18076889ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[18077282ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[18077296ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/review-batch-jobs?limit=10:0
+[18077893ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[18077919ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[18078286ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[18078923ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[18081292ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[18082296ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[18082925ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[18083929ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[18085302ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/review-batch-jobs?limit=10:0
+[18085304ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[18085897ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[18086305ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/review-batch-jobs?limit=10:0
+[18086306ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[18086901ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[18087933ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[18088936ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[18089312ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[18090319ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[18092940ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[18093321ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[18093943ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[18094308ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/review-batch-jobs?limit=10:0
+[18094324ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[18094906ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[18095312ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/review-batch-jobs?limit=10:0
+[18095909ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[18097330ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[18097947ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[18098334ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[18098951ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[18101337ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[18102342ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[18102955ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[18103315ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/review-batch-jobs?limit=10:0
+[18103913ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[18103959ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[18104319ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/review-batch-jobs?limit=10:0
+[18104916ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[18105349ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[18106354ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[18107964ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[18108966ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[18109359ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[18110365ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[18112323ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/review-batch-jobs?limit=10:0
+[18112920ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[18112969ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[18113328ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/review-batch-jobs?limit=10:0
+[18113371ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[18113924ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[18113972ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[18114375ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[18117380ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[18117976ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[18118383ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[18118982ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[18121334ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/review-batch-jobs?limit=10:0
+[18121387ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[18121928ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[18122336ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/review-batch-jobs?limit=10:0
+[18122392ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[18122932ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[18122984ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[18123986ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[18125398ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[18126404ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[18127989ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[18128994ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[18129411ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[18130339ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/review-batch-jobs?limit=10:0
+[18130415ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[18130938ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[18131342ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/review-batch-jobs?limit=10:0
+[18131941ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[18132998ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[18133420ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[18134002ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[18134426ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[18137431ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[18138005ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[18138435ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[18139008ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[18139347ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/review-batch-jobs?limit=10:0
+[18139946ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[18140351ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/review-batch-jobs?limit=10:0
+[18140950ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[18141442ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[18142446ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[18143014ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[18144018ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[18145453ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[18146459ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[18148022ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[18148354ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/review-batch-jobs?limit=10:0
+[18148953ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[18149026ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[18149358ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/review-batch-jobs?limit=10:0
+[18149465ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[18149958ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[18150470ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[18153030ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[18153474ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[18154033ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[18154478ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[18157363ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/review-batch-jobs?limit=10:0
+[18157483ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[18157960ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[18158037ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[18158367ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/review-batch-jobs?limit=10:0
+[18158487ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[18158964ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[18159039ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[18161493ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[18162498ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[18163043ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[18164049ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[18165506ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[18166370ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/review-batch-jobs?limit=10:0
+[18166509ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[18166968ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[18167373ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/review-batch-jobs?limit=10:0
+[18167972ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[18168053ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[18169057ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[18169512ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[18170521ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[18173062ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[18173524ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[18174070ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[18174529ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[18175379ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/review-batch-jobs?limit=10:0
+[18175977ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[18176393ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/review-batch-jobs?limit=10:0
+[18176979ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[18177537ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[18178074ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[18178538ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[18179077ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[18181556ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[18182560ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[18183080ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[18184083ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[18184395ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/review-batch-jobs?limit=10:0
+[18184984ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[18185398ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/review-batch-jobs?limit=10:0
+[18185563ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[18185989ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[18186569ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[18188089ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[18189093ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[18189574ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[18190578ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[18193098ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[18193401ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/review-batch-jobs?limit=10:0
+[18193584ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[18193992ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[18194101ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[18194403ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/review-batch-jobs?limit=10:0
+[18194589ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[18194996ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[18197596ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[18198103ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[18198600ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[18199108ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[18201605ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[18202407ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/review-batch-jobs?limit=10:0
+[18202608ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[18203000ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[18203110ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[18203411ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/review-batch-jobs?limit=10:0
+[18204004ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[18204113ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[18205610ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[18206617ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[18208116ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[18209119ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[18209620ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[18210624ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[18211415ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/review-batch-jobs?limit=10:0
+[18212005ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[18212417ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/review-batch-jobs?limit=10:0
+[18215353ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4da9aa86:20102
+[21607230ms] [LOG] [vite] server connection lost. Polling for restart... @ http://127.0.0.1:5173/@vite/client:864
+[21608618ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[21609637ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[21609989ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/review-batch-jobs?limit=10:0
+[21610077ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[21610994ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/review-batch-jobs?limit=10:0
+[21611083ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[21611157ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[21612163ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[21613647ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[21614655ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[21615165ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[21616172ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[21618663ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[21619004ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/review-batch-jobs?limit=10:0
+[21619086ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[21619174ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[21619666ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[21620007ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/review-batch-jobs?limit=10:0
+[21620088ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[21620178ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[21626468ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4da9aa86:20102
+[23382229ms] [LOG] [vite] server connection lost. Polling for restart... @ http://127.0.0.1:5173/@vite/client:864
+[23383937ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[23384756ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[23384942ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[23385760ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[23387946ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[23388042ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[23388601ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/review-batch-jobs?limit=10:0
+[23388952ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[23389044ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/production-next-action?threshold=75:0
+[23389605ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/review-batch-jobs?limit=10:0
+[23389762ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[23390767ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[23391959ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[23392964ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/novels/cmolr8k720000wk8oa4sn455z/continuity-progress?threshold=75:0
+[23394771ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/tasks?limit=80:0
+[23398779ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4da9aa86:20102
+[184877968ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://127.0.0.1:5173/src/pages/worlds/WorldList.tsx?t=1777789748254:0
+[184877968ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://127.0.0.1:5173/src/pages/worlds/WorldWorkspace.tsx?t=1777789748528:0
+[184877968ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://127.0.0.1:5173/src/pages/writingFormula/WritingFormulaPage.tsx?t=1777789748528:0
+[184880556ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4da9aa86:20102
